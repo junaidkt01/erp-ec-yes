@@ -2,7 +2,7 @@ import { Routes } from 'react-router-dom'
 import './App.scss'
 import './components/components.scss'
 import Sidebar from './components/Sidebar'
-import Header from './components/header'
+import Header from './components/Header'
 
 function App() {
 
