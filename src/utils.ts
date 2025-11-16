@@ -6,6 +6,19 @@ export const sidebar_menus = [
         title: "Admin Section",
         icon: "/sidebar_icons/admin_section.svg",
         path: "/admin-section",
+
+        sub_menus: [
+          "Admission Query",
+          "Complaint",
+          "Postal Receive",
+          "Postal Dispatch",
+          "Phone Call Log",
+          "Admin Setup",
+          "ID Card",
+          "Certificate",
+          "Generate Certificate",
+          "Generate ID Card",
+        ],
       },
       {
         title: "Academics",

@@ -1,8 +1,10 @@
-import { Routes } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 import './App.scss'
 import './components/components.scss'
 import Sidebar from './components/Sidebar'
 import Header from './components/Header'
+import Dashboard from './pages/Dashboard/Dashboard'
+import Complaint from './pages/Complaint/Complaint'
 
 function App() {
 
@@ -12,10 +14,16 @@ function App() {
         <div>
           <Sidebar />
         </div>
-        <Header />
+        <div style={{ width: "100%" }} >
+          <Header />
+          <div style={{ height: "calc(100% - 64.5px)", overflowY: "auto" }} >
+            <Routes>
+              <Route path='/dashboard' element={<Dashboard />} />
+              <Route path='/admin-section/complaint' element={<Complaint />} />
+            </Routes>
+          </div>
+        </div>
       </div>
-      <Routes>
-      </Routes>
     </div>
   )
 }
