@@ -7,7 +7,6 @@ import Dashboard from './pages/Dashboard/Dashboard'
 import Complaint from './pages/Complaint/Complaint'
 
 function App() {
-
   return (
     <div className='app' >
       <div style={{ display: "flex", position: "sticky", top: "0" }} >

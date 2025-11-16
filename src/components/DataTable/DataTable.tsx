@@ -1,5 +1,5 @@
 import React from "react";
-import "./datatable.scss";
+import "./DataTable.scss";
 
 export interface Column {
     key: string;
