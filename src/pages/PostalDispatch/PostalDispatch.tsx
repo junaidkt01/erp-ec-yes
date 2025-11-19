@@ -1,14 +1,12 @@
-import { useState } from "react";
-import type { Column } from "../../components/DataTable/DataTable";
+import { useState } from "react"
+import { PrimaryButton, SecondaryButton } from "../../components/Buttons/Buttons"
+import { CustomSelect } from "../../components/InputFields/CustomSelect"
+import { InputField } from "../../components/InputFields/InputFields"
+import PopupScreen from "../../components/PopupScreen/PopupScreen"
 import TableWrapper from "../../components/TableWrapper"
-import "./Complaint.scss"
-import DataTable from "../../components/DataTable/DataTable";
-import PopupScreen from "../../components/PopupScreen/PopupScreen";
-import { InputField } from "../../components/InputFields/InputFields";
-import { CustomSelect } from "../../components/InputFields/CustomSelect";
-import { PrimaryButton, SecondaryButton } from "../../components/Buttons/Buttons";
+import DataTable, { type Column } from "../../components/DataTable/DataTable"
 
-const Complaint = () => {
+const PostalDispatch = () => {
     const [page, setPage] = useState(1);
     const columns: Column[] = [
         { key: "sl", title: "SL" },
@@ -32,14 +30,14 @@ const Complaint = () => {
         },
     ];
 
-    const [isAddComplaint, setIsAddComplaint] = useState(false)
-    const handleAddComplaint = () => {
-        setIsAddComplaint(!isAddComplaint)
+    const [isAddAdmissionQuery, setIsAddAdmissionQuery] = useState(false)
+    const handleAddAdmissionQuery = () => {
+        setIsAddAdmissionQuery(!isAddAdmissionQuery)
     }
     return (
         <div className="page_wrapper">
-            <div className="complaint_page" >
-                {isAddComplaint && <PopupScreen onClick={handleAddComplaint} >
+            <div className="postal_dispatch">
+                {isAddAdmissionQuery && <PopupScreen onClick={handleAddAdmissionQuery} >
                     <div className="popup_body" >
                         <div className="body_section" >
                             <InputField type="text" label="Complaint By" placeHolder="Enter complainant's name" />
@@ -64,8 +62,34 @@ const Complaint = () => {
                         </div>
                     </div>
                 </PopupScreen>}
+                <TableWrapper onClick={handleAddAdmissionQuery} >
+                    <div className="search_screen">
+                        <div className="popup_body" >
+                            <div className="body_section" >
+                                <InputField type="text" label="Complaint By" placeHolder="Enter complainant's name" />
+                                <CustomSelect label="Choose Status" placeholder="Select status" options={["Pending", "Solved", "In Progress", "Closed"]} onChange={(val) => console.log("Selected:", val)} />
+                                <InputField type="text" label="Complaint By" placeHolder="Enter complainant's name" />
+                            </div>
+                            <div className="body_section" >
+                                <InputField type="date" label="Complaint By" placeHolder="Enter complainant's name" />
+                                <InputField type="text" label="Complaint By" placeHolder="Enter complainant's name" />
+                                <InputField type="text" label="Complaint By" placeHolder="Enter complainant's name" />
+                            </div>
+                            <div className="body_section" >
+                                <InputField type="text" label="Complaint By" placeHolder="Enter complainant's name" />
+                            </div>
+                            <div className="body_section" >
+                                <InputField type="text" label="Complaint By" placeHolder="Enter complainant's name" />
+                            </div>
 
-                <TableWrapper onClick={handleAddComplaint} >
+                            <div className="buttons">
+                                <SecondaryButton />
+                                <PrimaryButton />
+                            </div>
+                        </div>
+                    </div>
+                </TableWrapper>
+                <TableWrapper>
                     <DataTable
                         columns={columns}
                         data={sampleData}
@@ -87,4 +111,4 @@ const Complaint = () => {
     )
 }
 
-export default Complaint
+export default PostalDispatch;

@@ -5,6 +5,10 @@ import Sidebar from './components/Sidebar'
 import Header from './components/Header'
 import Dashboard from './pages/Dashboard/Dashboard'
 import Complaint from './pages/Complaint/Complaint'
+import AdmissionQuery from './pages/AdmissionQuery/AdmissionQuery'
+import PostalReceive from './pages/PostalReceive/PostalReceive'
+import PostalDispatch from './pages/PostalDispatch/PostalDispatch'
+import PhoneCallLog from './pages/PhoneCallLog/PhoneCallLog'
 
 function App() {
   return (
@@ -19,6 +23,10 @@ function App() {
             <Routes>
               <Route path='/dashboard' element={<Dashboard />} />
               <Route path='/admin-section/complaint' element={<Complaint />} />
+              <Route path='/admin-section/admission-query' element={<AdmissionQuery />} />
+              <Route path='/admin-section/postal-receive' element={<PostalReceive />} />
+              <Route path='/admin-section/postal-dispatch' element={<PostalDispatch />} />
+              <Route path='/admin-section/phone-call-log' element={<PhoneCallLog />} />
             </Routes>
           </div>
         </div>

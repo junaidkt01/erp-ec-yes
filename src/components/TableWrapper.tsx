@@ -1,7 +1,7 @@
 import { AddButton } from "./Buttons/Buttons"
 import SearchBar from "./SearchBar"
 
-const TableWrapper = ({ children }: { children: any }) => {
+const TableWrapper = ({ children, onClick }: { children: any; onClick?: any }) => {
     return (
         <div className="table_canvas" >
             <div className="table_header" >
@@ -10,7 +10,7 @@ const TableWrapper = ({ children }: { children: any }) => {
                     <SearchBar />
                 </div>
 
-                <AddButton title="Add" />
+                <AddButton onClick={onClick} title="Add" />
             </div>
 
             <div className="table_section" >

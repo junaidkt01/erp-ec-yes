@@ -1,3 +1,15 @@
-.complaint_page {
+.page_wrapper {
+  height: calc(100dvh - 114.5px);
+}
+
+.complaint_page,
+.admission_query,
+.postal_receive,
+.postal_dispatch,
+.phone_call_log {
   padding: 24px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }

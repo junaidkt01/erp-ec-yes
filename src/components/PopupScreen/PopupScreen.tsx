@@ -1,43 +1,51 @@
-import { PrimaryButton, SecondaryButton } from "../Buttons/Buttons";
-import { CustomSelect } from "../InputFields/CustomSelect";
-import { InputField } from "../InputFields/InputFields";
-import "./PopupScreen.scss"
+import { useState } from "react";
+import "./PopupScreen.scss";
 
-const PopupScreen = () => {
+const PopupScreen = ({ children, onClick }: { children: any; onClick?: any }) => {
+    const [closing, setClosing] = useState(false);
+
+    const handleClose = () => {
+        setClosing(true);
+
+
+        setTimeout(() => {
+            onClick && onClick();
+        }, 250);
+    };
+
     return (
-        <div className="popup_screen_overlay" >
-            <div className="popup_screen" >
-                <div className="popup_header" >
+        <div className={`popup_screen_overlay ${closing ? "closing" : ""}`}>
+            <div className={`popup_screen ${closing ? "closing" : ""}`}>
+                <div className="popup_header">
                     <p>Add Complaint</p>
-                    <img src="/svgs/close.svg" alt="" />
+                    <img src="/svgs/close.svg" onClick={handleClose} />
                 </div>
 
-                <div className="popup_body" >
-                    <div className="body_section" >
-                        <InputField type="text" label="Complaint By" placeHolder="Enter complainant's name" />
-                        <CustomSelect label="Choose Status" placeholder="Select status" options={["Pending", "Solved", "In Progress", "Closed"]} onChange={(val) => console.log("Selected:", val)} />
-                        <InputField type="text" label="Complaint By" placeHolder="Enter complainant's name" />
-                    </div>
-                    <div className="body_section" >
-                        <InputField type="date" label="Complaint By" placeHolder="Enter complainant's name" />
-                        <InputField type="text" label="Complaint By" placeHolder="Enter complainant's name" />
-                        <InputField type="text" label="Complaint By" placeHolder="Enter complainant's name" />
-                    </div>
-                    <div className="body_section" >
-                        <InputField type="text" label="Complaint By" placeHolder="Enter complainant's name" />
-                    </div>
-                    <div className="body_section" >
-                        <InputField type="text" label="Complaint By" placeHolder="Enter complainant's name" />
-                    </div>
-
-                    <div className="buttons">
-                        <SecondaryButton />
-                        <PrimaryButton />
-                    </div>
-                </div>
+                {children}
             </div>
         </div>
-    )
-}
+    );
+};
 
 export default PopupScreen;
+
+
+// import "./PopupScreen.scss"
+
+// const PopupScreen = ({ children, onClick }: { children: any; onClick?: any }) => {
+    
+//     return (
+//         <div className="popup_screen_overlay" >
+//             <div className="popup_screen" >
+//                 <div className="popup_header" >
+//                     <p>Add Complaint</p>
+//                     <img src="/svgs/close.svg" alt="" onClick={onClick} />
+//                 </div>
+
+//                 {children}
+//             </div>
+//         </div>
+//     )
+// }
+
+// export default PopupScreen;

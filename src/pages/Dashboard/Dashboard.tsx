@@ -1,14 +1,10 @@
 import { InputField } from "../../components/InputFields/InputFields";
 import { CustomSelect } from "../../components/InputFields/CustomSelect";
-import PopupScreen from "../../components/PopupScreen/PopupScreen";
 
 const Dashboard = () => {
 
   return (
     <div style={{ margin: "20px" }} >
-
-      <PopupScreen />
-
       <InputField label="Complaint By" placeHolder="Enter complainant's name" type="text" />
       <InputField label="Date" placeHolder="Select date" type="date" />
       <CustomSelect
