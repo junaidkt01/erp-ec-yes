@@ -6,7 +6,18 @@
 .admission_query,
 .postal_receive,
 .postal_dispatch,
-.phone_call_log {
+.phone_call_log,
+.id_card_page,
+.certificate_page,
+.generate_certificate_page,
+.generate_id_card_page,
+.optional_subject_page,
+.section_page,
+.class_page,
+.subjects_page,
+assign_class_teacher_page,
+.class_room_page,
+.dashboard {
   padding: 24px;
 
   display: flex;

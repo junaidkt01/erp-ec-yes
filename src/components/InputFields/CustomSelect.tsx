@@ -57,11 +57,30 @@ export const CustomSelect = ({
                                 }`}
                             onClick={() => handleSelect(opt)}
                         >
-                            {opt}
+                            <StatusBar status={opt} />
                         </div>
                     ))}
                 </div>
             )}
         </div>
+    );
+};
+
+const STATUS_COLORS: Record<string, string> = {
+    Active: "#6C757D",
+    "Under Review": "#0069F6",
+    "In Progress": "#00A4BD",
+    Resolved: "#28A745",
+    Closed: "#6F42C1",
+};
+
+export const StatusBar = ({ status }: { status: string }) => {
+    return (
+        <p
+            className="status_bar"
+            style={{ backgroundColor: STATUS_COLORS[status] }}
+        >
+            {status}
+        </p>
     );
 };

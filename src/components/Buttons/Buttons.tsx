@@ -9,10 +9,10 @@ export const AddButton = ({ title, onClick }: { title: string; onClick?: any }) 
     )
 }
 
-export const PrimaryButton = () => {
+export const PrimaryButton = ({ title }: { title: string }) => {
     return (
         <button className="button primary_button" >
-            Search
+            {title}
         </button>
     )
 }

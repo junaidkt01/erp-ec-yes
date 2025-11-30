@@ -24,6 +24,17 @@ export const sidebar_menus = [
         title: "Academics",
         icon: "/sidebar_icons/academics.svg",
         path: "/academics",
+
+        sub_menus: [
+          "Optional Subject",
+          "Section",
+          "Class",
+          "Subjects",
+          "Assign Class Teacher",
+          "Assign Subject",
+          "Class Room ",
+          "Class Routine",
+        ],
       },
       {
         title: "Lesson Plan",

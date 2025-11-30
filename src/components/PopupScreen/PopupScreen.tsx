@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "./PopupScreen.scss";
 
-const PopupScreen = ({ children, onClick }: { children: any; onClick?: any }) => {
+const PopupScreen = ({title, children, onClick }: {title:string; children: any; onClick?: any }) => {
     const [closing, setClosing] = useState(false);
 
     const handleClose = () => {
@@ -17,7 +17,7 @@ const PopupScreen = ({ children, onClick }: { children: any; onClick?: any }) =>
         <div className={`popup_screen_overlay ${closing ? "closing" : ""}`}>
             <div className={`popup_screen ${closing ? "closing" : ""}`}>
                 <div className="popup_header">
-                    <p>Add Complaint</p>
+                    <p>{title}</p>
                     <img src="/svgs/close.svg" onClick={handleClose} />
                 </div>
 

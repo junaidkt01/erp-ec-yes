@@ -1,6 +1,15 @@
 * {
   margin: 0;
   padding: 0;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #e0e0f1;
+    border-radius: 4px;
+  }
 }
 
 body {

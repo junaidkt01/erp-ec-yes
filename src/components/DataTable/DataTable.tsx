@@ -12,6 +12,8 @@ interface DataTableProps {
     currentPage: number;
     totalPages: number;
     onPageChange: (page: number) => void;
+    select?: (row: any) => React.ReactNode;
+    progress?: (row: any) => React.ReactNode;
     actions?: (row: any) => React.ReactNode;
 }
 
@@ -21,6 +23,8 @@ const DataTable: React.FC<DataTableProps> = ({
     currentPage,
     totalPages,
     onPageChange,
+    select,
+    progress,
     actions,
 }) => {
     const getPagination = () => {
@@ -51,9 +55,11 @@ const DataTable: React.FC<DataTableProps> = ({
             <table className="custom_table">
                 <thead>
                     <tr>
+                        {select && <th>Select</th>}
                         {columns.map((c) => (
                             <th key={c.key}>{c.title}</th>
                         ))}
+                        {progress && <th>Progress</th>}
                         {actions && <th>Actions</th>}
                     </tr>
                 </thead>
@@ -61,9 +67,11 @@ const DataTable: React.FC<DataTableProps> = ({
                 <tbody>
                     {data.map((row, i) => (
                         <tr key={i}>
+                            {select && <td>{select(row.progress)}</td>}
                             {columns.map((c) => (
                                 <td key={c.key}>{row[c.key]}</td>
                             ))}
+                            {progress && <td>{progress(row.progress)}</td>}
                             {actions && <td>{actions(row)}</td>}
                         </tr>
                     ))}
@@ -76,7 +84,7 @@ const DataTable: React.FC<DataTableProps> = ({
                 </div>
 
                 <div className="pagination_controls">
-                
+
                     <button
                         className="nav_btn"
                         disabled={currentPage === 1}

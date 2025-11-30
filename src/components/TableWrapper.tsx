@@ -1,16 +1,16 @@
 import { AddButton } from "./Buttons/Buttons"
 import SearchBar from "./SearchBar"
 
-const TableWrapper = ({ children, onClick }: { children: any; onClick?: any }) => {
+const TableWrapper = ({ isSearchBar, isAddButton, title, children, onClick }: { isAddButton?: boolean; isSearchBar?: boolean; title: string, children: any; onClick?: any }) => {
     return (
         <div className="table_canvas" >
             <div className="table_header" >
                 <div className="table_title" >
-                    <p>Postal Receive</p>
-                    <SearchBar />
+                    <p>{title}</p>
+                    {isSearchBar && <SearchBar placeHolder={"Search"} />}
                 </div>
 
-                <AddButton onClick={onClick} title="Add" />
+                {isAddButton && <AddButton onClick={onClick} title={title === "ID Card" ? "Create New ID Card" : title === "Certificate" ? "Create Certificate" : "Add"} />}
             </div>
 
             <div className="table_section" >
