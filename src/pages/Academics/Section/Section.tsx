@@ -28,8 +28,11 @@ const Section = () => {
             <div className="section_page">
                 {isAddAdmissionQuery && <PopupScreen title="Add Section" onClick={handleAddAdmissionQuery} >
                     <div className="popup_body" >
-                        <div className="body_section" >
-                            <InputField type="text" label="Name" placeHolder="Enter name" />
+                        <div className="fields_wrapper" >
+
+                            <div className="body_section" >
+                                <InputField type="text" label="Name" placeHolder="Enter name" />
+                            </div>
                         </div>
 
                         <div className="buttons">

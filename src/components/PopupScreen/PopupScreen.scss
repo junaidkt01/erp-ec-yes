@@ -19,6 +19,8 @@
   animation: fadeIn 0.2s ease-out forwards;
   .popup_screen {
     width: 65%;
+    max-height: 95%;
+    overflow: auto;
     background-color: #ffffff;
 
     border-radius: 24px;
@@ -27,6 +29,9 @@
     animation: popupScale 0.25s ease-out forwards;
     .popup_header {
       padding: 24px;
+      position: sticky;
+      top: 0;
+      background-color: #ffffff;
 
       display: flex;
       align-items: center;
@@ -51,26 +56,29 @@
     .popup_body {
       padding: 24px;
 
-      display: grid;
-      gap: 16px;
-
-      .body_section {
-        display: flex;
+      .fields_wrapper {
+        display: grid;
         gap: 16px;
+
+        .body_section {
+          display: flex;
+          gap: 16px;
+        }
       }
     }
   }
 
   .buttons {
-    position: relative;
-    bottom: 0;
-    right: 0;
+    position: sticky;
+    bottom: 24px;
+    // right: 0;
+    background-color: #ffffff;
 
     display: flex;
     justify-content: end;
     gap: 16px;
 
-    margin-top: 16px;
+    padding-top: 16px;
   }
 }
 

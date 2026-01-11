@@ -32,8 +32,10 @@ const Class = () => {
             <div className="class_page">
                 {isAddAdmissionQuery && <PopupScreen title="Add Class" onClick={handleAddAdmissionQuery} >
                     <div className="popup_body" >
-                        <div className="body_section" >
-                            <InputField type="text" label="Name" placeHolder="Enter name" />
+                        <div className="fields_wrapper" >
+                            <div className="body_section" >
+                                <InputField type="text" label="Name" placeHolder="Enter name" />
+                            </div>
                         </div>
 
                         <div className="body_section" >

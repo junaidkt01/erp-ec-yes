@@ -37,6 +37,18 @@ export const sidebar_menus = [
         ],
       },
       {
+        title: "Study Material",
+        icon: "/sidebar_icons/study_material.svg",
+        path: "/study-material",
+
+        sub_menus: [
+          "Upload Content",
+          "Assignment",
+          "Syllabus",
+          "Other Downloads",
+        ],
+      },
+      {
         title: "Lesson Plan",
         icon: "/sidebar_icons/lesson_plan.svg",
         path: "/lesson-plan",

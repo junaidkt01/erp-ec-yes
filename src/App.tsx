@@ -4,6 +4,8 @@ import './components/components.scss'
 import Sidebar from './components/Sidebar'
 import Header from './components/Header'
 import Dashboard from './pages/Dashboard/Dashboard'
+
+{/* Admin Section Routes */ }
 import Complaint from './pages/AdminSection/Complaint/Complaint'
 import AdmissionQuery from './pages/AdminSection/AdmissionQuery/AdmissionQuery'
 import PostalReceive from './pages/AdminSection/PostalReceive/PostalReceive'
@@ -13,12 +15,20 @@ import IDCard from './pages/AdminSection/IDCard/IDCard'
 import Certificate from './pages/AdminSection/Certificate/Certificate'
 import GenerateCertificate from './pages/AdminSection/GenerateCertificate/GenerateCertificate'
 import GenerateIDCard from './pages/AdminSection/GenerateIDCard/GenerateIDCard'
+
+{/* Academics Routes */ }
 import OptionalSubject from './pages/Academics/OptionalSubject/OptionalSubject'
 import Section from './pages/Academics/Section/Section'
 import Class from './pages/Academics/Class/Class'
 import Subjects from './pages/Academics/Subjects/Subjects'
 import AssignClassTeacher from './pages/Academics/AssignClassTeacher/AssignClassTeacher'
 import ClassRoom from './pages/Academics/ClassRoom/ClassRoom'
+
+{/* Study Material Routes */ }
+import UploadContent from './pages/StudyMaterial/UploadContent/UploadContent'
+import Assignment from './pages/StudyMaterial/Assignment/Assignment'
+import Syllabus from './pages/StudyMaterial/Syllabus/Syllabus'
+import OtherDownloads from './pages/StudyMaterial/OtherDownloads/OtherDownloads'
 
 function App() {
   return (
@@ -51,6 +61,13 @@ function App() {
               <Route path='/Academics/subjects' element={<Subjects />} />
               <Route path='/Academics/assign-class-teacher' element={<AssignClassTeacher />} />
               <Route path='/Academics/class-room' element={<ClassRoom />} />
+
+              {/* Study Material Routes */}
+              <Route path='/study-material/upload-content' element={<UploadContent />} />
+              <Route path='/study-material/assignment' element={<Assignment />} />
+              <Route path='/study-material/syllabus' element={<Syllabus />} />
+              <Route path='/study-material/other-downloads' element={<OtherDownloads />} />
+
             </Routes>
           </div>
         </div>

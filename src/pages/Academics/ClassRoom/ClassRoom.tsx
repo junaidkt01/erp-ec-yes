@@ -30,9 +30,12 @@ const ClassRoom = () => {
             <div className="class_room_page">
                 {isAddAdmissionQuery && <PopupScreen title="Add Class Room" onClick={handleAddAdmissionQuery} >
                     <div className="popup_body" >
-                        <div className="body_section" >
-                            <InputField type="text" label="Room Number" placeHolder="Enter room number" />
-                            <InputField type="text" label="Capacity" placeHolder="Enter capacity" />
+                        <div className="fields_wrapper" >
+
+                            <div className="body_section" >
+                                <InputField type="text" label="Room Number" placeHolder="Enter room number" />
+                                <InputField type="text" label="Capacity" placeHolder="Enter capacity" />
+                            </div>
                         </div>
 
                         <div className="buttons">

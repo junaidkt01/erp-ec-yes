@@ -32,20 +32,23 @@ const Subjects = () => {
             <div className="subjects_page">
                 {isAddAdmissionQuery && <PopupScreen title="Add Subject" onClick={handleAddAdmissionQuery} >
                     <div className="popup_body" >
-                        <div className="body_section" >
-                            <InputField type="text" label="Subject Name" placeHolder="Enter subject name" />
-                            <InputField type="text" label="Subject Code" placeHolder="Enter subject code" />
-                        </div>
+                        <div className="fields_wrapper" >
 
-                        <div className="body_section" >
-                            <div>
+                            <div className="body_section" >
+                                <InputField type="text" label="Subject Name" placeHolder="Enter subject name" />
+                                <InputField type="text" label="Subject Code" placeHolder="Enter subject code" />
+                            </div>
+
+                            <div className="body_section" >
                                 <div>
-                                    <input type="radio" name="" id="" />
-                                    <label htmlFor="">Theory</label>
-                                </div>
-                                <div>
-                                    <input type="radio" name="" id="" />
-                                    <label htmlFor="">Practical</label>
+                                    <div>
+                                        <input type="radio" name="" id="" />
+                                        <label htmlFor="">Theory</label>
+                                    </div>
+                                    <div>
+                                        <input type="radio" name="" id="" />
+                                        <label htmlFor="">Practical</label>
+                                    </div>
                                 </div>
                             </div>
                         </div>

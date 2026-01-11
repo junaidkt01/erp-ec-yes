@@ -4,6 +4,7 @@ import { InputField } from "../../../components/InputFields/InputFields"
 import PopupScreen from "../../../components/PopupScreen/PopupScreen"
 import TableWrapper from "../../../components/TableWrapper"
 import DataTable, { type Column } from "../../../components/DataTable/DataTable"
+import InputFiles from "../../../components/InputFields/InputFiles"
 
 const PostalReceive = () => {
     const [page, setPage] = useState(1);
@@ -36,22 +37,25 @@ const PostalReceive = () => {
             <div className="postal_receive">
                 {isAddAdmissionQuery && <PopupScreen title="Add Postal Receive" onClick={handleAddAdmissionQuery} >
                     <div className="popup_body" >
-                        <div className="body_section" >
-                            <InputField type="text" label="From Title" placeHolder="Enter from title" />
-                            <InputField type="text" label="Reference No" placeHolder="Enter refrence no" />
-                        </div>
-                        <div className="body_section" >
-                            <InputField type="text" label="Address" placeHolder="Enter address" />
-                        </div>
-                        <div className="body_section" >
-                            <InputField type="text" label="Note" placeHolder="Enter note" />
-                        </div>
-                        <div className="body_section" >
-                            <InputField type="text" label="To Title" placeHolder="Enter to title" />
-                            <InputField type="date" label="Date" placeHolder="Select date" />
-                        </div>
-                        <div className="body_section" >
-                            <input type="file" name="" id="" />
+                        <div className="fields_wrapper" >
+
+                            <div className="body_section" >
+                                <InputField type="text" label="From Title" placeHolder="Enter from title" />
+                                <InputField type="text" label="Reference No" placeHolder="Enter refrence no" />
+                            </div>
+                            <div className="body_section" >
+                                <InputField type="text" label="Address" placeHolder="Enter address" />
+                            </div>
+                            <div className="body_section" >
+                                <InputField type="text" label="Note" placeHolder="Enter note" />
+                            </div>
+                            <div className="body_section" >
+                                <InputField type="text" label="To Title" placeHolder="Enter to title" />
+                                <InputField type="date" label="Date" placeHolder="Select date" />
+                            </div>
+                            <div className="body_section" >
+                                <InputFiles />
+                            </div>
                         </div>
 
                         <div className="buttons">

@@ -37,27 +37,29 @@ const PhoneCallLog = () => {
             <div className="phone_call_log">
                 {isAddAdmissionQuery && <PopupScreen title="Add Phone Call Log" onClick={handleAddAdmissionQuery} >
                     <div className="popup_body" >
-                        <div className="body_section" >
-                            <InputField type="text" label="Name" placeHolder="Enter name" />
-                            <InputField type="text" label="Phone" placeHolder="Enter phone" />
-                        </div>
-                        <div className="body_section" >
-                            <InputField type="date" label="Date" placeHolder="Enter complainant's name" />
-                            <InputField type="date" label="Follow Up date" placeHolder="Enter complainant's name" />
-                        </div>
-                        <div className="body_section" >
-                            <InputField type="text" label="Call Duration" placeHolder="Enter call duration" />
-                        </div>
-                        <div className="body_section" >
-                            <InputField type="text" label="Description" placeHolder="Enter description" />
-                        </div>
-
-                        <div>
-                            <p>Type</p>
+                        <div className="fields_wrapper" >
+                            <div className="body_section" >
+                                <InputField type="text" label="Name" placeHolder="Enter name" />
+                                <InputField type="text" label="Phone" placeHolder="Enter phone" />
+                            </div>
+                            <div className="body_section" >
+                                <InputField type="date" label="Date" placeHolder="Enter complainant's name" />
+                                <InputField type="date" label="Follow Up date" placeHolder="Enter complainant's name" />
+                            </div>
+                            <div className="body_section" >
+                                <InputField type="text" label="Call Duration" placeHolder="Enter call duration" />
+                            </div>
+                            <div className="body_section" >
+                                <InputField type="text" label="Description" placeHolder="Enter description" />
+                            </div>
 
                             <div>
-                                <input type="radio" name="" id="" />
-                                <input type="radio" name="" id="" />
+                                <p>Type</p>
+
+                                <div>
+                                    <input type="radio" name="" id="" />
+                                    <input type="radio" name="" id="" />
+                                </div>
                             </div>
                         </div>
 

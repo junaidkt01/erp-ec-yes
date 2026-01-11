@@ -77,25 +77,28 @@ const Complaint = () => {
             <div className="complaint_page" >
                 {isAddComplaint && <PopupScreen title="Add Complaint" onClick={handleAddComplaint} >
                     <div className="popup_body" >
-                        <div className="body_section" >
-                            <InputField type="text" label="Complaint By" placeHolder="Enter complainant's name" />
-                            <CustomSelect label="Complaint Type" placeholder="Select complaint type" options={["Active", "Under Review", "In Progress", "Resolved", "Closed"]} onChange={(val) => console.log("Selected:", val)} />
-                            <CustomSelect label="Complaint Source" placeholder="Select complaint source" options={["Active", "Under Review", "In Progress", "Resolved", "Closed"]} onChange={(val) => console.log("Selected:", val)} />
-                        </div>
-                        <div className="body_section" >
-                            <InputField type="text" label="Phone" placeHolder="Enter phone number" />
-                            <InputField type="date" label="Date" placeHolder="Select date" />
-                            <CustomSelect label="Actions Taken" placeholder="Enter actions taken" options={["Active", "Under Review", "In Progress", "Resolved", "Closed"]} onChange={(val) => console.log("Selected:", val)} />
-                        </div>
-                        <div className="body_section" >
-                            <InputField type="text" label="Address" placeHolder="Enter address" />
-                        </div>
-                        <div className="body_section" >
-                            <InputField type="text" label="Discription" placeHolder="Enter discription" />
-                        </div>
+                        <div className="fields_wrapper" >
 
-                        <div className="body_section" >
-                            <input type="file" name="" id="" />
+                            <div className="body_section" >
+                                <InputField type="text" label="Complaint By" placeHolder="Enter complainant's name" />
+                                <CustomSelect label="Complaint Type" placeholder="Select complaint type" options={["Active", "Under Review", "In Progress", "Resolved", "Closed"]} onChange={(val) => console.log("Selected:", val)} />
+                                <CustomSelect label="Complaint Source" placeholder="Select complaint source" options={["Active", "Under Review", "In Progress", "Resolved", "Closed"]} onChange={(val) => console.log("Selected:", val)} />
+                            </div>
+                            <div className="body_section" >
+                                <InputField type="text" label="Phone" placeHolder="Enter phone number" />
+                                <InputField type="date" label="Date" placeHolder="Select date" />
+                                <CustomSelect label="Actions Taken" placeholder="Enter actions taken" options={["Active", "Under Review", "In Progress", "Resolved", "Closed"]} onChange={(val) => console.log("Selected:", val)} />
+                            </div>
+                            <div className="body_section" >
+                                <InputField type="text" label="Address" placeHolder="Enter address" />
+                            </div>
+                            <div className="body_section" >
+                                <InputField type="text" label="Discription" placeHolder="Enter discription" />
+                            </div>
+
+                            <div className="body_section" >
+                                <input type="file" name="" id="" />
+                            </div>
                         </div>
 
                         <div className="buttons">

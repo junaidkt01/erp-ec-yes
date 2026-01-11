@@ -66,13 +66,15 @@ const AdmissionQuery = () => {
                     <div className="search_screen">
                         <p className="search_screen_title" >Select Criteria</p>
                         <div className="popup_body" >
-                            <div className="body_section" >
-                                <InputField type="date" label="Date From" placeHolder="Select date" />
-                                <InputField type="date" label="Date To" placeHolder="Select date" />
-                            </div>
-                            <div className="body_section" >
-                                <CustomSelect label="Choose Enquiry Source" placeholder="Select source" options={["Pending", "Solved", "In Progress", "Closed"]} onChange={(val) => console.log("Selected:", val)} />
-                                <CustomSelect label="Choose Status" placeholder="Select status" options={["Pending", "Solved", "In Progress", "Closed"]} onChange={(val) => console.log("Selected:", val)} />
+                            <div className="fields_wrapper" >
+                                <div className="body_section" >
+                                    <InputField type="date" label="Date From" placeHolder="Select date" />
+                                    <InputField type="date" label="Date To" placeHolder="Select date" />
+                                </div>
+                                <div className="body_section" >
+                                    <CustomSelect label="Choose Enquiry Source" placeholder="Select source" options={["Pending", "Solved", "In Progress", "Closed"]} onChange={(val) => console.log("Selected:", val)} />
+                                    <CustomSelect label="Choose Status" placeholder="Select status" options={["Pending", "Solved", "In Progress", "Closed"]} onChange={(val) => console.log("Selected:", val)} />
+                                </div>
                             </div>
 
                             <div className="buttons">
