@@ -62,6 +62,13 @@ export const sidebar_menus = [
         title: "Download Center",
         icon: "/sidebar_icons/download_center.svg",
         path: "/download-center",
+
+        sub_menus: [
+          "Content Type",
+          "Content List",
+          "Shared Content List",
+          "Video List",
+        ],
       },
     ],
   },
@@ -72,11 +79,37 @@ export const sidebar_menus = [
         title: "Student Info",
         icon: "/sidebar_icons/student_info.svg",
         path: "/student-info",
+
+        sub_menus: [
+          "Student Category",
+          "Add Student",
+          "Student List",
+          "Multi Class Student",
+          "Delete Student Record",
+          "Unassigned Student",
+          "Student Attendance",
+          "Student Group",
+          "Student Promote",
+          "Disabled Students",
+          "Subject Wise Attendance",
+          "Student Export",
+          "SMS Sending Time",
+          "Student Settings",
+        ],
       },
       {
         title: "Behaviour Records",
         icon: "/sidebar_icons/behaviour_records.svg",
         path: "/behaviour-records",
+
+        sub_menus: [
+          "Incidents",
+          "Assign Incident",
+          "Student Incident Report",
+          "Behaviour Report",
+          "Incident Wise report",
+          "Settings",
+        ],
       },
       {
         title: "Fees",
