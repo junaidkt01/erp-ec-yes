@@ -11,7 +11,7 @@ type LoginPayload = {
 export const useLogin = (options?: any) => {
   return useMutation({
     mutationFn: async (data: LoginPayload) => {
-      const res = await axiosInstance.post(`${auth.login}`, data);
+      const res = await axiosInstance.post("/login", data);
       return res.data;
     },
 

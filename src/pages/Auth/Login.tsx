@@ -4,19 +4,18 @@ import { PrimaryButton } from "../../components/Buttons/Buttons";
 import "./Login.scss";
 import { useNavigate } from "react-router-dom";
 import { useLogin } from "../../auth/useLogin";
+import { loginSchema } from "../../validations/authSchema";
+import { validate } from "../../utils/validate";
 
 const Login: React.FC = () => {
     const navigate = useNavigate();
 
+    const [errors, setErrors] = useState<any>({});
+    console.log("errors: ", errors)
     const [form, setForm] = useState({
         email: "",
         password: "",
     });
-
-    console.log(form)
-    const isFormValid =
-        form.email.trim().length > 0 &&
-        form.password.trim().length > 0;
 
     const { mutateAsync: login, isPending, isError, error } = useLogin();
 
@@ -31,13 +30,21 @@ const Login: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!isFormValid) return;
+
+        const { success, errors } = validate(loginSchema, form);
+
+        if (!success) {
+            setErrors(errors);
+            return;
+        }
+
 
         await login(form, {
             onSuccess: (res: any) => {
-                console.log("login success: ", res)
-                localStorage.setItem("auth", res.data);
-                navigate("/dashboard", { replace: true });
+                console.log("login success: ", res.data)
+                localStorage.setItem("auth", JSON.stringify(res.data));
+                navigate("/dashboard");
+                // navigate("/dashboard", { replace: true });
             },
             onError: (res: any) => {
                 console.log("login error: ", res)
@@ -50,6 +57,7 @@ const Login: React.FC = () => {
             <div className="login_form">
                 <form onSubmit={handleSubmit}>
                     <InputField
+                        error={errors.email}
                         value={form.email}
                         onChange={handleChange("email")}
                         label="Email"
@@ -58,6 +66,7 @@ const Login: React.FC = () => {
                     />
 
                     <InputField
+                        error={errors.password}
                         value={form.password}
                         onChange={handleChange("password")}
                         label="Password"
@@ -67,7 +76,7 @@ const Login: React.FC = () => {
 
                     <PrimaryButton
                         type="submit"
-                        disabled={!isFormValid || isPending}
+                        disabled={!errors || isPending}
                         title={isPending ? "Logging in..." : "Login"}
                     />
 
