@@ -5,9 +5,12 @@ export const useAuth = () => {
   return useQuery({
     queryKey: ["auth"],
     queryFn: async () => {
-      const res = await axiosInstance.get("/api/me");
+      const res = await axiosInstance.get("/me");
       return res.data;
     },
     retry: false,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 };
