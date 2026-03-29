@@ -2,7 +2,7 @@ import { useState } from "react";
 import { DatePicker } from "./DatePicker";
 import "./inputField.scss";
 
-export const InputField = ({ type, placeHolder, label }: { type: string; placeHolder: string; label: string; }) => {
+export const InputField = ({ onChange, value, type, placeHolder, label, required }: { onChange?: (e: any) => void; value?: string; type: string; placeHolder: string; label: string; required?: boolean; }) => {
     const [dateValue, setDateValue] = useState(null);
 
     return (
@@ -12,7 +12,7 @@ export const InputField = ({ type, placeHolder, label }: { type: string; placeHo
             {type === "date" ? (
                 <DatePicker value={dateValue} onChange={setDateValue} />
             ) : (
-                <input type={type} placeholder={placeHolder} />
+                <input required={required} type={type} placeholder={placeHolder} onChange={onChange} value={value} />
             )}
         </div>
     );

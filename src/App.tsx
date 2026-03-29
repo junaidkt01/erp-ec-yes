@@ -44,22 +44,32 @@ import DisabledStudents from './pages/StudentInfo/DisabledStudents/DisabledStude
 import StudentAttendance from './pages/StudentInfo/StudentAttendance/StudentAttendance'
 import Incidents from './pages/BehaviourRecords/Incidents/Incidents'
 import AssignIncident from './pages/BehaviourRecords/AssignIncident/AssignIncident'
+// import ProtectedRoute from './api/ProtectedRoute'
+import Login from './pages/Auth/Login'
+import { ProtectedRoute } from './api/ProtectedRoute'
 
 function App() {
   return (
     <div className='app' >
+      <Routes>
+        <Route path="/" element={<Login />} />
+      </Routes>
       <div style={{ display: "flex", position: "sticky", top: "0" }} >
-        <div>
-          <Sidebar />
-        </div>
+        <ProtectedRoute>
+          <div>
+            <Sidebar />
+          </div>
+        </ProtectedRoute>
         <div style={{ width: "100%" }} >
-          <Header />
+          <ProtectedRoute>
+            <Header />
+          </ProtectedRoute>
           <div style={{ height: "calc(100% - 64.5px)", overflowY: "auto" }} >
             <Routes>
-              <Route path='/dashboard' element={<Dashboard />} />
+              <Route path='/dashboard' element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
 
               {/* 1. Admin Section Routes */}
-              <Route path='/admin-section/complaint' element={<Complaint />} />
+              <Route path='/admin-section/complaint' element={<ProtectedRoute><Complaint /></ProtectedRoute>} />
               <Route path='/admin-section/admission-query' element={<AdmissionQuery />} />
               <Route path='/admin-section/postal-receive' element={<PostalReceive />} />
               <Route path='/admin-section/postal-dispatch' element={<PostalDispatch />} />
@@ -112,8 +122,6 @@ function App() {
               <Route path='/behaviour-records/behaviour-report' element={<div>Behaviour Report</div>} />
               <Route path='/behaviour-records/incident-wise-report' element={<div>Incident Wise report</div>} />
               <Route path='/behaviour-records/settings' element={<div>Settings</div>} />
-
-
             </Routes>
           </div>
         </div>

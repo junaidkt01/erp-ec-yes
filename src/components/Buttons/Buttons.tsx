@@ -18,9 +18,9 @@ export const GlobalButton = ({ title, onClick, icon, bg, border, color }: { titl
     )
 }
 
-export const PrimaryButton = ({ title }: { title: string }) => {
+export const PrimaryButton = ({ title, type }: { title: string; type?: "button" | "submit" | "reset"; }) => {
     return (
-        <button className="button primary_button" >
+        <button className="button primary_button" type={type} >
             {title}
         </button>
     )
