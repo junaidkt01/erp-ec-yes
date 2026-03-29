@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import axiosInstance from "../api/axiosInstance";
+import { auth } from "../api/endpoints";
 // import { api } from "../api/axiosInstance";
 
 type LoginPayload = {

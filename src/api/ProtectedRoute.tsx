@@ -7,9 +7,9 @@ export const ProtectedRoute = ({ children }) => {
 
   if (isLoading) return <div>Checking auth...</div>;
 
-  if (isError || !data) {
-    return <Navigate to="/" replace />;
-  }
+  // if (isError || !data) {
+  //   return <Navigate to="/" replace />;
+  // }
 
   return children;
 };
