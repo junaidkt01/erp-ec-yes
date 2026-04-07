@@ -242,7 +242,7 @@ const Sidebar: React.FC = () => {
 
 export default Sidebar;
 
-function SvgIcon({ src, className }: { src: string; className?: string }) {
+export function SvgIcon({ src, className }: { src: string; className?: string }) {
     const [svg, setSvg] = useState("");
 
     useEffect(() => {

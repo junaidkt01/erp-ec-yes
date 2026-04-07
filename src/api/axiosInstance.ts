@@ -8,14 +8,15 @@
 // });
 
 import axios, { AxiosError } from "axios";
+import { API_URL } from "./endpoints";
 
 const axiosInstance = axios.create({
-  baseURL: "https://dev.cyberduce.com/api",
+  baseURL: API_URL,
 });
+// baseURL: "https://dev.cyberduce.com/api",
 
 axiosInstance.interceptors.request.use((config) => {
-  const stored = localStorage.getItem("auth");
-  console.log("stored: ", JSON.parse(stored));
+  const stored: any = localStorage.getItem("auth");
   if (JSON.parse(stored)) {
     const { token } = JSON.parse(stored) as { token: string };
     if (token) {

@@ -48,22 +48,17 @@ import AssignIncident from './pages/BehaviourRecords/AssignIncident/AssignIncide
 import Login from './pages/Auth/Login'
 import { ProtectedRoute } from './api/ProtectedRoute'
 
+
 function App() {
   return (
     <div className='app'>
-      <Routes>
-        <Route path="/" element={<Login />} />
-      </Routes>
+      <Routes><Route path="/" element={<Login />} /></Routes>
       <div style={{ display: "flex", position: "sticky", top: "0" }} >
         <ProtectedRoute>
-          <div>
-            <Sidebar />
-          </div>
+          <div><Sidebar /></div>
         </ProtectedRoute>
         <div style={{ width: "100%" }} >
-          <ProtectedRoute>
-            <Header />
-          </ProtectedRoute>
+          <ProtectedRoute><Header /></ProtectedRoute>
           <div style={{ height: "calc(100% - 64.5px)", overflowY: "auto" }} >
             <Routes>
               <Route path='/dashboard' element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
@@ -130,4 +125,4 @@ function App() {
   )
 }
 
-export default App
+export default App;

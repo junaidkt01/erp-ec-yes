@@ -2,7 +2,7 @@ import { useState } from "react";
 import { DatePicker } from "./DatePicker";
 import "./inputField.scss";
 
-export const InputField = ({ onChange, value, type, placeHolder, label, required, error }: { onChange?: (e: any) => void; value?: string; type: string; placeHolder: string; label: string; required?: boolean; error: string; }) => {
+export const InputField = ({ onChange, value, type, placeHolder, label, required, error }: { onChange?: (e: any) => void; value?: string; type: string; placeHolder: string; label: string; required?: boolean; error?: string; }) => {
     const [dateValue, setDateValue] = useState(null);
 
     return (

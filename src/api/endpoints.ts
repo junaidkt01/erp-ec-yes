@@ -1,5 +1,7 @@
 // src/api/endpoints.ts
 
+export const API_URL = (window as any).APP_CONFIG.API_URL;
+
 export const auth = { login: "/login", logout:"/logout", me:"/me" };
 
 export const academicYear = { academic_years: "/academic-years"};

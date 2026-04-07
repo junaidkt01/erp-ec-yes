@@ -18,7 +18,7 @@ export const GlobalButton = ({ title, onClick, icon, bg, border, color }: { titl
     )
 }
 
-export const PrimaryButton = ({ title, type, onClick }: { title: string; type?: "button" | "submit" | "reset"; onClick: any }) => {
+export const PrimaryButton = ({ title, type, onClick }: { title: string; type?: "button" | "submit" | "reset"; onClick?: any }) => {
     return (
         <button className="button primary_button" onClick={onClick} type={type} >
             {title}
