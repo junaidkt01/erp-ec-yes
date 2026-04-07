@@ -1,11 +1,11 @@
-import { api } from "./axiosInstance";
+import axiosInstance from "./axiosInstance";
 
-api.interceptors.response.use(
+axiosInstance.interceptors.response.use(
   (res) => res,
   (error) => {
-    if (error.response?.status === 401) {
-      window.location.href = "/login";
-    }
+    // if (error.response?.status === 401) {
+    //   window.location.href = "/login";
+    // }
 
     return Promise.reject(error);
   },
