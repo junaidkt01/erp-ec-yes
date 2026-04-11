@@ -1,6 +1,6 @@
 // src/api/endpoints.ts
 
-export const API_URL = (window as any).APP_CONFIG.API_URL;
+export const API_URL =  "https://dev.cyberduce.com/api";
 
 export const auth = { login: "/login", logout:"/logout", me:"/me" };
 
