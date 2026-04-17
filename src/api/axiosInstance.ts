@@ -12,6 +12,9 @@ import { API_URL } from "./endpoints";
 
 const axiosInstance = axios.create({
   baseURL: API_URL,
+  // headers: {
+  //   Accept: "multipart/form-data",
+  // },
 });
 // baseURL: "https://dev.cyberduce.com/api",
 

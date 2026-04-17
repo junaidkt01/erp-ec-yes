@@ -10,7 +10,7 @@ const TableWrapper = ({ isSearchBar, isAddButton, title, children, onClick }: { 
                     {isSearchBar && <SearchBar placeHolder={"Search"} />}
                 </div>
 
-                {isAddButton && <AddButton onClick={onClick} title={title === "ID Card" ? "Create New ID Card" : title === "Certificate" ? "Create Certificate" : title === "Upload Content List" ? "Upload Content" : title === "Content Type List" ? "Add Content Type" : "Add" } />}
+                {isAddButton && <AddButton onClick={onClick} title={title === "ID Card" ? "Create New ID Card" : title === "Certificate" ? "Create Certificate" : title === "Upload Content List" ? "Upload Content" : title === "Content Type List" ? "Add Content Type" : title === "Add Student" ? "Import Student" : "Add"} />}
             </div>
 
             <div className="table_section" >

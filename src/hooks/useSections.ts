@@ -23,7 +23,7 @@ interface SectionsResponse {
   data: SectionItem[];
 }
 
-export const useFetchAllStudentClasses = () => {
+export const useFetchAllSections = () => {
   return useQuery<SectionItem[]>({
     queryKey: SECTIONS_KEY,
     queryFn: async () => {

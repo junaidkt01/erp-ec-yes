@@ -43,9 +43,9 @@ export const DatePicker = ({ value, onChange }: any) => {
     };
 
     return (
-        <div className="date_picker_container">
+        <div className="date_picker_container" >
             <div className="date_input_display" onClick={() => setShow((prev) => !prev)}>
-                {value ? value.toLocaleDateString("en-GB") : "Select date"}
+                {value ? value?.toLocaleDateString("en-GB") : "Select date"}
 
                 {show ?
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

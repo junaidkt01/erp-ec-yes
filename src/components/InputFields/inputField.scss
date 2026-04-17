@@ -199,56 +199,63 @@
 
 // InputFiles.tsx
 
-.input-file {
+.input-file-wrapper {
   width: 100%;
-  border: 2px dashed #d9d9e3;
-  border-radius: 12px;
-  padding: 28px;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  background: #ffffff;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
+  display: grid;
+  gap: 8px;
 
-  &:hover {
-    border-color: #5b61ff;
-    background: #f8f9ff;
-  }
+  .input-file {
+    // width: 100%;
+    border: 2px dashed #d9d9e3;
+    border-radius: 12px;
+    padding: 28px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    background: #ffffff;
 
-  &.dragging {
-    border-color: #5b61ff;
-    background: #f2f3ff;
-  }
-
-  .content {
     display: flex;
-    flex-direction: column;
-    gap: 8px;
     align-items: center;
-  }
+    justify-content: center;
+    text-align: center;
 
-  .icon {
-    margin-bottom: 6px;
-  }
-
-  .title {
-    font-size: 15px;
-    font-weight: 500;
-    color: #111;
-
-    .choose {
-      color: #5b61ff;
-      font-weight: 600;
-      margin-left: 4px;
+    &:hover {
+      border-color: #5b61ff;
+      background: #f8f9ff;
     }
-  }
 
-  .sub {
-    font-size: 12px;
-    color: #8a8fa3;
+    &.dragging {
+      border-color: #5b61ff;
+      background: #f2f3ff;
+    }
+
+    .content {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .icon {
+      margin-bottom: 6px;
+    }
+
+    .title {
+      font-size: 15px;
+      font-weight: 500;
+      color: #111;
+
+      .choose {
+        color: #5b61ff;
+        font-weight: 600;
+        margin-left: 4px;
+      }
+    }
+
+    .sub {
+      font-size: 12px;
+      color: #8a8fa3;
+    }
   }
 }
 

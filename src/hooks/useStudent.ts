@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "../api/axiosInstance";
-import {  student } from "../api/endpoints";
+import { student } from "../api/endpoints";
 
 const STUDENTS_KEY = ["students"];
 
@@ -35,10 +35,10 @@ interface Pagination<T> {
   total: number;
   per_page: number;
   last_page: number;
-};
+}
 
 interface StudentsResponse {
-data: Pagination<Student>;
+  data: Pagination<Student>;
 }
 
 // Fetch All Students
@@ -51,21 +51,83 @@ export const useFetchAllStudents = (page: number = 1) => {
       );
       return res.data.data;
     },
-    
- placeholderData: (previousData) => previousData, //keep previous data, show skeleton data,show partial data
+
+    placeholderData: (previousData) => previousData, //keep previous data, show skeleton data,show partial data
   });
 };
 
 // Add Student  api
 
-interface CreateStudentPayload {
+// interface CreateStudentPayload {
+//   first_name: string;
+//   last_name: string;
+//   phone: string;
+//   email: string;
+//   class_id: number;
+//   section_id: number;
+// }
+
+interface EmergencyContact {
+  name: string;
+  relation: string;
+  phone: string;
+}
+
+interface StudentDocument {
+  id?: number;
+  title: string;
+  file: string;
+}
+
+export interface CreateStudentPayload {
+  // Basic Info (likely required)
   first_name: string;
   last_name: string;
   phone: string;
   email: string;
   class_id: number;
   section_id: number;
-};
+
+  // Common required in many APIs (adjust if needed)
+  admission_no?: string;
+  dob?: string;
+  gender?: string;
+  academic_year_id?: number;
+
+  // Optional fields
+  user_id?: number;
+  category_id?: string;
+  photo?: string;
+  status?: boolean;
+
+  address?: string;
+  date_of_birth?: string;
+  nationality?: string;
+  current_address?: string;
+  permanent_address?: string;
+
+  emergency_phone?: string;
+  alternate_phone?: string;
+
+  student_group_id?: number;
+
+  medical_history?: string;
+  is_disabled?: boolean;
+  disable_reason?: string | null;
+  disable_date?: string | null;
+
+  route_id?: number;
+  vehicle_id?: number;
+
+  dormitory_id?: number;
+  room_id?: number;
+
+  previous_school_name?: string;
+  previous_qualification?: string;
+
+  emergencyContacts?: EmergencyContact[];
+  documents?: StudentDocument[];
+}
 
 export const useAddStudent = () => {
   const queryClient = useQueryClient();
@@ -73,13 +135,18 @@ export const useAddStudent = () => {
   return useMutation({
     mutationFn: async (payload: CreateStudentPayload) => {
       const res = await axiosInstance.post(`${student.students}`, payload);
-      res.data;
+      console.log("resss: ", res);
+      return res.data;
     },
 
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log(data);
       queryClient.invalidateQueries({
         queryKey: STUDENTS_KEY,
       });
+    },
+    onError: (data) => {
+      console.log("eror: data: ", data);
     },
   });
 };
@@ -119,7 +186,7 @@ export const useUpdateStudent = () => {
 };
 
 //remove class api
-export const useRemoveStudent  = () => {
+export const useRemoveStudent = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: number) => {

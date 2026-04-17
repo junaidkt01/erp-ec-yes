@@ -1,39 +1,76 @@
-import { useState } from "react";
 import { DatePicker } from "./DatePicker";
-import "./inputField.scss";
 
-export const InputField = ({ onChange, value, type, placeHolder, label, required, error }: { onChange?: (e: any) => void; value?: string; type: string; placeHolder: string; label: string; required?: boolean; error?: string; }) => {
-    const [dateValue, setDateValue] = useState(null);
-
+export const InputField = ({
+    onChange,
+    value,
+    type,
+    placeHolder,
+    label,
+    name,
+    required,
+    error
+}: {
+    onChange?: (value: any, name?: string) => void;
+    value?: any;
+    type: string;
+    placeHolder: string;
+    name?: string;
+    label: string;
+    required?: boolean;
+    error?: string;
+}) => {
     return (
-        <div className={`input_field ${error ? "error" : ""}`} >
+        <div className={`input_field ${error ? "error" : ""}`}>
             <label>{label}</label>
 
             {type === "date" ? (
-                <DatePicker value={dateValue} onChange={setDateValue} />
+                <DatePicker
+                    value={value}
+                    onChange={(date: Date) => {
+                        onChange?.(date, name);
+                    }}
+                />
             ) : (
                 <>
-                    <input className={`${error ? "error" : ""}`} required={required} type={type} placeholder={placeHolder} onChange={onChange} value={value} />
-                    {error &&
-                        <div className="error_text_wrapper" >
-                            <img src="/svgs/input_valid_error.svg" alt="..." />
-                            <p className="error_text">{error}</p>
-                        </div>
-                    }
+                    <input
+                        className={`${error ? "error" : ""}`}
+                        required={required}
+                        type={type}
+                        placeholder={placeHolder}
+                        name={name}
+                        onChange={onChange}
+                        value={value}
+                    />
                 </>
             )}
         </div>
     );
 };
 
+// import { useState } from "react";
+// import { DatePicker } from "./DatePicker";
+// import "./inputField.scss";
 
-// import "./inputField.scss"
+// export const InputField = ({ onChange, value, type, placeHolder, label, name, required, error }: { onChange?: (e: any) => void; value?: string; type: string; placeHolder: string; name?: string; label: string; required?: boolean; error?: string; }) => {
+//     const [dateValue, setDateValue] = useState(null);
 
-// export const InputField = ({ type, placeHolder, label }: { type: string; placeHolder: string; label: string; }) => {
 //     return (
-//         <div className="input_field" >
-//             <label htmlFor="">{label}</label>
-//             <input type={type} placeholder={placeHolder} />
+//         <div className={`input_field ${error ? "error" : ""}`} >
+//             <label>{label}</label>
+
+//             {type === "date" ? (
+//                 <DatePicker value={dateValue} onChange={setDateValue} />
+//             ) : (
+//                 <>
+//                     <input className={`${error ? "error" : ""}`} required={required} type={type} placeholder={placeHolder} name={name} onChange={onChange} value={value} />
+//                     {error &&
+//                         <div className="error_text_wrapper" >
+//                             <img src="/svgs/input_valid_error.svg" alt="..." />
+//                             <p className="error_text">{error}</p>
+//                         </div>
+//                     }
+//                 </>
+//             )}
 //         </div>
-//     )
-// }
+//     );
+// };

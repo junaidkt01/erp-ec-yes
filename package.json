@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@studio-freight/lenis": "^1.0.42",
+    "@tailwindcss/vite": "^4.2.2",
     "@tanstack/react-query": "^5.95.2",
     "axios": "^1.13.5",
     "lucide-react": "^0.563.0",
@@ -17,6 +19,7 @@
     "react-dom": "^19.1.1",
     "react-player": "^3.4.0",
     "react-router-dom": "^7.8.0",
+    "tailwindcss": "^4.2.2",
     "zod": "^4.3.6"
   },
   "devDependencies": {

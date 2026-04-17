@@ -79,9 +79,9 @@ const YearFilter = () => {
     const [search, setSearch] = useState("");
 
 
-    const { data: data } = useFetchAllAcademicYears();
+    const { data: academicYears } = useFetchAllAcademicYears();
 
-    const formattedData = data?.map((item) => ({
+    const formattedData = academicYears?.map((item) => ({
         id: item.id,
         label: `${item.name} (${new Date(item.start_date).toLocaleString("default", { month: "short" })} - ${new Date(item.end_date).toLocaleString("default", { month: "short" })})`,
     }));

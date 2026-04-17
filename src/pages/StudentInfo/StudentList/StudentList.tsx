@@ -1,13 +1,20 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { PrimaryButton, SecondaryButton } from "../../../components/Buttons/Buttons"
-import { CustomSelect } from "../../../components/InputFields/CustomSelect"
 import { InputField } from "../../../components/InputFields/InputFields"
 import PopupScreen from "../../../components/PopupScreen/PopupScreen"
 import TableWrapper from "../../../components/TableWrapper"
 import DataTable, { type Column } from "../../../components/DataTable/DataTable"
+import { useFetchAllStudents } from "../../../hooks/useStudent"
+import { useNavigate } from "react-router-dom"
 
 const StudentList = () => {
+    const navigate = useNavigate()
     const [page, setPage] = useState(1);
+
+
+    const { data: sampleData } = useFetchAllStudents(page);
+    console.log("students: 01", sampleData);
+
     const columns: Column[] = [
         { key: "sl", title: "SL" },
         { key: "admission_no", title: "Admission No" },
@@ -19,23 +26,32 @@ const StudentList = () => {
         { key: "type", title: "Type" },
     ];
 
-    const sampleData = [
-        {
-            sl: 1,
-            admission_no: "John Smith",
-            name: "John Smith",
-            father_name: "Nazer",
-            date_of_birth: "03-04-2025.",
-            class_and_section: "8 B",
-            gender: "Female",
+    const [studentList, setStudentList] = useState<any>([])
+
+    useEffect(() => {
+        if (!sampleData?.data) return;
+
+        const mappedDat = sampleData.data.map((student: any) => student)
+        console.log("mappedDat: ", mappedDat)
+        const mappedData = sampleData.data.map((student: any, index: number) => ({
+            sl: index + 1,
+            admission_no: student.admission_no || "",
+            name: `${student.first_name || ""} ${student.last_name || ""}`.trim(),
+            father_name: student.parents.father_name || "",
+            date_of_birth: student.dob || "",
+            class_and_section: `${student?.class?.name || ""} ${student?.section?.name || ""}`.trim(),
+            gender: student.gender || "",
             type: "-",
-        },
-    ];
+        }))
+
+        setStudentList(mappedData);
+    }, [sampleData]);
 
     const [isAddAdmissionQuery, setIsAddAdmissionQuery] = useState(false)
     const handleAddAdmissionQuery = () => {
         setIsAddAdmissionQuery(!isAddAdmissionQuery)
     }
+
     return (
         <div className="page_wrapper">
             <div className="student_list">
@@ -64,7 +80,8 @@ const StudentList = () => {
                         </div>
                     </div>
                 </PopupScreen>}
-                <TableWrapper isAddButton title={"Manage Students"} onClick={handleAddAdmissionQuery} >
+
+                {/* <TableWrapper isAddButton title={"Manage Students"} onClick={handleAddAdmissionQuery} >
                     <div className="search_screen">
                         <p className="search_screen_title" >Select Criteria</p>
                         <div className="popup_body" >
@@ -82,22 +99,24 @@ const StudentList = () => {
 
                             <div className="buttons">
                                 <SecondaryButton />
+                                <PrimaryButton onClick={handleSubmit} title="sample" />
                                 <PrimaryButton title="Search" />
                             </div>
                         </div>
                     </div>
-                </TableWrapper>
-                <TableWrapper isAddButton isSearchBar title="Student List" >
+                </TableWrapper> */}
+
+                <TableWrapper isAddButton onClick={() => navigate("/student-info/add-student")} isSearchBar title="Student List" >
                     <DataTable
                         columns={columns}
-                        data={sampleData}
-                        currentPage={page}
-                        totalPages={21}
+                        data={studentList}
+                        currentPage={sampleData?.current_page || 0}
+                        totalPages={sampleData?.total || 0}
                         onPageChange={(p) => setPage(p)}
                         actions={() => (
                             <div className="actions">
                                 <button><img src="/svgs/eye_open.svg" alt="" /></button>
-                                <button><img src="/svgs/edit.svg" alt="" /></button>
+                                <button onClick={() => navigate(`/student-info/add-student/${1}`)} ><img src="/svgs/edit.svg" alt="" /></button>
                                 <button><img src="/svgs/delete.svg" alt="" /></button>
                                 <button><img src="/svgs/block.svg" alt="" /></button>
                             </div>

@@ -8,7 +8,7 @@ export interface Column {
 
 interface DataTableProps {
     columns: Column[];
-    data: any[];
+    data: any;
     currentPage: number;
     totalPages: number;
     onPageChange: (page: number) => void;
@@ -65,7 +65,7 @@ const DataTable: React.FC<DataTableProps> = ({
                 </thead>
 
                 <tbody>
-                    {data.map((row, i) => (
+                    {data?.map((row: any, i: number) => (
                         <tr key={i}>
                             {select && <td>{select(row.progress)}</td>}
                             {columns.map((c) => (

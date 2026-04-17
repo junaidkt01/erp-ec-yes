@@ -26,10 +26,10 @@ export const PrimaryButton = ({ title, type, onClick }: { title: string; type?: 
     )
 }
 
-export const SecondaryButton = () => {
+export const SecondaryButton = ({ title }: { title?: string }) => {
     return (
         <button className="button secondary_button" >
-            Reset
+            {title || "Reset"}
         </button>
     )
 }

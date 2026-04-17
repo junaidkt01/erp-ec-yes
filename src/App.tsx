@@ -47,7 +47,7 @@ import AssignIncident from './pages/BehaviourRecords/AssignIncident/AssignIncide
 // import ProtectedRoute from './api/ProtectedRoute'
 import Login from './pages/Auth/Login'
 import { ProtectedRoute } from './api/ProtectedRoute'
-
+import AddStudent from './pages/StudentInfo/AddStudent/AddStudent'
 
 function App() {
   return (
@@ -96,7 +96,8 @@ function App() {
 
               {/* 5. Student Info */}
               <Route path='/student-info/student-category' element={<StudentCategory />} />
-              <Route path='/student-info/add-student' element={<div>add-student</div>} /> {/* pending */}
+              <Route path='/student-info/add-student' element={<div><AddStudent /></div>} />
+              <Route path='/student-info/add-student/:student_id' element={<div><AddStudent /></div>} />
               <Route path='/student-info/student-list' element={<StudentList />} />
               <Route path='/student-info/multi-class-student' element={<MultiClassStudent />} />
               <Route path='/student-info/delete-student-record' element={<DeleteStudentRecord />} />
