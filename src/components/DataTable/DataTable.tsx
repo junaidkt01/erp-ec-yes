@@ -17,16 +17,9 @@ interface DataTableProps {
     actions?: (row: any) => React.ReactNode;
 }
 
-const DataTable: React.FC<DataTableProps> = ({
-    columns,
-    data,
-    currentPage,
-    totalPages,
-    onPageChange,
-    select,
-    progress,
-    actions,
-}) => {
+const DataTable: React.FC<DataTableProps> = ({ columns, data, currentPage, totalPages, onPageChange, select, progress, actions }) => {
+    console.log("dadadad", data)
+
     const getPagination = () => {
         const pages: (number | string)[] = [];
 

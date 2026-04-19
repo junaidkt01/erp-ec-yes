@@ -6,13 +6,14 @@ import TableWrapper from "../../../components/TableWrapper"
 import DataTable, { type Column } from "../../../components/DataTable/DataTable"
 import { useFetchAllStudents } from "../../../hooks/useStudent"
 import { useNavigate } from "react-router-dom"
+import LoadingOverlay from "../../../components/Loadingoverlay"
 
 const StudentList = () => {
     const navigate = useNavigate()
     const [page, setPage] = useState(1);
 
 
-    const { data: sampleData } = useFetchAllStudents(page);
+    const { data: sampleData, isLoading } = useFetchAllStudents(page);
     console.log("students: 01", sampleData);
 
     const columns: Column[] = [
@@ -37,11 +38,13 @@ const StudentList = () => {
             sl: index + 1,
             admission_no: student.admission_no || "",
             name: `${student.first_name || ""} ${student.last_name || ""}`.trim(),
-            father_name: student.parents.father_name || "",
+            father_name: student.parents?.father_name || "",
             date_of_birth: student.dob || "",
             class_and_section: `${student?.class?.name || ""} ${student?.section?.name || ""}`.trim(),
             gender: student.gender || "",
             type: "-",
+
+            full_data: student,
         }))
 
         setStudentList(mappedData);
@@ -52,9 +55,14 @@ const StudentList = () => {
         setIsAddAdmissionQuery(!isAddAdmissionQuery)
     }
 
+    if (isLoading) {
+        return <LoadingOverlay isLoading={true} />
+    }
+
+
     return (
-        <div className="page_wrapper">
-            <div className="student_list">
+        <div className="page_wrapper" >
+            <div className="student_list" >
                 {isAddAdmissionQuery && <PopupScreen title="Add Admission Query" onClick={handleAddAdmissionQuery} >
                     <div className="popup_body" >
                         <div className="body_section" >
@@ -113,10 +121,10 @@ const StudentList = () => {
                         currentPage={sampleData?.current_page || 0}
                         totalPages={sampleData?.total || 0}
                         onPageChange={(p) => setPage(p)}
-                        actions={() => (
+                        actions={(row) => (
                             <div className="actions">
                                 <button><img src="/svgs/eye_open.svg" alt="" /></button>
-                                <button onClick={() => navigate(`/student-info/add-student/${1}`)} ><img src="/svgs/edit.svg" alt="" /></button>
+                                <button onClick={() => navigate(`/student-info/add-student/${row?.full_data?.id}`)} ><img src="/svgs/edit.svg" alt="" /></button>
                                 <button><img src="/svgs/delete.svg" alt="" /></button>
                                 <button><img src="/svgs/block.svg" alt="" /></button>
                             </div>

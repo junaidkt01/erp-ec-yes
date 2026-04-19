@@ -10,14 +10,16 @@ import InputRadioButtons from "../../../components/InputRadioButtons/InputRadioB
 import { useFetchAllAcademicYears } from "../../../hooks/useAcademicYear.ts"
 import { useFetchAllStudentClasses } from "../../../hooks/useStudentClass.ts"
 import { useFetchAllSections } from "../../../hooks/useSections.ts"
-import { useAddStudent } from "../../../hooks/useStudent.ts"
+import { useAddStudent, useFetchOneStudent } from "../../../hooks/useStudent.ts"
 
 import "./AddStudent.scss"
 import { useAuth } from "../../../auth/useAuth.ts"
 import { useParams } from "react-router-dom"
+import LoadingOverlay from "../../../components/Loadingoverlay.tsx"
 
 const AddStudent = () => {
     const { student_id } = useParams();
+    const { data: student, isLoading: studentLoading, error: studentError } = useFetchOneStudent(student_id || "")
 
     const [selectedInputTitleTab, setSelectedInputTitleTab] = useState(inputTitleTabs[0]);
     const [readyToSubmit, setReadyToSubmit] = useState(false);
@@ -105,8 +107,15 @@ const AddStudent = () => {
     });
 
     useEffect(() => {
-        console.log("formData: ", formData)
-    }, [formData])
+        if (student && student_id) {
+            setFormData(student?.data);
+            
+            // setFormData({
+            //     class_id:student.data.data[0].class_id
+            // })
+        }
+    }, [student, studentLoading, studentError])
+    console.log("formData: ", formData);
 
     const handleChange = (value: any, name?: string) => {
         if (name) {
@@ -130,58 +139,58 @@ const AddStudent = () => {
 
         payload.append("user_id", data?.data?.user?.id || "1");
 
-        payload.append("admission_no", formData.admission_no);
-        payload.append("first_name", formData.first_name);
-        payload.append("email", formData.email);
-        payload.append("class_id", String(formData.class_id));
-        payload.append("section_id", String(formData.section_id));
-        payload.append("academic_year_id", String(formData.academic_year_id));
-        payload.append("gender", formData.gender);
+        payload.append("admission_no", formData?.admission_no);
+        payload.append("first_name", formData?.first_name);
+        payload.append("email", formData?.email);
+        payload.append("class_id", String(formData?.class_id));
+        payload.append("section_id", String(formData?.section_id));
+        payload.append("academic_year_id", String(formData?.academic_year_id));
+        payload.append("gender", formData?.gender);
 
-        payload.append("roll_no", formData.roll_no);
+        payload.append("roll_no", formData?.roll_no);
 
-        payload.append("last_name", formData.last_name);
-        payload.append("dob", formData.dob);
-        payload.append("phone", formData.phone);
+        payload.append("last_name", formData?.last_name);
+        payload.append("dob", formData?.dob);
+        payload.append("phone", formData?.phone);
 
-        payload.append("blood_group", formData.blood_group);
-        payload.append("religion", formData.religion);
-        payload.append("caste", formData.caste);
+        payload.append("blood_group", formData?.blood_group);
+        payload.append("religion", formData?.religion);
+        payload.append("caste", formData?.caste);
 
         // payload.append("admission_date", formData.admission_date);
 
-        payload.append("current_address", formData.current_address);
-        payload.append("permanent_address", formData.permanent_address);
+        payload.append("current_address", formData?.current_address);
+        payload.append("permanent_address", formData?.permanent_address);
 
-        payload.append("father_name", formData.father_name);
-        payload.append("father_phone", formData.father_phone);
-        payload.append("father_email", formData.father_email);
-        payload.append("father_occupation", formData.father_occupation);
+        payload.append("father_name", formData?.father_name);
+        payload.append("father_phone", formData?.father_phone);
+        payload.append("father_email", formData?.father_email);
+        payload.append("father_occupation", formData?.father_occupation);
 
-        payload.append("mother_name", formData.mother_name);
-        payload.append("mother_phone", formData.mother_phone);
-        payload.append("mother_email", formData.mother_email);
-        payload.append("mother_occupation", formData.mother_occupation);
+        payload.append("mother_name", formData?.mother_name);
+        payload.append("mother_phone", formData?.mother_phone);
+        payload.append("mother_email", formData?.mother_email);
+        payload.append("mother_occupation", formData?.mother_occupation);
 
-        payload.append("guardian_name", formData.guardian_name);
-        payload.append("guardian_phone", formData.guardian_phone);
-        payload.append("guardian_email", formData.guardian_email);
-        payload.append("guardian_occupation", formData.guardian_occupation);
-        payload.append("guardian_relation", formData.guardian_relation);
-        payload.append("guardian_address", formData.guardian_address);
-        payload.append("guardian_is", formData.guardian_is);
+        payload.append("guardian_name", formData?.guardian_name);
+        payload.append("guardian_phone", formData?.guardian_phone);
+        payload.append("guardian_email", formData?.guardian_email);
+        payload.append("guardian_occupation", formData?.guardian_occupation);
+        payload.append("guardian_relation", formData?.guardian_relation);
+        payload.append("guardian_address", formData?.guardian_address);
+        payload.append("guardian_is", formData?.guardian_is);
 
-        payload.append("national_id_no", formData.national_id_no);
-        payload.append("birth_certificate_no", formData.birth_certificate_no);
-        payload.append("note", formData.note);
+        payload.append("national_id_no", formData?.national_id_no);
+        payload.append("birth_certificate_no", formData?.birth_certificate_no);
+        payload.append("note", formData?.note);
 
-        payload.append("previous_school_name", formData.previous_school_name);
-        payload.append("previous_qualification", formData.previous_qualification);
-        payload.append("previous_school_details", formData.previous_school_details);
+        payload.append("previous_school_name", formData?.previous_school_name);
+        payload.append("previous_qualification", formData?.previous_qualification);
+        payload.append("previous_school_details", formData?.previous_school_details);
 
         // // Arrays → stringify
-        payload.append("emergencyContacts", JSON.stringify(formData.emergencyContacts));
-        payload.append("documents", JSON.stringify(formData.documents));
+        payload.append("emergencyContacts", JSON.stringify(formData?.emergencyContacts));
+        payload.append("documents", JSON.stringify(formData?.documents));
 
         try {
             const res = await mutateAsync(payload as any);
@@ -207,14 +216,33 @@ const AddStudent = () => {
 
     const { data: academicYears } = useFetchAllAcademicYears();
     const formattedData = academicYears?.map((item) => ({
-        id: item.id,
         label: `${item.name} (${new Date(item.start_date).toLocaleString("default", { month: "short" })} - ${new Date(item.end_date).toLocaleString("default", { month: "short" })})`,
+        value: item.id,
     }));
 
     const { data: studentClasses } = useFetchAllStudentClasses();
+    const classOptions = studentClasses?.map((cls: any) => ({
+        label: cls.name,
+        value: cls.id,
+    }));
+
     const { data: sections } = useFetchAllSections();
+    const sectionOptions = sections?.map((cls: any) => ({
+        label: cls.name,
+        value: cls.id,
+    }));
+
+    const genderOptions = [{ name: "Male", id: "Male" }, { name: "Female", id: "Female" }, { name: "Other", id: "Other" }]?.map((cls: any) => ({
+        label: cls.name,
+        value: cls.id,
+    }));
 
     /////////////////////
+
+
+    if (isLoading || studentLoading) {
+        return <LoadingOverlay isLoading={true} />
+    }
 
     return (
         <div className="page_wrapper">
@@ -231,11 +259,11 @@ const AddStudent = () => {
                                 />
                             </div>
                             <div className="body_section" >
-                                {siblingStaff === "from_sibling" && <CustomSelect label="Class" placeholder="Select class" options={["Pending", "Solved", "In Progress", "Closed"]} onChange={(val) => console.log("Selected:", val)} />}
-                                <CustomSelect label="Section" placeholder="Select section" options={["Pending", "Solved", "In Progress", "Closed"]} onChange={(val) => console.log("Selected:", val)} />
+                                {siblingStaff === "from_sibling" && <CustomSelect label="Class" placeholder="Select class" options={[{ label: "Pending", value: "Pending" }, { label: "Solved", value: "Solved" }, { label: "In Progress", value: "In Progress" }, { label: "Closed", value: "Closed" }]} onChange={(val) => console.log("Selected:", val)} />}
+                                <CustomSelect label="Section" placeholder="Select section" options={[{ label: "Pending", value: "Pending" }, { label: "Solved", value: "Solved" }, { label: "In Progress", value: "In Progress" }, { label: "Closed", value: "Closed" }]} onChange={(val) => console.log("Selected:", val)} />
                             </div>
                             {siblingStaff === "from_sibling" && <div className="body_section" >
-                                <CustomSelect label="Sibling" placeholder="Select sibling" options={["Pending", "Solved", "In Progress", "Closed"]} onChange={(val) => console.log("Selected:", val)} />
+                                <CustomSelect label="Sibling" placeholder="Select sibling" options={[{ label: "Pending", value: "Pending" }, { label: "Solved", value: "Solved" }, { label: "In Progress", value: "In Progress" }, { label: "Closed", value: "Closed" }]} onChange={(val) => console.log("Selected:", val)} />
                             </div>}
 
                             <div className="buttons">
@@ -257,30 +285,30 @@ const AddStudent = () => {
                                     <div className="student_content_to_submit" style={{ display: "flex", justifyContent: "space-between" }} >
                                         <div>
                                             <p className="title" >Academic Year</p>
-                                            <p className="value" >{formData.academic_year_id || "N/A"}</p>
+                                            <p className="value" >{formData?.academic_year_id || "N/A"}</p>
                                             {/* <p className="value" >{academicYears?.find((item) => String(item.id) === formData.academic_year_id)?.name}</p> */}
                                         </div>
                                         <div>
                                             <p className="title" >Class</p>
-                                            <p className="value" >{formData.class_id || "N/A"}</p>
+                                            <p className="value" >{formData?.class_id || "N/A"}</p>
                                         </div>
                                         <div>
                                             <p className="title" >Section</p>
-                                            <p className="value" >{formData.section_id || "N/A"}</p>
+                                            <p className="value" >{formData?.section_id || "N/A"}</p>
                                         </div>
                                     </div>
                                     <div className="student_content_to_submit" style={{ display: "flex", justifyContent: "space-between" }} >
                                         <div>
                                             <p className="title" >Admission Number</p>
-                                            <p className="value" >{formData.admission_no || "N/A"}</p>
+                                            <p className="value" >{formData?.admission_no || "N/A"}</p>
                                         </div>
                                         <div>
                                             <p className="title" >Admission Date</p>
-                                            <p className="value" >{formData.admission_date || "N/A"}</p>
+                                            <p className="value" >{formData?.admission_date || "N/A"}</p>
                                         </div>
                                         <div>
                                             <p className="title" >Roll Number</p>
-                                            <p className="value" >{formData.roll_no || "N/A"}</p>
+                                            <p className="value" >{formData?.roll_no || "N/A"}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -292,29 +320,29 @@ const AddStudent = () => {
                                     <div className="student_content_to_submit" style={{ display: "flex", justifyContent: "space-between" }} >
                                         <div>
                                             <p className="title" >First Name</p>
-                                            <p className="value" >{formData.first_name || "N/A"}</p>
+                                            <p className="value" >{formData?.first_name || "N/A"}</p>
                                         </div>
                                         <div>
                                             <p className="title" >Last Name</p>
-                                            <p className="value" >{formData.last_name || "N/A"}</p>
+                                            <p className="value" >{formData?.last_name || "N/A"}</p>
                                         </div>
                                         <div>
                                             <p className="title" >Gender</p>
-                                            <p className="value" >{formData.gender || "N/A"}</p>
+                                            <p className="value" >{formData?.gender || "N/A"}</p>
                                         </div>
                                     </div>
                                     <div className="student_content_to_submit" style={{ display: "flex", justifyContent: "space-between" }} >
                                         <div>
                                             <p className="title" >Date of Birth</p>
-                                            <p className="value" >{formData.dob || "N/A"}</p>
+                                            <p className="value" >{formData?.dob || "N/A"}</p>
                                         </div>
                                         <div>
                                             <p className="title" >Religion</p>
-                                            <p className="value" >{formData.religion || "N/A"}</p>
+                                            <p className="value" >{formData?.religion || "N/A"}</p>
                                         </div>
                                         <div>
                                             <p className="title" >Caste</p>
-                                            <p className="value" >{formData.caste || "N/A"}</p>
+                                            <p className="value" >{formData?.caste || "N/A"}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -333,15 +361,16 @@ const AddStudent = () => {
                             <div className="popup_body" >
                                 <div className="fields_wrapper" >
                                     <div className="body_section" >
-                                        <CustomSelect name="academic_year_id" label="Academic year" placeholder="Select year" options={formattedData} onChange={(value) => setFormData((prev) => ({ ...prev, academic_year_id: value }))} />
-                                        <CustomSelect name="class_id" label="Class" placeholder="Select class" options={studentClasses} onChange={(value) => setFormData((prev) => ({ ...prev, class_id: value }))} />
-                                        <CustomSelect name="section_id" label="Section" placeholder="Select section" options={sections} onChange={(value) => setFormData((prev) => ({ ...prev, section_id: value }))} />
+                                        <CustomSelect value={formData?.academic_year_id} name="academic_year_id" label="Academic year" placeholder="Select year" options={formattedData || []} onChange={(value) => setFormData((prev: any) => ({ ...prev, academic_year_id: value }))} />
+                                        <CustomSelect value={formData?.class_id} label="Class" placeholder="Select class" options={classOptions || []} onChange={(value) => setFormData((prev: any) => ({ ...prev, class_id: value }))} />
+                                        {/* <CustomSelect value={formData?.class_id} name="class_id" label="Class" placeholder="Select class" options={studentClasses} onChange={(value) => setFormData((prev) => ({ ...prev, class_id: value }))} /> */}
+                                        <CustomSelect value={formData?.section_id} name="section_id" label="Section" placeholder="Select section" options={sectionOptions || []} onChange={(value) => setFormData((prev: any) => ({ ...prev, section_id: value }))} />
                                     </div>
                                     <div className="body_section" >
-                                        <InputField type="text" label="Admission Number" placeHolder="Enter admission number" name="admission_no" value={formData.admission_no} onChange={handleChange} />
+                                        <InputField type="text" label="Admission Number" placeHolder="Enter admission number" name="admission_no" value={formData?.admission_no} onChange={handleChange} />
                                         {/* <InputField name="admission_date" type="date" label="Admission Date" value={formData.admission_date} placeHolder="Select date" onChange={handleChange} /> */}
-                                        <InputField name="email" value={formData.email} onChange={handleChange} type="text" label="Email" placeHolder="Enter mail address" />
-                                        <InputField name="roll_no" value={formData.roll_no} onChange={handleChange} type="text" label="Roll Number" placeHolder="Enter roll number" />
+                                        {/* <InputField name="email" value={formData?.email} onChange={handleChange} type="text" label="Email" placeHolder="Enter mail address" /> */}
+                                        <InputField name="roll_no" value={formData?.roll_no} onChange={handleChange} type="text" label="Roll Number" placeHolder="Enter roll number" />
                                     </div>
                                 </div>
                             </div>
@@ -351,21 +380,20 @@ const AddStudent = () => {
                             <div className="popup_body" >
                                 <div className="fields_wrapper" >
                                     <div className="body_section" >
-                                        <InputField type="text" label="First Name" placeHolder="Enter name" name="first_name" value={formData.first_name} onChange={handleChange} />
-                                        <InputField type="text" label="Last Name" placeHolder="Enter name" name="last_name" value={formData.last_name} onChange={handleChange} />
-                                        <CustomSelect name="gender" label="Gender" placeholder="Select gender" options={["Male", "Female", "Other"]} onChange={(value) => setFormData((prev) => ({ ...prev, gender: value }))} />
+                                        <InputField type="text" label="First Name" placeHolder="Enter name" name="first_name" value={formData?.first_name} onChange={handleChange} />
+                                        <InputField type="text" label="Last Name" placeHolder="Enter name" name="last_name" value={formData?.last_name} onChange={handleChange} />
+                                        <CustomSelect value={formData?.gender} name="gender" label="Gender" placeholder="Select gender" options={genderOptions || []} onChange={(value) => setFormData((prev: any) => ({ ...prev, gender: value }))} />
                                     </div>
                                     <div className="body_section" >
                                         {/* <InputField name="dob" type="date" label="Date Of Birth" value={formData.dob} placeHolder="Select date" onChange={handleChange} /> */}
-                                        <CustomSelect name="religion" label="Religion" placeholder="Select religion" options={["Muslim", "Hindu", "Christian"]} onChange={(value) => setFormData((prev) => ({ ...prev, religion: value }))} />
-                                        <InputField name="caste" value={formData.caste} onChange={handleChange} type="text" label="Cast" placeHolder="Enter cast" />
+                                        <CustomSelect value={formData?.religion} name="religion" label="Religion" placeholder="Select religion" options={[{ label: "Muslim", value: "Muslim" }, { label: "Hindu", value: "Hindu" }, { label: "Christian", value: "Christian" }]} onChange={(value) => setFormData((prev: any) => ({ ...prev, religion: value }))} />
+                                        <InputField name="caste" value={formData?.caste} onChange={handleChange} type="text" label="Cast" placeHolder="Enter cast" />
                                     </div>
                                     <div className="body_section" >
                                         <InputFiles title="Student photo" />
                                     </div>
                                 </div>
                             </div>
-
 
                             {/* 3 */}
                             {/* <p className="search_screen_title need_margin" >Contact Information</p>
@@ -386,10 +414,10 @@ const AddStudent = () => {
                             <div className="popup_body" >
                                 <div className="fields_wrapper" >
                                     <div className="body_section" >
-                                        <InputField name="current_address" value={formData.current_address} onChange={handleChange} type="text" label="Current Address" placeHolder="Enter current address" />
+                                        <InputField name="current_address" value={formData?.current_address} onChange={handleChange} type="text" label="Current Address" placeHolder="Enter current address" />
                                     </div>
                                     <div className="body_section" >
-                                        <InputField name="permanent_address" value={formData.permanent_address} onChange={handleChange} type="text" label="Permenant Address" placeHolder="Enter permenant address" />
+                                        <InputField name="permanent_address" value={formData?.permanent_address} onChange={handleChange} type="text" label="Permenant Address" placeHolder="Enter permenant address" />
                                     </div>
                                 </div>
                             </div>
@@ -399,7 +427,8 @@ const AddStudent = () => {
                             <div className="popup_body" >
                                 <div className="fields_wrapper" >
                                     <div className="body_section" >
-                                        <CustomSelect name="blood_group" label="Blood Group" placeholder="Select blood group" options={["A+", "O+", "B+", "AB+", "A-", "O-", "B-", "AB-"]} onChange={(value) => setFormData((prev) => ({ ...prev, blood_group: value }))} />
+                                        {/* <CustomSelect name="blood_group" label="Blood Group" placeholder="Select blood group" options={["A+", "O+", "B+", "AB+", "A-", "O-", "B-", "AB-"]} onChange={(value) => setFormData((prev) => ({ ...prev, blood_group: value }))} /> */}
+                                        <CustomSelect value={formData?.blood_group} name="blood_group" label="Blood Group" placeholder="Select blood group" options={[{ label: "A+", value: "A+" }, { label: "O+", value: "O+" }, { label: "B+", value: "B+" }, { label: "AB+", value: "AB+" }, { label: "A-", value: "A-" }, { label: "O-", value: "O-" }, { label: "B-", value: "B-" }, { label: "AB-", value: "AB-" }]} onChange={(value) => setFormData((prev: any) => ({ ...prev, blood_group: value }))} />
                                         {/* <CustomSelect label="Category" placeholder="Select category" options={["Pending", "Solved", "In Progress", "Closed"]} onChange={(val) => console.log("Selected:", val)} /> */}
                                     </div>
                                 </div>
@@ -419,8 +448,8 @@ const AddStudent = () => {
                             <div className="popup_body" >
                                 <div className="fields_wrapper" >
                                     <div className="body_section" >
-                                        <InputField name="father_name" type="text" label="Father Name" placeHolder="Enter father name" value={formData.father_name} onChange={handleChange} />
-                                        <InputField name="father_phone" type="text" label="Father Phone Number" placeHolder="Enter phone number" value={formData.father_phone} onChange={handleChange} />
+                                        <InputField name="father_name" type="text" label="Father Name" placeHolder="Enter father name" value={formData?.father_name} onChange={handleChange} />
+                                        <InputField name="father_phone" type="text" label="Father Phone Number" placeHolder="Enter phone number" value={formData?.father_phone} onChange={handleChange} />
                                     </div>
                                     <div className="body_section" >
                                         <InputFiles title="Father’s Photo" />
@@ -433,8 +462,8 @@ const AddStudent = () => {
                             <div className="popup_body" >
                                 <div className="fields_wrapper" >
                                     <div className="body_section" >
-                                        <InputField name="mother_name" type="text" label="Mother Name" placeHolder="Enter Mother name" value={formData.mother_name} onChange={handleChange} />
-                                        <InputField name="mother_phone" type="text" label="Mother Phone Number" placeHolder="Enter phone number" value={formData.mother_phone} onChange={handleChange} />
+                                        <InputField name="mother_name" type="text" label="Mother Name" placeHolder="Enter Mother name" value={formData?.mother_name} onChange={handleChange} />
+                                        <InputField name="mother_phone" type="text" label="Mother Phone Number" placeHolder="Enter phone number" value={formData?.mother_phone} onChange={handleChange} />
                                     </div>
                                     <div className="body_section" >
                                         <InputFiles title="Mother’s Photo" />
@@ -462,15 +491,15 @@ const AddStudent = () => {
                                         />
                                     </div>
                                     <div className="body_section" >
-                                        <InputField name="guardian_name" value={relation === "father" ? formData.father_name : relation === "mother" ? formData.mother_name : formData.guardian_name} onChange={handleChange} type="text" label={`${relation.charAt(0).toUpperCase() + relation.slice(1)} Name`} placeHolder={`Enter ${relation} name`} />
-                                        <InputField name="guardian_phone" value={relation === "father" ? formData.father_phone : relation === "mother" ? formData.mother_phone : formData.guardian_phone} onChange={handleChange} type="text" label="Phone Number" placeHolder="Enter phone number" />
+                                        <InputField name="guardian_name" value={relation === "father" ? formData?.father_name : relation === "mother" ? formData?.mother_name : formData?.guardian_name} onChange={handleChange} type="text" label={`${relation.charAt(0).toUpperCase() + relation.slice(1)} Name`} placeHolder={`Enter ${relation} name`} />
+                                        <InputField name="guardian_phone" value={relation === "father" ? formData?.father_phone : relation === "mother" ? formData?.mother_phone : formData?.guardian_phone} onChange={handleChange} type="text" label="Phone Number" placeHolder="Enter phone number" />
                                     </div>
                                     <div className="body_section" >
-                                        <InputField name="guardian_relation" value={formData.guardian_relation} onChange={handleChange} type="text" label="Relation With Guardian" placeHolder="Enter relation with guardian" />
-                                        <InputField name="guardian_email" value={formData.guardian_email} onChange={handleChange} type="text" label="Guardian Email" placeHolder="Enter guardian's email address" />
+                                        <InputField name="guardian_relation" value={formData?.guardian_relation} onChange={handleChange} type="text" label="Relation With Guardian" placeHolder="Enter relation with guardian" />
+                                        <InputField name="guardian_email" value={formData?.guardian_email} onChange={handleChange} type="text" label="Guardian Email" placeHolder="Enter guardian's email address" />
                                     </div>
                                     <div className="body_section" >
-                                        <InputField name="guardian_address" value={formData.guardian_address} onChange={handleChange} type="text" label="Guardian Address" placeHolder="Enter guardian's address" />
+                                        <InputField name="guardian_address" value={formData?.guardian_address} onChange={handleChange} type="text" label="Guardian Address" placeHolder="Enter guardian's address" />
                                     </div>
                                     <div className="body_section" >
                                         <InputFiles title="Guardian Photo" />
@@ -492,11 +521,11 @@ const AddStudent = () => {
                             <div className="popup_body" >
                                 <div className="fields_wrapper" >
                                     <div className="body_section" >
-                                        <InputField name="national_id_no" value={formData.national_id_no} onChange={handleChange} type="text" label="Adhaar Number" placeHolder="Enter national id card" />
-                                        <InputField name="birth_certificate_no" value={formData.birth_certificate_no} onChange={handleChange} type="text" label="Birth cerifiate number" placeHolder="Enter brith certificate number" />
+                                        <InputField name="national_id_no" value={formData?.national_id_no} onChange={handleChange} type="text" label="Adhaar Number" placeHolder="Enter national id card" />
+                                        <InputField name="birth_certificate_no" value={formData?.birth_certificate_no} onChange={handleChange} type="text" label="Birth cerifiate number" placeHolder="Enter brith certificate number" />
                                     </div>
                                     <div className="body_section" >
-                                        <InputField name="note" value={formData.note} onChange={handleChange} type="text" label="Additional Notes" placeHolder="Enter additional notes" />
+                                        <InputField name="note" value={formData?.note} onChange={handleChange} type="text" label="Additional Notes" placeHolder="Enter additional notes" />
                                     </div>
                                 </div>
                             </div>
@@ -540,11 +569,11 @@ const AddStudent = () => {
                                 <div className="popup_body" >
                                     <div className="fields_wrapper" >
                                         <div className="body_section" >
-                                            <InputField name="previous_school_name" type="text" label="Previous School Name" placeHolder="Enter previous school name" value={formData.previous_school_name} onChange={handleChange} />
-                                            <InputField name="previous_qualification" type="text" label="Previous Qualification" placeHolder="Enter previous qualification" value={formData.previous_qualification} onChange={handleChange} />
+                                            <InputField name="previous_school_name" type="text" label="Previous School Name" placeHolder="Enter previous school name" value={formData?.previous_school_name} onChange={handleChange} />
+                                            <InputField name="previous_qualification" type="text" label="Previous Qualification" placeHolder="Enter previous qualification" value={formData?.previous_qualification} onChange={handleChange} />
                                         </div>
                                         <div className="body_section" >
-                                            <InputField name="previous_school_details" type="text" label="Previous School Details" placeHolder="Enter previous school details" value={formData.previous_school_details} onChange={handleChange} />
+                                            <InputField name="previous_school_details" type="text" label="Previous School Details" placeHolder="Enter previous school details" value={formData?.previous_school_details} onChange={handleChange} />
                                         </div>
                                     </div>
                                 </div>
@@ -563,8 +592,9 @@ const AddStudent = () => {
                             <div className="popup_body" >
                                 <div className="fields_wrapper" >
                                     <div className="body_section" >
-                                        <CustomSelect label="Route List" placeholder="Select route list" options={["Pending", "Solved", "In Progress", "Closed"]} onChange={(val) => console.log("Selected:", val)} />
-                                        <CustomSelect label="Vehicle Number" placeholder="Select vehicle number" options={["Pending", "Solved", "In Progress", "Closed"]} onChange={(val) => console.log("Selected:", val)} />
+                                        {/* <CustomSelect label="Route List" placeholder="Select route list" options={[{ label: "Pending", value: "Pending" }, "Solved", "In Progress", "Closed"]} onChange={(val) => console.log("Selected:", val)} /> */}
+                                        <CustomSelect label="Route List" placeholder="Select route list" options={[{ label: "Pending", value: "Pending" }, { label: "Solved", value: "Solved" }, { label: "In Progress", value: "In Progress" }, { label: "Closed", value: "Closed" }]} onChange={(val) => console.log("Selected:", val)} />
+                                        <CustomSelect label="Vehicle Number" placeholder="Select vehicle number" options={[{ label: "Pending", value: "Pending" }, { label: "Solved", value: "Solved" }, { label: "In Progress", value: "In Progress" }, { label: "Closed", value: "Closed" }]} onChange={(val) => console.log("Selected:", val)} />
                                     </div>
                                 </div>
                             </div>
@@ -574,8 +604,8 @@ const AddStudent = () => {
                             <div className="popup_body" >
                                 <div className="fields_wrapper" >
                                     <div className="body_section" >
-                                        <CustomSelect label="Hostel List" placeholder="Select hostel list" options={["Pending", "Solved", "In Progress", "Closed"]} onChange={(val) => console.log("Selected:", val)} />
-                                        <CustomSelect label="Room Number" placeholder="Select room number" options={["Pending", "Solved", "In Progress", "Closed"]} onChange={(val) => console.log("Selected:", val)} />
+                                        <CustomSelect label="Hostel List" placeholder="Select hostel list" options={[{ label: "Pending", value: "Pending" }, { label: "Solved", value: "Solved" }, { label: "In Progress", value: "In Progress" }, { label: "Closed", value: "Closed" }]} onChange={(val) => console.log("Selected:", val)} />
+                                        <CustomSelect label="Room Number" placeholder="Select room number" options={[{ label: "Pending", value: "Pending" }, { label: "Solved", value: "Solved" }, { label: "In Progress", value: "In Progress" }, { label: "Closed", value: "Closed" }]} onChange={(val) => console.log("Selected:", val)} />
                                     </div>
                                 </div>
 

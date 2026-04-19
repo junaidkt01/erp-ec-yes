@@ -56,6 +56,21 @@ export const useFetchAllStudents = (page: number = 1) => {
   });
 };
 
+// Fetch one Students
+export const useFetchOneStudent = (id?: string) => {
+  return useQuery({
+    queryKey: ["student"],
+    queryFn: async () => {
+      const res = await axiosInstance.get<StudentsResponse>(
+        `${student.students}/${id}`,
+      );
+      return res.data;
+    },
+    enabled: !!id,
+    placeholderData: (prev) => prev,
+  });
+};
+
 // Add Student  api
 
 // interface CreateStudentPayload {
