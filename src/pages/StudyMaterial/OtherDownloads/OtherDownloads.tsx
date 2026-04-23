@@ -45,7 +45,7 @@ const OtherDownloads = () => {
 
                             <div className="body_section" >
                                 <InputField type="text" label="Content Title" placeHolder="Enter content title" />
-                                <CustomSelect label="Content Type" placeholder="Select complaint type" options={["Active", "Under Review", "In Progress", "Resolved", "Closed"]} onChange={(val) => console.log("Selected:", val)} />
+                                <CustomSelect label="Content Type" placeholder="Select complaint type" onChange={(val) => console.log("Selected:", val)} />
                             </div>
                             <div className="body_section" >
                                 <div>
@@ -63,8 +63,8 @@ const OtherDownloads = () => {
                                 </div>
                             </div>
                             <div className="body_section" >
-                                <CustomSelect label="Class" placeholder="Select Class" options={["Active", "Under Review", "In Progress", "Resolved", "Closed"]} onChange={(val) => console.log("Selected:", val)} />
-                                <CustomSelect label="Section" placeholder="Select Section" options={["Active", "Under Review", "In Progress", "Resolved", "Closed"]} onChange={(val) => console.log("Selected:", val)} />
+                                <CustomSelect label="Class" placeholder="Select Class" onChange={(val) => console.log("Selected:", val)} />
+                                <CustomSelect label="Section" placeholder="Select Section" onChange={(val) => console.log("Selected:", val)} />
                             </div>
                             <div className="body_section" >
                                 <p>Available for All  Clases</p>
@@ -79,9 +79,9 @@ const OtherDownloads = () => {
                                 <InputField type="text" label="Discription" placeHolder="Enter discription" />
                             </div>
                             <div className="body_section" >
-                                <CustomSelect label="Reference" placeholder="Select reference" options={["Active", "Under Review", "In Progress", "Resolved", "Closed"]} onChange={(val) => console.log("Selected:", val)} />
-                                <CustomSelect label="Source" placeholder="Select Source" options={["Active", "Under Review", "In Progress", "Resolved", "Closed"]} onChange={(val) => console.log("Selected:", val)} />
-                                <CustomSelect label="Class" placeholder="Select Class" options={["Active", "Under Review", "In Progress", "Resolved", "Closed"]} onChange={(val) => console.log("Selected:", val)} />
+                                <CustomSelect label="Reference" placeholder="Select reference" onChange={(val) => console.log("Selected:", val)} />
+                                <CustomSelect label="Source" placeholder="Select Source" onChange={(val) => console.log("Selected:", val)} />
+                                <CustomSelect label="Class" placeholder="Select Class" onChange={(val) => console.log("Selected:", val)} />
                                 <InputField type="number" label="Number of child" placeHolder="Enter number of child" />
                             </div>
 

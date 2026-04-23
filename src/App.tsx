@@ -48,10 +48,14 @@ import AssignIncident from './pages/BehaviourRecords/AssignIncident/AssignIncide
 import Login from './pages/Auth/Login'
 import { ProtectedRoute } from './api/ProtectedRoute'
 import AddStudent from './pages/StudentInfo/AddStudent/AddStudent'
+import { Toaster } from 'sonner'
+import AddStaff from './pages/HR/AddStaff/AddStaff'
+import StaffList from './pages/HR/StaffList/StaffList'
 
 function App() {
   return (
     <div className='app'>
+      <Toaster />
       <Routes><Route path="/" element={<Login />} /></Routes>
       <div style={{ display: "flex", position: "sticky", top: "0" }} >
         <ProtectedRoute>
@@ -111,7 +115,12 @@ function App() {
               <Route path='/student-info/sms-sending-time' element={<div>sms-sending-time</div>} />
               <Route path='/student-info/student-settings' element={<div>student-settings</div>} />
 
-              {/* Behaviour Records */}
+              {/* 6. Human Resource */}
+              <Route path='/human-resource/add-staff' element={<AddStaff />} />
+              <Route path='/human-resource/add-staff/:staff_id' element={<AddStaff />} />
+              <Route path='/human-resource/staff-list' element={<StaffList />} />
+
+              {/* 7. Behaviour Records */}
               <Route path='/behaviour-records/incidents' element={<Incidents />} />
               <Route path='/behaviour-records/assign-incident' element={<AssignIncident />} />
               <Route path='/behaviour-records/student-incident-report' element={<div>Student Incident Report</div>} />

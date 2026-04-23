@@ -75,8 +75,8 @@ const StudentPromote = () => {
                                     <InputField type="date" label="Date To" placeHolder="Select date" />
                                 </div>
                                 <div className="body_section" >
-                                    <CustomSelect label="Choose Enquiry Source" placeholder="Select source" options={["Pending", "Solved", "In Progress", "Closed"]} onChange={(val) => console.log("Selected:", val)} />
-                                    <CustomSelect label="Choose Status" placeholder="Select status" options={["Pending", "Solved", "In Progress", "Closed"]} onChange={(val) => console.log("Selected:", val)} />
+                                    <CustomSelect label="Choose Enquiry Source" placeholder="Select source" onChange={(val) => console.log("Selected:", val)} />
+                                    <CustomSelect label="Choose Status" placeholder="Select status" onChange={(val) => console.log("Selected:", val)} />
                                 </div>
                             </div>
 

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { PrimaryButton, SecondaryButton } from "../../../components/Buttons/Buttons"
 import { InputField } from "../../../components/InputFields/InputFields"
 import PopupScreen from "../../../components/PopupScreen/PopupScreen"
-import InputTitleTabs, { inputTitleTabs } from "../../../components/InputTitleTabs/InputTitleTabs.tsx"
+import InputTitleTabs, { addStudentsTabs } from "../../../components/InputTitleTabs/InputTitleTabs.tsx"
 import TableWrapper from "../../../components/TableWrapper"
 import { CustomSelect } from "../../../components/InputFields/CustomSelect.tsx"
 import InputFiles from "../../../components/InputFields/InputFiles.tsx"
@@ -10,18 +10,20 @@ import InputRadioButtons from "../../../components/InputRadioButtons/InputRadioB
 import { useFetchAllAcademicYears } from "../../../hooks/useAcademicYear.ts"
 import { useFetchAllStudentClasses } from "../../../hooks/useStudentClass.ts"
 import { useFetchAllSections } from "../../../hooks/useSections.ts"
-import { useAddStudent, useFetchOneStudent } from "../../../hooks/useStudent.ts"
+import { useAddStudent, useFetchOneStudent, useUpdateStudent } from "../../../hooks/useStudent.ts"
 
 import "./AddStudent.scss"
 import { useAuth } from "../../../auth/useAuth.ts"
 import { useParams } from "react-router-dom"
 import LoadingOverlay from "../../../components/Loadingoverlay.tsx"
+import { toast } from "sonner"
 
 const AddStudent = () => {
     const { student_id } = useParams();
-    const { data: student, isLoading: studentLoading, error: studentError } = useFetchOneStudent(student_id || "")
+    const { data: student, isLoading: studentLoading } = useFetchOneStudent(student_id || "")
+    console.log("student: ", student)
 
-    const [selectedInputTitleTab, setSelectedInputTitleTab] = useState(inputTitleTabs[0]);
+    const [selectedInputTitleTab, setSelectedInputTitleTab] = useState(addStudentsTabs[0]);
     const [readyToSubmit, setReadyToSubmit] = useState(false);
 
     const handleSelecteInputTitleTab = (title: string) => {
@@ -48,7 +50,8 @@ const AddStudent = () => {
     ];
 
 
-    const { mutateAsync } = useAddStudent();
+    const { mutateAsync: addStudent } = useAddStudent();
+    const { mutateAsync: updateStudent } = useUpdateStudent(student_id || "");
     const [formData, setFormData] = useState({
         first_name: "",
         last_name: "",
@@ -58,6 +61,7 @@ const AddStudent = () => {
         section_id: "",
         academic_year_id: "",
 
+        photo: null,
         blood_group: "",
         religion: "",
         admission_date: "",
@@ -106,25 +110,161 @@ const AddStudent = () => {
         previous_school_details: "",
     });
 
+    console.log("formData: ", formData)
+
+    // useEffect(() => {
+    //     if (student && student_id) {
+    //         // setFormData(student?.data);
+
+    //         setFormData({
+    //             academic_year_id: String(student?.data?.academic_year_id),
+    //             admission_date: String(student?.data?.admission_date),
+    //             admission_no: String(student?.data?.admission_no),
+    //             birth_certificate_no: String(student?.data?.birth_certificate_no),
+    //             blood_group: String(student?.data?.blood_group),
+    //             caste: String(student?.data?.caste),
+    //             current_address: String(student?.data?.current_address),
+    //             dob: String(student?.data?.dob),
+    //             documents: [],
+    //             email: String(student?.data?.email),
+    //             emergencyContacts: [],
+    //             father_email: String(student?.data?.parents.father_email),
+    //             father_name: String(student?.data?.parents.father_name),
+    //             father_occupation: String(student?.data?.parents.father_occupation),
+    //             father_phone: String(student?.data?.parents.father_phone),
+    //             first_name: String(student?.data?.first_name),
+    //             gender: String(student?.data?.gender),
+    //             guardian_address: String(student?.data?.parents.guardian_address),
+    //             guardian_email: String(student?.data?.parents.guardian_email),
+    //             guardian_is: String(student?.data?.parents.guardian_is),
+    //             guardian_name: String(student?.data?.parents.guardian_name),
+    //             guardian_occupation: String(student?.data?.parents.guardian_occupation),
+    //             guardian_phone: String(student?.data?.parents.guardian_phone),
+    //             guardian_relation: String(student?.data?.parents.guardian_relation),
+    //             last_name: String(student?.data?.last_name),
+    //             mother_email: String(student?.data?.parents.mother_email),
+    //             mother_name: String(student?.data?.parents.mother_name),
+    //             mother_occupation: String(student?.data?.parents.mother_occupation),
+    //             mother_phone: String(student?.data?.parents.mother_phone),
+    //             national_id_no: String(student?.data?.national_id_no),
+    //             note: String(student?.data?.note),
+    //             permanent_address: String(student?.data?.permanent_address),
+    //             phone: String(student?.data?.phone),
+    //             previous_qualification: String(student?.data?.previous_qualification),
+    //             previous_school_details: String(student?.data?.previous_school_details),
+    //             previous_school_name: String(student?.data?.previous_school_name),
+    //             religion: String(student?.data?.section_id),
+    //             roll_no: String(student?.data?.section_id),
+    //             section_id: String(student?.data?.section_id),
+    //             class_id: String(student?.data?.class_id)
+    //         })
+    //     }
+    // }, [student, studentLoading, studentError])
+
+
     useEffect(() => {
-        if (student && student_id) {
-            setFormData(student?.data);
-            
-            // setFormData({
-            //     class_id:student.data.data[0].class_id
-            // })
-        }
-    }, [student, studentLoading, studentError])
+        if (!student || !student_id) return;
+
+        const data = student.data || {};
+        const parents = data.parents || {};
+
+        setFormData((prev) => ({
+            ...prev,
+
+            academic_year_id: String(data.academic_year_id || ""),
+            admission_date: String(data.admission_date || ""),
+            admission_no: String(data.admission_no || ""),
+            birth_certificate_no: String(data.birth_certificate_no || ""),
+            blood_group: String(data.blood_group || ""),
+            caste: String(data.caste || ""),
+            current_address: String(data.current_address || ""),
+            dob: String(data.dob || ""),
+            email: String(data.email || ""),
+            first_name: String(data.first_name || ""),
+            last_name: String(data.last_name || ""),
+            gender: String(data.gender || ""),
+            national_id_no: String(data.national_id_no || ""),
+            note: String(data.note || ""),
+            permanent_address: String(data.permanent_address || ""),
+            phone: String(data.phone || ""),
+            previous_qualification: String(data.previous_qualification || ""),
+            previous_school_details: String(data.previous_school_details || ""),
+            previous_school_name: String(data.previous_school_name || ""),
+
+            class_id: String(data.class_id || ""),
+            section_id: String(data.section_id || ""),
+
+            // ⚠️ fix these properly based on real API
+            religion: String(data.religion || ""),
+            roll_no: String(data.roll_no || ""),
+
+            // parents
+            father_name: String(parents.father_name || ""),
+            father_phone: String(parents.father_phone || ""),
+            father_email: String(parents.father_email || ""),
+            father_occupation: String(parents.father_occupation || ""),
+
+            mother_name: String(parents.mother_name || ""),
+            mother_phone: String(parents.mother_phone || ""),
+            mother_email: String(parents.mother_email || ""),
+            mother_occupation: String(parents.mother_occupation || ""),
+
+            guardian_name: String(parents.guardian_name || ""),
+            guardian_phone: String(parents.guardian_phone || ""),
+            guardian_email: String(parents.guardian_email || ""),
+            guardian_occupation: String(parents.guardian_occupation || ""),
+            guardian_relation: String(parents.guardian_relation || ""),
+            guardian_address: String(parents.guardian_address || ""),
+            guardian_is: String(parents.guardian_is || ""),
+
+            // arrays
+            documents: data.documents || [],
+            emergencyContacts: data.emergencyContacts || [],
+        }));
+    }, [student, student_id]);
+
+
     console.log("formData: ", formData);
+
 
     const handleChange = (value: any, name?: string) => {
         if (name) {
-            setFormData({ ...formData, [name]: value }); // for DatePicker
+            // for DatePicker or custom inputs
+            setFormData((prev) => ({
+                ...prev,
+                [name]: value,
+            }));
         } else {
-            const e = value; // for normal inputs
-            setFormData({ ...formData, [e.target.name]: e.target.value });
+            const e = value;
+
+            const fieldName = e.target.name;
+
+            let fieldValue;
+
+            console.log("fieldValue: ", fieldValue);
+
+            if (e.target.files) {
+                // file input
+                fieldValue = e.target.files[0]; // or full FileList if needed
+            } else {
+                // normal input
+                fieldValue = e.target.value;
+            }
+
+            setFormData((prev) => ({
+                ...prev,
+                [fieldName]: fieldValue,
+            }));
         }
     };
+    // const handleChange = (value: any, name?: string) => {
+    //     if (name) {
+    //         setFormData({ ...formData, [name]: value }); // for DatePicker
+    //     } else {
+    //         const e = value; // for normal inputs
+    //         setFormData({ ...formData, [e.target.name]: e.target.value });
+    //     }
+    // };
 
     // const handleSubmit = async (e: React.FormEvent) => {
     // e.preventDefault();
@@ -193,11 +333,23 @@ const AddStudent = () => {
         payload.append("documents", JSON.stringify(formData?.documents));
 
         try {
-            const res = await mutateAsync(payload as any);
-            console.log("aa: res:", res);
+            if (student && student_id) {
+                const res = await updateStudent(payload as any);
+                console.log("updated: res:", res);
+                if (res.success) {
+                    toast('Student updated successfully')
+                } else {
+                    toast('Student updation failed')
+                }
+            } else {
+                const res = await addStudent(payload as any);
+                console.log("aa: res:", res);
+                toast('Student added successfully')
+            }
             setIsLoading(false);
         } catch (err) {
             setIsLoading(false);
+            toast('Student added failed')
             console.log("aa: error:", err);
         }
     };
@@ -207,9 +359,9 @@ const AddStudent = () => {
             handleSubmit()
         } else if (submit) {
             setReadyToSubmit(true)
-            setSelectedInputTitleTab(inputTitleTabs[0])
+            setSelectedInputTitleTab(addStudentsTabs[0])
         } else {
-            setSelectedInputTitleTab(inputTitleTabs[index])
+            setSelectedInputTitleTab(addStudentsTabs[index])
         }
     }
     /////////////////////
@@ -259,8 +411,9 @@ const AddStudent = () => {
                                 />
                             </div>
                             <div className="body_section" >
-                                {siblingStaff === "from_sibling" && <CustomSelect label="Class" placeholder="Select class" options={[{ label: "Pending", value: "Pending" }, { label: "Solved", value: "Solved" }, { label: "In Progress", value: "In Progress" }, { label: "Closed", value: "Closed" }]} onChange={(val) => console.log("Selected:", val)} />}
-                                <CustomSelect label="Section" placeholder="Select section" options={[{ label: "Pending", value: "Pending" }, { label: "Solved", value: "Solved" }, { label: "In Progress", value: "In Progress" }, { label: "Closed", value: "Closed" }]} onChange={(val) => console.log("Selected:", val)} />
+                                {siblingStaff === "from_sibling" && <CustomSelect value={formData?.class_id} label="Class" placeholder="Select class" options={classOptions || []} onChange={(value) => setFormData((prev: any) => ({ ...prev, class_id: value }))} />}
+                                {siblingStaff === "from_sibling" && <CustomSelect value={formData?.section_id} name="section_id" label="Section" placeholder="Select section" options={sectionOptions || []} onChange={(value) => setFormData((prev: any) => ({ ...prev, section_id: value }))} />}
+                                {siblingStaff === "from_staff" && <CustomSelect value={formData?.section_id} name="staff_id" label="Staff" placeholder="Select section" options={sectionOptions || []} onChange={(value) => setFormData((prev: any) => ({ ...prev, section_id: value }))} />}
                             </div>
                             {siblingStaff === "from_sibling" && <div className="body_section" >
                                 <CustomSelect label="Sibling" placeholder="Select sibling" options={[{ label: "Pending", value: "Pending" }, { label: "Solved", value: "Solved" }, { label: "In Progress", value: "In Progress" }, { label: "Closed", value: "Closed" }]} onChange={(val) => console.log("Selected:", val)} />
@@ -275,7 +428,7 @@ const AddStudent = () => {
                 </PopupScreen>}
 
                 <TableWrapper isAddButton title={readyToSubmit ? "Details Preview" : "Add Student"} onClick={handleAddAdmissionQuery} >
-                    <InputTitleTabs onSetSelectedInputTitleTab={handleSelecteInputTitleTab} selected={selectedInputTitleTab} />
+                    <InputTitleTabs tabsTitles={addStudentsTabs} onSetSelectedInputTitleTab={handleSelecteInputTitleTab} selected={selectedInputTitleTab} />
 
                     {(selectedInputTitleTab === "Personal Details" && readyToSubmit) && <div className="search_screen">
                         <>
@@ -363,12 +516,11 @@ const AddStudent = () => {
                                     <div className="body_section" >
                                         <CustomSelect value={formData?.academic_year_id} name="academic_year_id" label="Academic year" placeholder="Select year" options={formattedData || []} onChange={(value) => setFormData((prev: any) => ({ ...prev, academic_year_id: value }))} />
                                         <CustomSelect value={formData?.class_id} label="Class" placeholder="Select class" options={classOptions || []} onChange={(value) => setFormData((prev: any) => ({ ...prev, class_id: value }))} />
-                                        {/* <CustomSelect value={formData?.class_id} name="class_id" label="Class" placeholder="Select class" options={studentClasses} onChange={(value) => setFormData((prev) => ({ ...prev, class_id: value }))} /> */}
                                         <CustomSelect value={formData?.section_id} name="section_id" label="Section" placeholder="Select section" options={sectionOptions || []} onChange={(value) => setFormData((prev: any) => ({ ...prev, section_id: value }))} />
                                     </div>
                                     <div className="body_section" >
                                         <InputField type="text" label="Admission Number" placeHolder="Enter admission number" name="admission_no" value={formData?.admission_no} onChange={handleChange} />
-                                        {/* <InputField name="admission_date" type="date" label="Admission Date" value={formData.admission_date} placeHolder="Select date" onChange={handleChange} /> */}
+                                        <InputField name="admission_date" type="date" label="Admission Date" value={formData.admission_date} placeHolder="Select date" onChange={handleChange} />
                                         {/* <InputField name="email" value={formData?.email} onChange={handleChange} type="text" label="Email" placeHolder="Enter mail address" /> */}
                                         <InputField name="roll_no" value={formData?.roll_no} onChange={handleChange} type="text" label="Roll Number" placeHolder="Enter roll number" />
                                     </div>
@@ -390,7 +542,8 @@ const AddStudent = () => {
                                         <InputField name="caste" value={formData?.caste} onChange={handleChange} type="text" label="Cast" placeHolder="Enter cast" />
                                     </div>
                                     <div className="body_section" >
-                                        <InputFiles title="Student photo" />
+                                        {/* <InputFiles title="Student photo" /> */}
+                                        <InputFiles name="photo" title="Student photo" onChange={handleChange} />
                                     </div>
                                 </div>
                             </div>
@@ -495,7 +648,7 @@ const AddStudent = () => {
                                         <InputField name="guardian_phone" value={relation === "father" ? formData?.father_phone : relation === "mother" ? formData?.mother_phone : formData?.guardian_phone} onChange={handleChange} type="text" label="Phone Number" placeHolder="Enter phone number" />
                                     </div>
                                     <div className="body_section" >
-                                        <InputField name="guardian_relation" value={formData?.guardian_relation} onChange={handleChange} type="text" label="Relation With Guardian" placeHolder="Enter relation with guardian" />
+                                        <InputField name="guardian_relation" value={relation === "father" ? formData?.father_name : relation === "mother" ? formData?.mother_name : formData?.guardian_relation} onChange={handleChange} type="text" label="Relation With Guardian" placeHolder="Enter relation with guardian" />
                                         <InputField name="guardian_email" value={formData?.guardian_email} onChange={handleChange} type="text" label="Guardian Email" placeHolder="Enter guardian's email address" />
                                     </div>
                                     <div className="body_section" >
