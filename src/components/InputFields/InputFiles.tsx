@@ -2,8 +2,10 @@ import React, { useRef, useState } from "react";
 import "./inputField.scss";
 
 interface InputFilesProps {
-    onChange?: (files: FileList | null) => void;
+    // onChange?: (files: FileList | null) => void;
+    onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
     title?: string;
+    name?: string;
 }
 
 const InputFiles: React.FC<InputFilesProps> = ({ onChange, title }) => {
@@ -15,8 +17,21 @@ const InputFiles: React.FC<InputFilesProps> = ({ onChange, title }) => {
     };
 
     const handleFiles = (files: FileList | null) => {
-        if (onChange) onChange(files);
+        if (!files || !onChange) return;
+
+        const event = {
+            target: {
+                name,
+                files,
+            },
+        } as unknown as React.ChangeEvent<HTMLInputElement>;
+
+        onChange(event);
     };
+
+    // const handleFiles = (files: FileList | null) => {
+    //     if (onChange) onChange(files);
+    // };
 
     return (
         <div className="input-file-wrapper" >

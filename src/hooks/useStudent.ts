@@ -44,7 +44,7 @@ interface StudentsResponse {
 // Fetch All Students
 export const useFetchAllStudents = (page: number = 1) => {
   return useQuery<Pagination<Student>>({
-    queryKey: [...STUDENTS_KEY, page],
+    queryKey: [...STUDENTS_KEY],
     queryFn: async () => {
       const res = await axiosInstance.get<StudentsResponse>(
         `${student.students}?page=${page}`,
@@ -61,9 +61,7 @@ export const useFetchOneStudent = (id?: string) => {
   return useQuery({
     queryKey: ["student"],
     queryFn: async () => {
-      const res = await axiosInstance.get<StudentsResponse>(
-        `${student.students}/${id}`,
-      );
+      const res = await axiosInstance.get(`${student.students}/${id}`);
       return res.data;
     },
     enabled: !!id,
@@ -178,14 +176,15 @@ export interface UpdateStudentPayload {
   section_id: number;
 }
 
-export const useUpdateStudent = () => {
+export const useUpdateStudent = (student_id: string) => {
   const queryClient = useQueryClient(); //for update and add
   return useMutation({
     mutationFn: async (updatePayload: UpdateStudentPayload) => {
-      const { id, ...updatedData } = updatePayload;
+      const { ...updatedData } = updatePayload;
+      console.log("dfff", student_id, updatedData);
 
       const res = await axiosInstance.put(
-        `${student.students}/${id}`,
+        `${student.students}/${student_id}`,
         updatedData,
       );
 
@@ -193,9 +192,7 @@ export const useUpdateStudent = () => {
     },
 
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: STUDENTS_KEY,
-      });
+      queryClient.invalidateQueries({ queryKey: STUDENTS_KEY });
     },
   });
 };

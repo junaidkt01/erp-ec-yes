@@ -9,7 +9,7 @@ interface CustomSelectProps {
     value?: string | number;
     label?: string;
     placeholder?: string;
-    options: Option[];
+    options?: Option[];
     onChange: (value: string | number) => void;
     name?: string;
 }
@@ -71,7 +71,7 @@ export const CustomSelect = ({
 
             {open && (
                 <div className="select_dropdown">
-                    {options.map((opt) => (
+                    {options?.map((opt) => (
                         <div
                             key={opt.value}
                             className={`dropdown_item ${value === opt.value ? "active_item" : ""

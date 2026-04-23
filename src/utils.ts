@@ -138,6 +138,20 @@ export const sidebar_menus = [
       },
     ],
   },
+
+  {
+    title: "HR",
+    menus: [
+      {
+        title: "Human Resource",
+        icon: "/sidebar_icons/admin_section.svg",
+        path: "/human-resource",
+
+        sub_menus: ["Add Staff", "Staff List"],
+      },
+    ],
+  },
+
   {
     title: "Exam",
     menus: [
