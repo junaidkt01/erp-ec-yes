@@ -8,7 +8,7 @@ interface InputFilesProps {
     name?: string;
 }
 
-const InputFiles: React.FC<InputFilesProps> = ({ onChange, title }) => {
+const InputFiles: React.FC<InputFilesProps> = ({ onChange, title, name }) => {
     const inputRef = useRef<HTMLInputElement | null>(null);
     const [isDragging, setIsDragging] = useState(false);
 

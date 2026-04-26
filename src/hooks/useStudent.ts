@@ -49,7 +49,7 @@ export const useFetchAllStudents = (page: number = 1) => {
       const res = await axiosInstance.get<StudentsResponse>(
         `${student.students}?page=${page}`,
       );
-      return res.data.data;
+      return res.data;
     },
 
     placeholderData: (previousData) => previousData, //keep previous data, show skeleton data,show partial data

@@ -32,9 +32,9 @@ const StudentList = () => {
     useEffect(() => {
         if (!sampleData?.data) return;
 
-        const mappedDat = sampleData.data.map((student: any) => student)
+        const mappedDat = sampleData?.data?.map((student: any) => student)
         console.log("mappedDat: ", mappedDat)
-        const mappedData = sampleData.data.map((student: any, index: number) => ({
+        const mappedData = sampleData?.data?.map((student: any, index: number) => ({
             sl: index + 1,
             admission_no: student.admission_no || "",
             name: `${student.first_name || ""} ${student.last_name || ""}`.trim(),
@@ -118,8 +118,8 @@ const StudentList = () => {
                     <DataTable
                         columns={columns}
                         data={studentList}
-                        currentPage={sampleData?.current_page || 0}
-                        totalPages={sampleData?.total || 0}
+                        currentPage={sampleData?.meta?.current_page || 0}
+                        totalPages={sampleData?.meta?.total || 0}
                         onPageChange={(p) => setPage(p)}
                         actions={(row) => (
                             <div className="actions">

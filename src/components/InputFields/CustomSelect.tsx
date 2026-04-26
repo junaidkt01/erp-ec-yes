@@ -6,7 +6,7 @@ interface Option {
 }
 
 interface CustomSelectProps {
-    value?: string | number;
+    value?: string | number | boolean;
     label?: string;
     placeholder?: string;
     options?: Option[];

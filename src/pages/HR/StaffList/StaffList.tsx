@@ -4,17 +4,16 @@ import { InputField } from "../../../components/InputFields/InputFields"
 import PopupScreen from "../../../components/PopupScreen/PopupScreen"
 import TableWrapper from "../../../components/TableWrapper"
 import DataTable, { type Column } from "../../../components/DataTable/DataTable"
-import { useFetchAllStudents } from "../../../hooks/useStudent"
 import { useNavigate } from "react-router-dom"
 import LoadingOverlay from "../../../components/Loadingoverlay"
+import { useFetchAllStaff } from "../../../hooks/useStaff"
 
 const StaffList = () => {
     const navigate = useNavigate()
     const [page, setPage] = useState(1);
 
-
-    const { data: sampleData, isLoading } = useFetchAllStudents(page);
-    console.log("students: 01", sampleData);
+    const { data: sampleData, isLoading } = useFetchAllStaff(page);
+    console.log("staff: 01", sampleData);
 
     const columns: Column[] = [
         { key: "sl", title: "SL" },
@@ -27,24 +26,22 @@ const StaffList = () => {
         { key: "type", title: "Type" },
     ];
 
-    const [studentList, setStudentList] = useState<any>([])
+    const [studentList, setStudentList] = useState<any>([]);
 
     useEffect(() => {
-        if (!sampleData?.data) return;
+        if (!sampleData) return;
 
-        const mappedDat = sampleData.data.map((student: any) => student)
-        console.log("mappedDat: ", mappedDat)
-        const mappedData = sampleData.data.map((student: any, index: number) => ({
+        const mappedData = sampleData?.map((staff: any, index: number) => ({
             sl: index + 1,
-            admission_no: student.admission_no || "",
-            name: `${student.first_name || ""} ${student.last_name || ""}`.trim(),
-            father_name: student.parents?.father_name || "",
-            date_of_birth: student.dob || "",
-            class_and_section: `${student?.class?.name || ""} ${student?.section?.name || ""}`.trim(),
-            gender: student.gender || "",
+            staff_no: staff.staff_no || "",
+            name: `${staff.first_name || ""} ${staff.last_name || ""}`.trim(),
+            father_name: staff?.father_name || "",
+            department: staff.department || "",
+            designation: staff?.designation || "",
+            gender: staff.gender || "",
             type: "-",
 
-            full_data: student,
+            full_data: staff,
         }))
 
         setStudentList(mappedData);
@@ -114,7 +111,7 @@ const StaffList = () => {
                     </div>
                 </TableWrapper> */}
 
-                <TableWrapper isAddButton onClick={() => navigate("/student-info/add-student")} isSearchBar title="Student List" >
+                <TableWrapper isAddButton onClick={() => navigate("/human-resource/add-staff")} isSearchBar title="Staff List" >
                     <DataTable
                         columns={columns}
                         data={studentList}
@@ -124,7 +121,7 @@ const StaffList = () => {
                         actions={(row) => (
                             <div className="actions">
                                 <button><img src="/svgs/eye_open.svg" alt="" /></button>
-                                <button onClick={() => navigate(`/student-info/add-student/${row?.full_data?.id}`)} ><img src="/svgs/edit.svg" alt="" /></button>
+                                <button onClick={() => navigate(`/human-resource/add-staff/${row?.full_data?.id}`)} ><img src="/svgs/edit.svg" alt="" /></button>
                                 <button><img src="/svgs/delete.svg" alt="" /></button>
                                 <button><img src="/svgs/block.svg" alt="" /></button>
                             </div>

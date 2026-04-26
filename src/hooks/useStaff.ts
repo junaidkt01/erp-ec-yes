@@ -37,45 +37,51 @@ interface StaffResponse {
 }
 
 // Fetch All Staffs
-export const useFetchAllStaff = () => {
+export const useFetchAllStaff = (page: number) => {
   return useQuery<Staff[]>({
     queryKey: STAFF_KEY,
     queryFn: async () => {
       const res = await axiosInstance.get<StaffResponse>(
-        `${staff.staffs}`,
+        `${staff.staffs}?page=${page}`,
       );
       return res.data.data;
     },
   });
 };
 
+// Fetch one Students
+export const useFetchOneStaff = (id?: string) => {
+  return useQuery({
+    queryKey: ["staff"],
+    queryFn: async () => {
+      const res = await axiosInstance.get(`${staff.staffs}/${id}`);
+      return res.data;
+    },
+    enabled: !!id,
+    placeholderData: (prev) => prev,
+  });
+};
 
 // Add Staff  api
 
 interface CreateStaffPayload {
-  first_name?: string;
-  last_name?: string;
-  name?: string;
-  email: string;
-  phone?: string;
-  designation?: string;
+  [key: string]: any;
 }
 
 export const useAddStaff = () => {
-const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (payload: CreateStaffPayload) => {
-      const res = await axiosInstance.post(
-        `${staff.staffs}`,
-        payload,
-      );
-      res.data;
+    mutationFn: async (payload: CreateStaffPayload | FormData) => {
+      const res = await axiosInstance.post(`${staff.staffs}`, payload, {
+        headers: payload instanceof FormData ? { "Content-Type": "multipart/form-data" } : undefined,
+      });
+      return res.data;
     },
 
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: STAFF_KEY,
+        queryKey: [...STAFF_KEY],
       });
     },
   });
@@ -83,31 +89,24 @@ const queryClient = useQueryClient();
 
 //update Staff api
 
-export interface UpdateStaffPayload  {
-  id: number;
-  designation: string;
-  qualification: string;
-  joining_date: string;
+export interface UpdateStaffPayload {
+  [key: string]: any;
 }
 
-export const useUpdateStaff = () => {
-
-    const queryClient = useQueryClient(); //for update and add
+export const useUpdateStaff = (staff_id: string) => {
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (updatePayload: UpdateStaffPayload) => {
-      const { id, ...updatedData } = updatePayload;
-
-      const res = await axiosInstance.put(
-        `${staff.staffs}/${id}`,
-        updatedData,
-      );
-
+    mutationFn: async (updatePayload: UpdateStaffPayload | FormData) => {
+      const res = await axiosInstance.put(`${staff.staffs}/${staff_id}`, updatePayload, {
+        headers: updatePayload instanceof FormData ? { "Content-Type": "multipart/form-data" } : undefined,
+      });
+      console.log("ress",res)
       return res.data;
     },
 
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: STAFF_KEY,
+        queryKey: [...STAFF_KEY],
       });
     },
   });
@@ -115,13 +114,10 @@ export const useUpdateStaff = () => {
 
 //remove Staff api
 export const useRemoveStaff = () => {
-
-    const queryClient = useQueryClient(); 
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: number) => {
-      const res = await axiosInstance.delete(
-        `${staff.staffs}/${id}`,
-      );
+      const res = await axiosInstance.delete(`${staff.staffs}/${id}`);
 
       return res.data;
     },

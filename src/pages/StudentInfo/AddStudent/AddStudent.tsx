@@ -17,6 +17,7 @@ import { useAuth } from "../../../auth/useAuth.ts"
 import { useParams } from "react-router-dom"
 import LoadingOverlay from "../../../components/Loadingoverlay.tsx"
 import { toast } from "sonner"
+import BulkUpload from "../../../components/BulkUpload/BulkUpload.tsx"
 
 const AddStudent = () => {
     const { student_id } = useParams();
@@ -33,6 +34,11 @@ const AddStudent = () => {
     const [isAddAdmissionQuery, setIsAddAdmissionQuery] = useState(false)
     const handleAddAdmissionQuery = () => {
         setIsAddAdmissionQuery(!isAddAdmissionQuery)
+    }
+
+    const [isImportStudents, setIsImportStudents] = useState(false)
+    const handleImportStudents = () => {
+        setIsImportStudents(!isImportStudents);
     }
 
 
@@ -194,7 +200,6 @@ const AddStudent = () => {
             class_id: String(data.class_id || ""),
             section_id: String(data.section_id || ""),
 
-            // ⚠️ fix these properly based on real API
             religion: String(data.religion || ""),
             roll_no: String(data.roll_no || ""),
 
@@ -427,7 +432,18 @@ const AddStudent = () => {
                     </div>
                 </PopupScreen>}
 
-                <TableWrapper isAddButton title={readyToSubmit ? "Details Preview" : "Add Student"} onClick={handleAddAdmissionQuery} >
+                {isImportStudents && <PopupScreen title="Import Student" onClick={handleImportStudents} >
+                    <div className="popup_body" >
+                        <div className="fields_wrapper">
+
+                            {/* here will be the component */}
+                            <BulkUpload />
+
+                        </div>
+                    </div>
+                </PopupScreen>}
+
+                <TableWrapper isAddButton title={readyToSubmit ? "Details Preview" : "Add Student"} onClick={handleImportStudents} >
                     <InputTitleTabs tabsTitles={addStudentsTabs} onSetSelectedInputTitleTab={handleSelecteInputTitleTab} selected={selectedInputTitleTab} />
 
                     {(selectedInputTitleTab === "Personal Details" && readyToSubmit) && <div className="search_screen">
