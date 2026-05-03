@@ -11,26 +11,27 @@ export interface FeeGroup {
   name: string;
 }
 
-interface FeeGroupResponse  {
-   data: FeeGroup[];
-}
+// interface FeeGroupResponse {
+//   data: FeeGroup[];
+// }
 
 // Fetch All FeeGroups
-export const useFetchAllFeeGroups = () => {
-  return useQuery<FeeGroup[]>({
-    queryKey: FEE_GROUP_KEY,
-queryFn: async () => {
-   const res = await axiosInstance.get<FeeGroupResponse>(`${feeGroup.fee_groups}`);
+export const useFetchAllFeeGroups = (page: number) => {
+  return useQuery<any>({
+    queryKey: [...FEE_GROUP_KEY, page],
+    queryFn: async () => {
+      const res = await axiosInstance.get<any>(
+        `${feeGroup.fee_groups}?page=${page}`,
+      );
 
-    return res.data.data;
-}
+      return res.data.data;
+    },
   });
 };
 
-
 // Add FeeGroup  api
 
-interface CreateFeeGroupPayload  {
+interface CreateFeeGroupPayload {
   name: string;
 }
 
@@ -39,10 +40,7 @@ export const useAddFeeGroup = () => {
 
   return useMutation({
     mutationFn: async (payload: CreateFeeGroupPayload) => {
-      const res = await axiosInstance.post(
-        feeGroup.fee_groups,
-        payload
-      );
+      const res = await axiosInstance.post(feeGroup.fee_groups, payload);
 
       return res.data;
     },
@@ -69,10 +67,7 @@ export const useUpdateFeeGroup = () => {
     mutationFn: async (payload: UpdateFeeGroupPayload) => {
       const { id, ...data } = payload;
 
-      const res = await axiosInstance.put(
-        `${feeGroup.fee_groups}/${id}`,
-        data
-      );
+      const res = await axiosInstance.put(`${feeGroup.fee_groups}/${id}`, data);
 
       return res.data;
     },
@@ -86,7 +81,7 @@ export const useUpdateFeeGroup = () => {
 };
 
 //remove FeeGroup api
-export const useRemoveFeeGroup  = () => {
+export const useRemoveFeeGroup = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: number) => {

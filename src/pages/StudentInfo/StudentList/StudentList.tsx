@@ -12,9 +12,8 @@ const StudentList = () => {
     const navigate = useNavigate()
     const [page, setPage] = useState(1);
 
-
     const { data: sampleData, isLoading } = useFetchAllStudents(page);
-    console.log("students: 01", sampleData);
+    console.log("students: 02", sampleData, page);
 
     const columns: Column[] = [
         { key: "sl", title: "SL" },

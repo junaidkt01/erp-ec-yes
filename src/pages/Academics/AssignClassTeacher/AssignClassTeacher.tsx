@@ -34,11 +34,11 @@ const AssignClassTeacher = () => {
                     <div className="popup_body" >
                         <div className="fields_wrapper" >
                             <div className="body_section" >
-                                <CustomSelect label="Choose Enquiry Source" placeholder="Select source" options={["Pending", "Solved", "In Progress", "Closed"]} onChange={(val) => console.log("Selected:", val)} />
-                                <CustomSelect label="Choose Status" placeholder="Select status" options={["Pending", "Solved", "In Progress", "Closed"]} onChange={(val) => console.log("Selected:", val)} />
+                                <CustomSelect label="Choose Enquiry Source" placeholder="Select source" onChange={(val) => console.log("Selected:", val)} />
+                                <CustomSelect label="Choose Status" placeholder="Select status" onChange={(val) => console.log("Selected:", val)} />
                             </div>
                             <div className="body_section" >
-                                <CustomSelect label="Teacher" placeholder="Choose to Assign Teacher" options={["Pending", "Solved", "In Progress", "Closed"]} onChange={(val) => console.log("Selected:", val)} />
+                                <CustomSelect label="Teacher" placeholder="Choose to Assign Teacher" onChange={(val) => console.log("Selected:", val)} />
                             </div>
                         </div>
                         <div className="buttons">

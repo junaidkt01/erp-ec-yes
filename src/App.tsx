@@ -51,6 +51,7 @@ import AddStudent from './pages/StudentInfo/AddStudent/AddStudent'
 import { Toaster } from 'sonner'
 import AddStaff from './pages/HR/AddStaff/AddStaff'
 import StaffList from './pages/HR/StaffList/StaffList'
+import FeesGroup from './pages/Fees/FeesGroup/FeesGroup'
 
 function App() {
   return (
@@ -114,6 +115,13 @@ function App() {
               <Route path='/student-info/student-export' element={<div>student-export</div>} />
               <Route path='/student-info/sms-sending-time' element={<div>sms-sending-time</div>} />
               <Route path='/student-info/student-settings' element={<div>student-settings</div>} />
+
+              {/* 6. Fees */}
+              <Route path='/fees/fees-group' element={<FeesGroup />} />
+              <Route path='/fees/fees-type' element={<div>fees-type</div>} />
+              <Route path='/fees/fees-invoice' element={<div>fees-invoice</div>} />
+              <Route path='/fees/bank-payment' element={<div>bank-payment</div>} />
+              <Route path='/fees/fees-carry-forward' element={<div>fees-carry-forward</div>} />
 
               {/* 6. Human Resource */}
               <Route path='/human-resource/add-staff' element={<AddStaff />} />

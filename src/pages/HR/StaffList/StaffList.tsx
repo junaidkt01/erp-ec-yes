@@ -115,8 +115,8 @@ const StaffList = () => {
                     <DataTable
                         columns={columns}
                         data={studentList}
-                        currentPage={sampleData?.current_page || 0}
-                        totalPages={sampleData?.total || 0}
+                        currentPage={0}
+                        totalPages={0}
                         onPageChange={(p) => setPage(p)}
                         actions={(row) => (
                             <div className="actions">

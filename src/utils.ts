@@ -115,6 +115,14 @@ export const sidebar_menus = [
         title: "Fees",
         icon: "/sidebar_icons/fees.svg",
         path: "/fees",
+
+        sub_menus: [
+          "Fees Group",
+          "Fees Type",
+          "Fees Invoice",
+          "Bank Payment",
+          "Fees Carry Forward",
+        ],
       },
       {
         title: "Home Work",

@@ -81,7 +81,7 @@ export const studentAttendance = {
   student_attendances: "/student-attendances",
 };
 
-export const student = { students: "/students", student: "/student" };
+export const student = { students: "/students", student: "/student", bulk: "/bulk" };
 
 export const studentDocument = { student_documents: "/student-documents" };
 
