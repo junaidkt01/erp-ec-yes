@@ -18,6 +18,8 @@ import { useParams } from "react-router-dom"
 import LoadingOverlay from "../../../components/Loadingoverlay.tsx"
 import { toast } from "sonner"
 import BulkUpload from "../../../components/BulkUpload/BulkUpload.tsx"
+import { validate } from "../../../utils/validate.ts"
+import { studentFamilyDetailsSchema, studentPersonalDetailsSchema } from "../../../validations/studentsSchema.ts"
 
 const AddStudent = () => {
     const { student_id } = useParams();
@@ -58,6 +60,67 @@ const AddStudent = () => {
 
     const { mutateAsync: addStudent } = useAddStudent();
     const { mutateAsync: updateStudent } = useUpdateStudent(student_id || "");
+
+    const [errors, setErrors] = useState<any>({});
+
+    console.log("errors: ", errors)
+    const studentForm = {
+        first_name: "",
+        last_name: "",
+        phone: "",
+        email: "",
+        class_id: "",
+        section_id: "",
+        academic_year_id: "",
+
+        photo: null,
+        blood_group: "",
+        religion: "",
+        admission_date: "",
+        admission_no: "",
+        dob: "",
+        gender: "",
+        emergencyContacts: [{
+            name: "",
+            relation: "",
+            phone: ""
+        }],
+        documents: [{
+            id: 1,
+            title: "",
+            file: ""
+        }],
+
+        caste: "",
+        roll_no: "",
+
+        current_address: "",
+        permanent_address: "",
+
+        father_name: "",
+        father_phone: "",
+        father_email: "",
+        father_occupation: "",
+        mother_name: "",
+        mother_phone: "",
+        mother_email: "",
+        mother_occupation: "",
+        guardian_name: "",
+        guardian_phone: "",
+        guardian_occupation: "",
+        guardian_email: "",
+        guardian_relation: "",
+        guardian_address: "",
+        guardian_is: "",
+
+        national_id_no: "",
+        birth_certificate_no: "",
+        note: "",
+
+        previous_school_name: "",
+        previous_qualification: "",
+        previous_school_details: "",
+    }
     const [formData, setFormData] = useState({
         first_name: "",
         last_name: "",
@@ -118,56 +181,6 @@ const AddStudent = () => {
 
     console.log("formData: ", formData)
 
-    // useEffect(() => {
-    //     if (student && student_id) {
-    //         // setFormData(student?.data);
-
-    //         setFormData({
-    //             academic_year_id: String(student?.data?.academic_year_id),
-    //             admission_date: String(student?.data?.admission_date),
-    //             admission_no: String(student?.data?.admission_no),
-    //             birth_certificate_no: String(student?.data?.birth_certificate_no),
-    //             blood_group: String(student?.data?.blood_group),
-    //             caste: String(student?.data?.caste),
-    //             current_address: String(student?.data?.current_address),
-    //             dob: String(student?.data?.dob),
-    //             documents: [],
-    //             email: String(student?.data?.email),
-    //             emergencyContacts: [],
-    //             father_email: String(student?.data?.parents.father_email),
-    //             father_name: String(student?.data?.parents.father_name),
-    //             father_occupation: String(student?.data?.parents.father_occupation),
-    //             father_phone: String(student?.data?.parents.father_phone),
-    //             first_name: String(student?.data?.first_name),
-    //             gender: String(student?.data?.gender),
-    //             guardian_address: String(student?.data?.parents.guardian_address),
-    //             guardian_email: String(student?.data?.parents.guardian_email),
-    //             guardian_is: String(student?.data?.parents.guardian_is),
-    //             guardian_name: String(student?.data?.parents.guardian_name),
-    //             guardian_occupation: String(student?.data?.parents.guardian_occupation),
-    //             guardian_phone: String(student?.data?.parents.guardian_phone),
-    //             guardian_relation: String(student?.data?.parents.guardian_relation),
-    //             last_name: String(student?.data?.last_name),
-    //             mother_email: String(student?.data?.parents.mother_email),
-    //             mother_name: String(student?.data?.parents.mother_name),
-    //             mother_occupation: String(student?.data?.parents.mother_occupation),
-    //             mother_phone: String(student?.data?.parents.mother_phone),
-    //             national_id_no: String(student?.data?.national_id_no),
-    //             note: String(student?.data?.note),
-    //             permanent_address: String(student?.data?.permanent_address),
-    //             phone: String(student?.data?.phone),
-    //             previous_qualification: String(student?.data?.previous_qualification),
-    //             previous_school_details: String(student?.data?.previous_school_details),
-    //             previous_school_name: String(student?.data?.previous_school_name),
-    //             religion: String(student?.data?.section_id),
-    //             roll_no: String(student?.data?.section_id),
-    //             section_id: String(student?.data?.section_id),
-    //             class_id: String(student?.data?.class_id)
-    //         })
-    //     }
-    // }, [student, studentLoading, studentError])
-
-
     useEffect(() => {
         if (!student || !student_id) return;
 
@@ -226,13 +239,11 @@ const AddStudent = () => {
             documents: data.documents || [],
             emergencyContacts: data.emergencyContacts || [],
         }));
+
     }, [student, student_id]);
 
-
-    console.log("formData: ", formData);
-
-
     const handleChange = (value: any, name?: string) => {
+        setErrors((prev: any) => ({ ...prev, [name || value.target.name]: undefined }))
         if (name) {
             // for DatePicker or custom inputs
             setFormData((prev) => ({
@@ -262,17 +273,6 @@ const AddStudent = () => {
             }));
         }
     };
-    // const handleChange = (value: any, name?: string) => {
-    //     if (name) {
-    //         setFormData({ ...formData, [name]: value }); // for DatePicker
-    //     } else {
-    //         const e = value; // for normal inputs
-    //         setFormData({ ...formData, [e.target.name]: e.target.value });
-    //     }
-    // };
-
-    // const handleSubmit = async (e: React.FormEvent) => {
-    // e.preventDefault();
 
     const { data } = useAuth();
 
@@ -343,6 +343,8 @@ const AddStudent = () => {
                 console.log("updated: res:", res);
                 if (res.success) {
                     toast('Student updated successfully')
+                    setFormData(studentForm);
+                    setReadyToSubmit(false);
                 } else {
                     toast('Student updation failed')
                 }
@@ -350,16 +352,20 @@ const AddStudent = () => {
                 const res = await addStudent(payload as any);
                 console.log("aa: res:", res);
                 toast('Student added successfully')
+                setFormData(studentForm);
+                setReadyToSubmit(false);
             }
             setIsLoading(false);
         } catch (err) {
             setIsLoading(false);
             toast('Student added failed')
+            setReadyToSubmit(false);
             console.log("aa: error:", err);
         }
     };
 
     const handleNextInputsTab = (index: number, submit?: string) => {
+        window.scrollTo({ top: 0, left: 0 })
         if (submit && readyToSubmit) {
             handleSubmit()
         } else if (submit) {
@@ -435,10 +441,7 @@ const AddStudent = () => {
                 {isImportStudents && <PopupScreen title="Import Student" onClick={handleImportStudents} >
                     <div className="popup_body" >
                         <div className="fields_wrapper">
-
-                            {/* here will be the component */}
                             <BulkUpload />
-
                         </div>
                     </div>
                 </PopupScreen>}
@@ -446,6 +449,7 @@ const AddStudent = () => {
                 <TableWrapper isAddButton title={readyToSubmit ? "Details Preview" : "Add Student"} onClick={handleImportStudents} >
                     <InputTitleTabs tabsTitles={addStudentsTabs} onSetSelectedInputTitleTab={handleSelecteInputTitleTab} selected={selectedInputTitleTab} />
 
+                    {/* List inputs */}
                     {(selectedInputTitleTab === "Personal Details" && readyToSubmit) && <div className="search_screen">
                         <>
                             <p className="search_screen_title need_margin" >Academic Information</p>
@@ -473,7 +477,8 @@ const AddStudent = () => {
                                         </div>
                                         <div>
                                             <p className="title" >Admission Date</p>
-                                            <p className="value" >{formData?.admission_date || "N/A"}</p>
+                                            <p className="value" >{formData?.admission_date ? new Date(formData?.admission_date).toLocaleDateString() : "N/A"}</p>
+                                            {/* <p className="value" >{formData?.admission_date ? formData?.admission_date?.toLocaleDateString() : "N/A"}</p> */}
                                         </div>
                                         <div>
                                             <p className="title" >Roll Number</p>
@@ -517,7 +522,16 @@ const AddStudent = () => {
                                 </div>
 
                                 <div className="buttons">
-                                    <PrimaryButton title={isLoading ? "Submiting" : "Submit"} onClick={() => handleNextInputsTab(0, "submit")} />
+                                    <SecondaryButton title="Edit" onClick={() => setReadyToSubmit(false)} />
+                                    <PrimaryButton title={isLoading ? "Submiting" : "Submit"} onClick={() => {
+                                        const { success, errors } = validate(studentPersonalDetailsSchema, formData);
+                                        if (success) {
+                                            handleNextInputsTab(0, "submit")
+                                        } else {
+                                            setErrors(errors);
+                                            return;
+                                        }
+                                    }} />
                                 </div>
                             </div>
                         </>
@@ -530,15 +544,15 @@ const AddStudent = () => {
                             <div className="popup_body" >
                                 <div className="fields_wrapper" >
                                     <div className="body_section" >
-                                        <CustomSelect value={formData?.academic_year_id} name="academic_year_id" label="Academic year" placeholder="Select year" options={formattedData || []} onChange={(value) => setFormData((prev: any) => ({ ...prev, academic_year_id: value }))} />
-                                        <CustomSelect value={formData?.class_id} label="Class" placeholder="Select class" options={classOptions || []} onChange={(value) => setFormData((prev: any) => ({ ...prev, class_id: value }))} />
-                                        <CustomSelect value={formData?.section_id} name="section_id" label="Section" placeholder="Select section" options={sectionOptions || []} onChange={(value) => setFormData((prev: any) => ({ ...prev, section_id: value }))} />
+                                        <CustomSelect error={errors.academic_year_id} value={formData?.academic_year_id} name="academic_year_id" label="Academic year" placeholder="Select year" options={formattedData || []} onChange={(value) => setFormData((prev: any) => ({ ...prev, academic_year_id: value }))} />
+                                        <CustomSelect error={errors.class_id} value={formData?.class_id} label="Class" placeholder="Select class" options={classOptions || []} onChange={(value) => setFormData((prev: any) => ({ ...prev, class_id: value }))} />
+                                        <CustomSelect error={errors.section_id} value={formData?.section_id} name="section_id" label="Section" placeholder="Select section" options={sectionOptions || []} onChange={(value) => setFormData((prev: any) => ({ ...prev, section_id: value }))} />
                                     </div>
                                     <div className="body_section" >
-                                        <InputField type="text" label="Admission Number" placeHolder="Enter admission number" name="admission_no" value={formData?.admission_no} onChange={handleChange} />
-                                        <InputField name="admission_date" type="date" label="Admission Date" value={formData.admission_date} placeHolder="Select date" onChange={handleChange} />
+                                        <InputField error={errors.admission_no} type="text" label="Admission Number" placeHolder="Enter admission number" name="admission_no" value={formData?.admission_no} onChange={handleChange} />
+                                        <InputField error={errors.admission_date} name="admission_date" type="date" label="Admission Date" value={formData.admission_date} placeHolder="Select date" onChange={handleChange} />
                                         {/* <InputField name="email" value={formData?.email} onChange={handleChange} type="text" label="Email" placeHolder="Enter mail address" /> */}
-                                        <InputField name="roll_no" value={formData?.roll_no} onChange={handleChange} type="text" label="Roll Number" placeHolder="Enter roll number" />
+                                        <InputField error={errors.roll_no} name="roll_no" value={formData?.roll_no} onChange={handleChange} type="text" label="Roll Number" placeHolder="Enter roll number" />
                                     </div>
                                 </div>
                             </div>
@@ -548,14 +562,14 @@ const AddStudent = () => {
                             <div className="popup_body" >
                                 <div className="fields_wrapper" >
                                     <div className="body_section" >
-                                        <InputField type="text" label="First Name" placeHolder="Enter name" name="first_name" value={formData?.first_name} onChange={handleChange} />
-                                        <InputField type="text" label="Last Name" placeHolder="Enter name" name="last_name" value={formData?.last_name} onChange={handleChange} />
+                                        <InputField error={errors.first_name} type="text" label="First Name" placeHolder="Enter name" name="first_name" value={formData?.first_name} onChange={handleChange} />
+                                        <InputField error={errors.last_name} type="text" label="Last Name" placeHolder="Enter name" name="last_name" value={formData?.last_name} onChange={handleChange} />
                                         <CustomSelect value={formData?.gender} name="gender" label="Gender" placeholder="Select gender" options={genderOptions || []} onChange={(value) => setFormData((prev: any) => ({ ...prev, gender: value }))} />
                                     </div>
                                     <div className="body_section" >
                                         {/* <InputField name="dob" type="date" label="Date Of Birth" value={formData.dob} placeHolder="Select date" onChange={handleChange} /> */}
-                                        <CustomSelect value={formData?.religion} name="religion" label="Religion" placeholder="Select religion" options={[{ label: "Muslim", value: "Muslim" }, { label: "Hindu", value: "Hindu" }, { label: "Christian", value: "Christian" }]} onChange={(value) => setFormData((prev: any) => ({ ...prev, religion: value }))} />
-                                        <InputField name="caste" value={formData?.caste} onChange={handleChange} type="text" label="Cast" placeHolder="Enter cast" />
+                                        <CustomSelect error={errors.religion} value={formData?.religion} name="religion" label="Religion" placeholder="Select religion" options={[{ label: "Muslim", value: "Muslim" }, { label: "Hindu", value: "Hindu" }, { label: "Christian", value: "Christian" }]} onChange={(value) => setFormData((prev: any) => ({ ...prev, religion: value }))} />
+                                        <InputField error={errors.caste} name="caste" value={formData?.caste} onChange={handleChange} type="text" label="Cast" placeHolder="Enter cast" />
                                     </div>
                                     <div className="body_section" >
                                         {/* <InputFiles title="Student photo" /> */}
@@ -564,29 +578,15 @@ const AddStudent = () => {
                                 </div>
                             </div>
 
-                            {/* 3 */}
-                            {/* <p className="search_screen_title need_margin" >Contact Information</p>
-                            <div className="popup_body" >
-                                <div className="fields_wrapper" >
-                                    <div className="body_section" >
-                                        <InputField type="text" label="Email Address" placeHolder="Enter email address" name="email" value={formData.email} onChange={handleChange} />
-                                        <InputField type="text" label="Phone Number" placeHolder="Enter phone number" name="phone" value={formData.phone} onChange={handleChange} />
-                                    </div>
-                                    <div className="body_section" >
-                                        <InputField type="date" label="Date Of Birth" placeHolder="Select date" />
-                                    </div>
-                                </div>
-                            </div> */}
-
                             {/* 4 */}
                             <p className="search_screen_title need_margin" >Student Address</p>
                             <div className="popup_body" >
                                 <div className="fields_wrapper" >
                                     <div className="body_section" >
-                                        <InputField name="current_address" value={formData?.current_address} onChange={handleChange} type="text" label="Current Address" placeHolder="Enter current address" />
+                                        <InputField error={errors.current_address} name="current_address" value={formData?.current_address} onChange={handleChange} type="text" label="Current Address" placeHolder="Enter current address" />
                                     </div>
                                     <div className="body_section" >
-                                        <InputField name="permanent_address" value={formData?.permanent_address} onChange={handleChange} type="text" label="Permenant Address" placeHolder="Enter permenant address" />
+                                        <InputField error={errors.permanent_address} name="permanent_address" value={formData?.permanent_address} onChange={handleChange} type="text" label="Permenant Address" placeHolder="Enter permenant address" />
                                     </div>
                                 </div>
                             </div>
@@ -597,14 +597,24 @@ const AddStudent = () => {
                                 <div className="fields_wrapper" >
                                     <div className="body_section" >
                                         {/* <CustomSelect name="blood_group" label="Blood Group" placeholder="Select blood group" options={["A+", "O+", "B+", "AB+", "A-", "O-", "B-", "AB-"]} onChange={(value) => setFormData((prev) => ({ ...prev, blood_group: value }))} /> */}
-                                        <CustomSelect value={formData?.blood_group} name="blood_group" label="Blood Group" placeholder="Select blood group" options={[{ label: "A+", value: "A+" }, { label: "O+", value: "O+" }, { label: "B+", value: "B+" }, { label: "AB+", value: "AB+" }, { label: "A-", value: "A-" }, { label: "O-", value: "O-" }, { label: "B-", value: "B-" }, { label: "AB-", value: "AB-" }]} onChange={(value) => setFormData((prev: any) => ({ ...prev, blood_group: value }))} />
+                                        <CustomSelect error={errors.blood_group} value={formData?.blood_group} name="blood_group" label="Blood Group" placeholder="Select blood group" options={[{ label: "A+", value: "A+" }, { label: "O+", value: "O+" }, { label: "B+", value: "B+" }, { label: "AB+", value: "AB+" }, { label: "A-", value: "A-" }, { label: "O-", value: "O-" }, { label: "B-", value: "B-" }, { label: "AB-", value: "AB-" }]} onChange={(value) => setFormData((prev: any) => ({ ...prev, blood_group: value }))} />
                                         {/* <CustomSelect label="Category" placeholder="Select category" options={["Pending", "Solved", "In Progress", "Closed"]} onChange={(val) => console.log("Selected:", val)} /> */}
                                     </div>
                                 </div>
 
                                 <div className="buttons">
-                                    <SecondaryButton title="Save" />
-                                    <PrimaryButton title="Next" onClick={() => handleNextInputsTab(1)} />
+                                    {/* <SecondaryButton title="Save" /> */}
+                                    <PrimaryButton title="Next"
+                                        onClick={() => {
+                                            const { success, errors } = validate(studentPersonalDetailsSchema, formData);
+                                            if (success) {
+                                                handleNextInputsTab(1)
+                                            } else {
+                                                setErrors(errors);
+                                                return;
+                                            }
+                                        }}
+                                    />
                                 </div>
                             </div>
                         </>
@@ -617,8 +627,8 @@ const AddStudent = () => {
                             <div className="popup_body" >
                                 <div className="fields_wrapper" >
                                     <div className="body_section" >
-                                        <InputField name="father_name" type="text" label="Father Name" placeHolder="Enter father name" value={formData?.father_name} onChange={handleChange} />
-                                        <InputField name="father_phone" type="text" label="Father Phone Number" placeHolder="Enter phone number" value={formData?.father_phone} onChange={handleChange} />
+                                        <InputField error={errors.father_name} name="father_name" type="text" label="Father Name" placeHolder="Enter father name" value={formData?.father_name} onChange={handleChange} />
+                                        <InputField error={errors.father_phone} name="father_phone" type="text" label="Father Phone Number" placeHolder="Enter phone number" value={formData?.father_phone} onChange={handleChange} />
                                     </div>
                                     <div className="body_section" >
                                         <InputFiles title="Father’s Photo" />
@@ -631,8 +641,8 @@ const AddStudent = () => {
                             <div className="popup_body" >
                                 <div className="fields_wrapper" >
                                     <div className="body_section" >
-                                        <InputField name="mother_name" type="text" label="Mother Name" placeHolder="Enter Mother name" value={formData?.mother_name} onChange={handleChange} />
-                                        <InputField name="mother_phone" type="text" label="Mother Phone Number" placeHolder="Enter phone number" value={formData?.mother_phone} onChange={handleChange} />
+                                        <InputField error={errors.mother_name} name="mother_name" type="text" label="Mother Name" placeHolder="Enter Mother name" value={formData?.mother_name} onChange={handleChange} />
+                                        <InputField error={errors.mother_phone} name="mother_phone" type="text" label="Mother Phone Number" placeHolder="Enter phone number" value={formData?.mother_phone} onChange={handleChange} />
                                     </div>
                                     <div className="body_section" >
                                         <InputFiles title="Mother’s Photo" />
@@ -660,15 +670,15 @@ const AddStudent = () => {
                                         />
                                     </div>
                                     <div className="body_section" >
-                                        <InputField name="guardian_name" value={relation === "father" ? formData?.father_name : relation === "mother" ? formData?.mother_name : formData?.guardian_name} onChange={handleChange} type="text" label={`${relation.charAt(0).toUpperCase() + relation.slice(1)} Name`} placeHolder={`Enter ${relation} name`} />
-                                        <InputField name="guardian_phone" value={relation === "father" ? formData?.father_phone : relation === "mother" ? formData?.mother_phone : formData?.guardian_phone} onChange={handleChange} type="text" label="Phone Number" placeHolder="Enter phone number" />
+                                        <InputField error={errors.guardian_name} name="guardian_name" value={relation === "father" ? formData?.father_name : relation === "mother" ? formData?.mother_name : formData?.guardian_name} onChange={handleChange} type="text" label={`${relation.charAt(0).toUpperCase() + relation.slice(1)} Name`} placeHolder={`Enter ${relation} name`} />
+                                        <InputField error={errors.guardian_phone} name="guardian_phone" value={relation === "father" ? formData?.father_phone : relation === "mother" ? formData?.mother_phone : formData?.guardian_phone} onChange={handleChange} type="text" label="Phone Number" placeHolder="Enter phone number" />
                                     </div>
                                     <div className="body_section" >
-                                        <InputField name="guardian_relation" value={relation === "father" ? formData?.father_name : relation === "mother" ? formData?.mother_name : formData?.guardian_relation} onChange={handleChange} type="text" label="Relation With Guardian" placeHolder="Enter relation with guardian" />
-                                        <InputField name="guardian_email" value={formData?.guardian_email} onChange={handleChange} type="text" label="Guardian Email" placeHolder="Enter guardian's email address" />
+                                        <InputField error={errors.guardian_relation} name="guardian_relation" value={relation === "father" ? formData?.father_name : relation === "mother" ? formData?.mother_name : formData?.guardian_relation} onChange={handleChange} type="text" label="Relation With Guardian" placeHolder="Enter relation with guardian" />
+                                        <InputField error={errors.guardian_email} name="guardian_email" value={formData?.guardian_email} onChange={handleChange} type="text" label="Guardian Email" placeHolder="Enter guardian's email address" />
                                     </div>
                                     <div className="body_section" >
-                                        <InputField name="guardian_address" value={formData?.guardian_address} onChange={handleChange} type="text" label="Guardian Address" placeHolder="Enter guardian's address" />
+                                        <InputField error={errors.guardian_address} name="guardian_address" value={formData?.guardian_address} onChange={handleChange} type="text" label="Guardian Address" placeHolder="Enter guardian's address" />
                                     </div>
                                     <div className="body_section" >
                                         <InputFiles title="Guardian Photo" />
@@ -677,7 +687,17 @@ const AddStudent = () => {
 
                                 <div className="buttons">
                                     <SecondaryButton title="Save" />
-                                    <PrimaryButton title="Next" onClick={() => handleNextInputsTab(2)} />
+                                    <PrimaryButton title="Next"
+                                        onClick={() => {
+                                            const { success, errors } = validate(studentFamilyDetailsSchema, formData);
+                                            if (success) {
+                                                handleNextInputsTab(2)
+                                            } else {
+                                                setErrors(errors);
+                                                return;
+                                            }
+                                        }}
+                                    />
                                 </div>
                             </div>
                         </>
@@ -786,7 +806,7 @@ const AddStudent = () => {
                         </>
                     </div>}
 
-                    {selectedInputTitleTab === "Custom Data" && <div className="search_screen">
+                    {selectedInputTitleTab === "Custom Field" && <div className="search_screen">
                         <>
                             <div className="popup_body" >
                                 <div className="buttons">

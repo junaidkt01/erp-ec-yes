@@ -1,35 +1,29 @@
 import { DatePicker } from "./DatePicker";
 
-export const InputField = ({
-    onChange,
-    value,
-    type,
-    placeHolder,
-    label,
-    name,
-    required,
-    error
-}: {
+export const InputField = ({ onChange, value, type, placeHolder, label, name, required, error }: {
     onChange?: (value: any, name?: string) => void;
-    value?: any;
-    type: string;
-    placeHolder: string;
-    name?: string;
-    label: string;
-    required?: boolean;
-    error?: string;
+    value?: any; type: string; placeHolder: string; name?: string;
+    label: string; required?: boolean; error?: string;
 }) => {
     return (
-        <div className={`input_field ${error ? "error" : ""}`}>
+        <div className={`input_field ${error ? "error" : ""}`} >
             <label>{label}</label>
 
             {type === "date" ? (
-                <DatePicker
-                    value={value}
-                    onChange={(date: Date) => {
-                        onChange?.(date, name);
-                    }}
-                />
+                <>
+                    <DatePicker
+                        value={value}
+                        onChange={(date: Date) => {
+                            onChange?.(date, name);
+                        }}
+                    />
+                    {error &&
+                        <div className="error_text_wrapper" >
+                            <img src="/svgs/input_valid_error.svg" alt="..." />
+                            <p className="error_text">{error}</p>
+                        </div>
+                    }
+                </>
             ) : (
                 <>
                     <input
@@ -41,6 +35,12 @@ export const InputField = ({
                         onChange={onChange}
                         value={value}
                     />
+                    {error &&
+                        <div className="error_text_wrapper" >
+                            <img src="/svgs/input_valid_error.svg" alt="..." />
+                            <p className="error_text">{error}</p>
+                        </div>
+                    }
                 </>
             )}
         </div>

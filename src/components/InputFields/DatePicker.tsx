@@ -44,7 +44,7 @@ export const DatePicker = ({ value, onChange }: any) => {
 
     return (
         <div className="date_picker_container" >
-            <div className="date_input_display" onClick={() => setShow((prev) => !prev)}>
+            <div className={`date_input_display ${show ? "open" : ""}`} onClick={() => setShow((prev) => !prev)}>
                 {/* {value ? value?.toLocaleDateString("en-GB") : "Select date"} */}
                 {value ? new Date(value).toLocaleDateString("en-GB") : "Select date"}
 

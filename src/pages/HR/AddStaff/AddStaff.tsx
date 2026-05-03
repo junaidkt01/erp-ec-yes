@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react"
 import { PrimaryButton, SecondaryButton } from "../../../components/Buttons/Buttons"
 import { InputField } from "../../../components/InputFields/InputFields"
-import PopupScreen from "../../../components/PopupScreen/PopupScreen"
+// import PopupScreen from "../../../components/PopupScreen/PopupScreen"
 import InputTitleTabs, { addStaffsTabs } from "../../../components/InputTitleTabs/InputTitleTabs.tsx"
 import TableWrapper from "../../../components/TableWrapper"
 import { CustomSelect } from "../../../components/InputFields/CustomSelect.tsx"
 import InputFiles from "../../../components/InputFields/InputFiles.tsx"
-import InputRadioButtons from "../../../components/InputRadioButtons/InputRadioButtons.tsx"
+// import InputRadioButtons from "../../../components/InputRadioButtons/InputRadioButtons.tsx"
 import { useAddStaff, useUpdateStaff, useFetchOneStaff } from "../../../hooks/useStaff.ts"
 
 import { useAuth } from "../../../auth/useAuth.ts"
@@ -30,11 +30,11 @@ const AddStaff = () => {
         setIsAddAdmissionQuery(!isAddAdmissionQuery)
     }
 
-    const [siblingStaff, setSiblingStaff] = useState("from_sibling");
-    const siblingStaffOptions = [
-        { label: "From Sibling", value: "from_sibling" },
-        { label: "From Staff", value: "from_staff" },
-    ];
+    // const [siblingStaff, setSiblingStaff] = useState("from_sibling");
+    // const siblingStaffOptions = [
+    //     { label: "From Sibling", value: "from_sibling" },
+    //     { label: "From Staff", value: "from_staff" },
+    // ];
 
     const { mutateAsync: addStaff } = useAddStaff();
     const { mutateAsync: updateStaff } = useUpdateStaff(staff_id || "");
@@ -157,6 +157,7 @@ const AddStaff = () => {
     };
 
     const { data } = useAuth();
+    console.log(data)
 
     const [isLoading, setIsLoading] = useState(false)
 

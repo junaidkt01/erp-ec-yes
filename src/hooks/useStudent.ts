@@ -29,24 +29,33 @@ export interface Student {
   };
 }
 
+// interface Pagination<T> {
+//   current_page: number;
+//   data: T[];
+//   total: number;
+//   per_page: number;
+//   last_page: number;
+// }
 interface Pagination<T> {
-  current_page: number;
   data: T[];
-  total: number;
-  per_page: number;
-  last_page: number;
+  meta: {
+    total: number;
+    // per_page: number;
+    // last_page: number;
+    current_page: number;
+  };
 }
 
-interface StudentsResponse {
-  data: Pagination<Student>;
-}
+// interface StudentsResponse {
+//   data: Pagination<Student>;
+// }
 
 // Fetch All Students
 export const useFetchAllStudents = (page: number = 1) => {
   return useQuery<Pagination<Student>>({
-    queryKey: [...STUDENTS_KEY],
+    queryKey: [...STUDENTS_KEY, page],
     queryFn: async () => {
-      const res = await axiosInstance.get<StudentsResponse>(
+      const res = await axiosInstance.get<any>(
         `${student.students}?page=${page}`,
       );
       return res.data;
@@ -191,8 +200,12 @@ export const useUpdateStudent = (student_id: string) => {
       return res.data;
     },
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: STUDENTS_KEY });
+    onSuccess: (data) => {
+      console.log("ssss: success: ", data);
+      queryClient.invalidateQueries({ queryKey: [...STUDENTS_KEY] });
+    },
+    onError: (error) => {
+      console.log("ssss: error: ", error);
     },
   });
 };
@@ -211,6 +224,54 @@ export const useRemoveStudent = () => {
       queryClient.invalidateQueries({
         queryKey: STUDENTS_KEY,
       });
+    },
+  });
+};
+
+// bulk student upload api
+export interface BulkStudentItem {
+  admission_no: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  class_id: number;
+  section_id: number;
+  academic_year_id: number;
+  dob: string;
+  gender: string;
+  phone: string;
+
+  // optional but present in API
+  father_name?: string;
+  mother_name?: string;
+  emergency_contacts?: {
+    name: string;
+    relation: string;
+    phone: string;
+  }[];
+}
+
+export interface BulkStudentPayload {
+  students: BulkStudentItem[];
+}
+
+export const useBulkAddStudents = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: BulkStudentPayload) => {
+      const res = await axiosInstance.post(`/students${student.bulk}`, payload);
+      return res.data;
+    },
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: STUDENTS_KEY,
+      });
+    },
+
+    onError: (error) => {
+      console.log("Bulk error:", error);
     },
   });
 };

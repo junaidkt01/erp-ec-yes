@@ -40,9 +40,9 @@ const OptionalSubject = () => {
                         <p className="search_screen_title" >Select Criteria</p>
                         <div className="popup_body" >
                             <div className="body_section" >
-                                <CustomSelect label="Class" placeholder="Select class" options={["Pending", "Solved", "In Progress", "Closed"]} onChange={(val) => console.log("Selected:", val)} />
-                                <CustomSelect label="Section" placeholder="Select section" options={["Pending", "Solved", "In Progress", "Closed"]} onChange={(val) => console.log("Selected:", val)} />
-                                <CustomSelect label="Subject" placeholder="Select subject" options={["Pending", "Solved", "In Progress", "Closed"]} onChange={(val) => console.log("Selected:", val)} />
+                                <CustomSelect label="Class" placeholder="Select class" onChange={(val) => console.log("Selected:", val)} />
+                                <CustomSelect label="Section" placeholder="Select section" onChange={(val) => console.log("Selected:", val)} />
+                                <CustomSelect label="Subject" placeholder="Select subject" onChange={(val) => console.log("Selected:", val)} />
                             </div>
 
                             <div className="buttons">
