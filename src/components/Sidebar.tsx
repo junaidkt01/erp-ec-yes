@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { sidebar_menus } from "../utils";
+import { useQueryClient } from "@tanstack/react-query";
+import { GENERAL_SETTINGS_KEY, type generalSettings } from "../hooks/useGeneralSettings";
 
 const slugify = (s: string) =>
     s
@@ -134,12 +136,18 @@ const Sidebar: React.FC = () => {
         location.pathname.startsWith(parentPath) ||
         (activeSubMenu !== null && activeSubMenu.startsWith(parentPath));
 
+
+    const queryClient = useQueryClient();
+
+    const data = queryClient.getQueryData<generalSettings>(GENERAL_SETTINGS_KEY);
+
     return (
         <div className="sidebar">
             <div className="sidebar_inner_box">
                 <div className="sidebar_head_wrapper">
                     <div className="sidebar_head">
-                        <img className="logo" width={120} height={48} src="/YES_india_logo.png" alt="logo" />
+                        <img className="logo" width={120} height={48} src={data?.data?.logo} alt="logo" />
+                        {/* <img className="logo" width={120} height={48} src="/YES_india_logo.png" alt="logo" /> */}
                         <img className="sidebar_arrow" src="/sidebar_icons/arrow_icon.svg" alt="arrow icon" />
                     </div>
 

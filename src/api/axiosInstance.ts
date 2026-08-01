@@ -16,7 +16,6 @@ const axiosInstance = axios.create({
   //   Accept: "multipart/form-data",
   // },
 });
-// baseURL: "https://dev.cyberduce.com/api",
 
 axiosInstance.interceptors.request.use((config) => {
   const stored: any = localStorage.getItem("auth");
@@ -30,12 +29,40 @@ axiosInstance.interceptors.request.use((config) => {
 });
 
 axiosInstance.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    return response;
+  },
   (error: AxiosError) => {
-    if (error.response?.status === 401) {
-      // localStorage.removeItem("auth");
-      // window.location.href = "/";
-    }
+    console.log("error: 1", error);
+
+    // queryClient.setQueryData(["global-error"], {
+    //   open: true,
+    //   status: 404,
+    //   message: "error message",
+    // });
+
+    // queryClient.setQueryData(["global-error"], {
+    //   open: true,
+    //   status: error.response?.status,
+    //   message: error.message,
+    // });
+
+    // if (error.response?.status === 401) {
+    //   // localStorage.removeItem("auth");
+    //   // window.location.href = "/";
+    // }
+    // if (error.response?.status === 500) {
+    //   window.location.href = "/error-page-500";
+    // }
+
+    // const { show } = useOverlayStore.getState();
+
+    // const status = error.response?.status;
+
+    // if (status) {
+    //   show(status, error.message);
+    // }
+
     return Promise.reject(error);
   },
 );

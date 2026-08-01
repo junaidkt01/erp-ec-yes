@@ -62,7 +62,7 @@ export const GlobalButton = ({ title, onClick, icon, bg, border, color }: {
 export const PrimaryButton = ({ title, type, onClick, disabled }: {
     title: string; type?: "button" | "submit" | "reset"; onClick?: any; disabled?: boolean
 }) => {
-    const { ref, onPointerDown, onClickCapture } = useButton()
+    const { ref, onPointerDown, onClickCapture } = useButton();
     return (
         <button ref={ref} className="button primary_button"
             onClick={onClick} type={type} disabled={disabled}

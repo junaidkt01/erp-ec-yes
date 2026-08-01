@@ -101,6 +101,8 @@ export const user = { users: "/users" };
 
 export const video = { videos: "/videos" };
 
+export const generalSettings = { generalSettings: "/general-settings", logo:"/logo", favicon:"/favicon" };
+
 export const twoFactor = {
   confirm: "/2fa/confirm",
   verify: "/2fa/verify"

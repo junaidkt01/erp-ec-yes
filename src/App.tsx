@@ -52,18 +52,59 @@ import { Toaster } from 'sonner'
 import AddStaff from './pages/HR/AddStaff/AddStaff'
 import StaffList from './pages/HR/StaffList/StaffList'
 import FeesGroup from './pages/Fees/FeesGroup/FeesGroup'
+import LoadingOverlay, { ErrorStatusOverlay } from './components/Loadingoverlay'
+import { useOverlayStore } from './stores/loadingOverlay'
+import StudentProfilePage from './pages/StudentInfo/StudentList/StudentProfilePage'
+import StaffProfilePage from './pages/HR/StaffList/StaffProfilePage'
+// import GeneralSettings from './pages/SettingsSection/GeneralSettings/GeneralSettings'
+import UpdateGeneralSettings from './pages/SettingsSection/GeneralSettings/UpdateGeneralSettings'
+import { useFetchGeneralSettings } from './hooks/useGeneralSettings'
+import useSiteSettings from './hooks/useSiteSettings'
+import GeneralSettings from './pages/SettingsSection/GeneralSettings/GeneralSettings'
 
 function App() {
+  const { open, statusCode, message, hide } = useOverlayStore();
+  console.log("test: ", open, statusCode, message, hide);
+
+  const { data, isLoading, error } = useFetchGeneralSettings();
+  useSiteSettings(data?.data);
+
+  if (isLoading) {
+    return <LoadingOverlay />
+  }
+
+  if (error) {
+    return <ErrorStatusOverlay isError={true} status={404} message={"error"} />
+  }
+
   return (
     <div className='app'>
+      {open && (
+        <ErrorStatusOverlay
+          isError={true}
+          status={404}
+          message={"data.message"}
+        />
+      )}
+
+      {/* {data?.open && (
+        <ErrorStatusOverlay
+          isError={data.open}
+          status={data.status}
+          message={data.message}
+        />
+      )} */}
+
       <Toaster />
       <Routes><Route path="/" element={<Login />} /></Routes>
       <div style={{ display: "flex", position: "sticky", top: "0" }} >
-        <ProtectedRoute>
-          <div><Sidebar /></div>
-        </ProtectedRoute>
+        {/* <ProtectedRoute> */}
+        <div><Sidebar /></div>
+        {/* </ProtectedRoute> */}
         <div style={{ width: "100%" }} >
-          <ProtectedRoute><Header /></ProtectedRoute>
+          {/* <ProtectedRoute> */}
+          <Header />
+          {/* </ProtectedRoute> */}
           <div style={{ height: "calc(100% - 64.5px)", overflowY: "auto" }} >
             <Routes>
               <Route path='/dashboard' element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
@@ -115,6 +156,8 @@ function App() {
               <Route path='/student-info/student-export' element={<div>student-export</div>} />
               <Route path='/student-info/sms-sending-time' element={<div>sms-sending-time</div>} />
               <Route path='/student-info/student-settings' element={<div>student-settings</div>} />
+              <Route path='/student-info/profile/:student_id' element={<StudentProfilePage />} />
+
 
               {/* 6. Fees */}
               <Route path='/fees/fees-group' element={<FeesGroup />} />
@@ -127,6 +170,8 @@ function App() {
               <Route path='/human-resource/add-staff' element={<AddStaff />} />
               <Route path='/human-resource/add-staff/:staff_id' element={<AddStaff />} />
               <Route path='/human-resource/staff-list' element={<StaffList />} />
+              <Route path='/human-resource/profile/:staff_id' element={<StaffProfilePage />} />
+
 
               {/* 7. Behaviour Records */}
               <Route path='/behaviour-records/incidents' element={<Incidents />} />
@@ -135,6 +180,14 @@ function App() {
               <Route path='/behaviour-records/behaviour-report' element={<div>Behaviour Report</div>} />
               <Route path='/behaviour-records/incident-wise-report' element={<div>Incident Wise report</div>} />
               <Route path='/behaviour-records/settings' element={<div>Settings</div>} />
+
+              {/* 8. Settings Section */}
+              <Route path='/settings-section/general-settings' element={<GeneralSettings />} />
+              <Route path='/settings-section/update-general-settings' element={<UpdateGeneralSettings />} />
+
+              {/* Error page */}
+              <Route path='/error-page-404' element={<div>Error 404</div>} />
+              <Route path='/error-page-500' element={<div>Error 500</div>} />
             </Routes>
           </div>
         </div>

@@ -6,7 +6,7 @@ interface Option {
 }
 
 interface CustomSelectProps {
-    value?: string | number | boolean;
+    value?: string | number | boolean | null;
     label?: string;
     placeholder?: string;
     options?: Option[];
@@ -21,7 +21,7 @@ export const CustomSelect = ({
 }: CustomSelectProps) => {
     const [open, setOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
-    const selectedOption = options?.find((opt) => opt.value === value);
+    const selectedOption = options?.find((opt) => opt.value == value);
 
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
@@ -32,6 +32,13 @@ export const CustomSelect = ({
         document.addEventListener("click", handleClickOutside);
         return () => document.removeEventListener("click", handleClickOutside);
     }, []);
+
+    // useEffect(() => {
+    //     if (selectedOption) {
+    //         console.log("selectedOption: ", selectedOption)
+    //         onChange(selectedOption.value);
+    //     }
+    // }, [])
 
     const handleSelect = (opt: Option) => {
         onChange(opt.value);

@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 import { useLogin } from "../../auth/useLogin";
 import { loginSchema } from "../../validations/authSchema";
 import { validate } from "../../utils/validate";
-import { useAuth } from "../../auth/useAuth";
 
 const Login: React.FC = () => {
 
@@ -26,9 +25,9 @@ const Login: React.FC = () => {
         const { success, errors } = validate(loginSchema, form);
         if (!success) { setErrors(errors); return; }
         await login(form, {
-            onSuccess: (res: any) => {
+            onSuccess: async (res: any) => {
                 localStorage.setItem("auth", JSON.stringify(res.data));
-                navigate("/dashboard");
+                await navigate("/dashboard");
             },
             onError: (res: any) => console.log("login error: ", res),
         });
@@ -36,10 +35,13 @@ const Login: React.FC = () => {
 
 
 
-    const { data } = useAuth();
-    if (data) {
-        navigate("/dashboard")
-    }
+    // const { data } = useAuth();
+    // console.log("login data me: ", data)
+    // useEffect(() => {
+    //     if (data) {
+    //         navigate("/dashboard")
+    //     }
+    // }, [data])
 
     return (
         <div className="login_page">

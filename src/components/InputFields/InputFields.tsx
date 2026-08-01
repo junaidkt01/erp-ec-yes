@@ -13,7 +13,7 @@ export const InputField = ({ onChange, value, type, placeHolder, label, name, re
                 <>
                     <DatePicker
                         value={value}
-                        onChange={(date: Date) => {
+                        onChange={(date: Date | null) => {
                             onChange?.(date, name);
                         }}
                     />

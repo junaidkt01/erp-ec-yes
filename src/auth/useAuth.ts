@@ -16,7 +16,8 @@ export const useAuth = () => {
       return res.data;
     },
     initialData: storedAuth,
-    staleTime: 5 * 60 * 1000,
+    // staleTime: 5 * 60 * 1000,
+    gcTime: Infinity,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
     retry: false,

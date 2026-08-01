@@ -6,7 +6,7 @@
 
       display: grid;
       gap: 4px;
-      
+
       .title {
         line-height: 120%;
         letter-spacing: 0%;
@@ -20,4 +20,12 @@
       }
     }
   }
+}
+
+.add_parent_button_wrapper {
+  display: flex;
+  justify-content: end;
+
+  margin-top: 24px;
+  margin-bottom: 4px;
 }

@@ -41,8 +41,38 @@
         border-radius: 100%;
         width: 32px;
         height: 32px;
+
+        transition:
+          transform 0.15s ease,
+          background-color 0.15s ease;
+
+        &:hover {
+          background-color: #bdbcdb55;
+        }
+
+        &:active {
+          transform: scale(0.85);
+          background-color: #bdbcdb77;
+        }
       }
     }
+
+    // .actions {
+    //   display: flex;
+    //   gap: 12px;
+
+    //   button {
+    //     display: grid;
+    //     place-items: center;
+    //     cursor: pointer;
+
+    //     border: none;
+    //     background-color: #bdbcdb33;
+    //     border-radius: 100%;
+    //     width: 32px;
+    //     height: 32px;
+    //   }
+    // }
   }
 }
 

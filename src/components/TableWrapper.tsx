@@ -1,13 +1,13 @@
 import { AddButton } from "./Buttons/Buttons"
 import SearchBar from "./SearchBar"
 
-const TableWrapper = ({ isSearchBar, isAddButton, title, children, onClick }: { isAddButton?: boolean; isSearchBar?: boolean; title: string, children: any; onClick?: any }) => {
+const TableWrapper = ({ isSearchBar, isAddButton, title, children, onClick, searchValue = "", searchOnchange = () => { } }: { isAddButton?: boolean; isSearchBar?: boolean; title: string, children: any; onClick?: any; searchValue?: string; searchOnchange?: (value: string) => void; }) => {
     return (
         <div className="table_canvas" >
             <div className="table_header" >
                 <div className="table_title" >
                     <p>{title}</p>
-                    {isSearchBar && <SearchBar placeHolder={"Search"} />}
+                    {isSearchBar && <SearchBar value={searchValue} onChange={searchOnchange} placeHolder={"Search"} />}
                 </div>
 
                 {isAddButton && <AddButton onClick={onClick} title={title === "ID Card" ? "Create New ID Card" : title === "Certificate" ? "Create Certificate" : title === "Upload Content List" ? "Upload Content" : title === "Content Type List" ? "Add Content Type" : title === "Add Student" ? "Import Student" : "Add"} />}

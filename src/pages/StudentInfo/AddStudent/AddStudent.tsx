@@ -10,7 +10,7 @@ import InputRadioButtons from "../../../components/InputRadioButtons/InputRadioB
 import { useFetchAllAcademicYears } from "../../../hooks/useAcademicYear.ts"
 import { useFetchAllStudentClasses } from "../../../hooks/useStudentClass.ts"
 import { useFetchAllSections } from "../../../hooks/useSections.ts"
-import { useAddStudent, useFetchOneStudent, useUpdateStudent } from "../../../hooks/useStudent.ts"
+import { useAddStudent, useFetchAllStudents, useFetchOneStudent, useUpdateStudent } from "../../../hooks/useStudent.ts"
 
 import "./AddStudent.scss"
 import { useAuth } from "../../../auth/useAuth.ts"
@@ -20,22 +20,69 @@ import { toast } from "sonner"
 import BulkUpload from "../../../components/BulkUpload/BulkUpload.tsx"
 import { validate } from "../../../utils/validate.ts"
 import { studentFamilyDetailsSchema, studentPersonalDetailsSchema } from "../../../validations/studentsSchema.ts"
+import { useDebounce } from "../../../hooks/useDebounce.ts"
 
 const AddStudent = () => {
     const { student_id } = useParams();
     const { data: student, isLoading: studentLoading } = useFetchOneStudent(student_id || "")
     console.log("student: ", student)
 
+    // find students starts
+    const [searchTerm, setSearchTerm] = useState("");
+    const debouncedSearch = useDebounce(searchTerm, 500);
+
+    const initialFilter = {
+        academic_year_id: "",
+        class_id: "",
+        section_id: "",
+        name: "",
+        roll_no: "",
+    };
+
+    const [isFindParent, setIsFindParent] = useState(false)
+    const [filterData, setFilterData] = useState(initialFilter);
+    const [selecteSibling, setSelecteSibling] = useState<any>(null);
+    const [selectedSibling, setSelectedSibling] = useState<any>(null);
+    const handleSelectSibling = () => {
+        setSelectedSibling(students?.data?.find((student: any) => student.id === selecteSibling));
+        setIsFindParent(!isFindParent)
+    }
+
+    console.log("abccc", selectedSibling?.parents?.father_name)
+
+    const handleFindParent = () => {
+        setIsFindParent(!isFindParent)
+    }
+
+    console.log("selectedSibling: ", selectedSibling)
+    // const [filteredData, setFilteredData] = useState(initialFilter);
+
+    const { data: students } = useFetchAllStudents(1, {
+        class_id: filterData.class_id,
+        section_id: filterData.section_id,
+        search: debouncedSearch || filterData.name,
+    });
+
+    console.log("students: ", students?.data?.[0])
+
+    const studentsAsSiblings = students?.data?.map((student) => ({
+        label: `${student.first_name} ${student.last_name}`,
+        value: student.id,
+    }));
+
+    console.log("studentsAsSiblings: ", studentsAsSiblings)
+
+    const handleResetFilterData = () => {
+        setFilterData(initialFilter);
+    };
+
+    // find students end
+
     const [selectedInputTitleTab, setSelectedInputTitleTab] = useState(addStudentsTabs[0]);
     const [readyToSubmit, setReadyToSubmit] = useState(false);
 
     const handleSelecteInputTitleTab = (title: string) => {
         setSelectedInputTitleTab(title);
-    }
-
-    const [isAddAdmissionQuery, setIsAddAdmissionQuery] = useState(false)
-    const handleAddAdmissionQuery = () => {
-        setIsAddAdmissionQuery(!isAddAdmissionQuery)
     }
 
     const [isImportStudents, setIsImportStudents] = useState(false)
@@ -242,6 +289,40 @@ const AddStudent = () => {
 
     }, [student, student_id]);
 
+    // Find guardian start
+
+    useEffect(() => {
+        // if (!student || !student_id) return;
+
+        const parents = selectedSibling?.parents || {};
+
+        setFormData((prev) => ({
+            ...prev,
+
+            // parents
+            father_name: String(parents.father_name || ""),
+            father_phone: String(parents.father_phone || ""),
+            father_email: String(parents.father_email || ""),
+            father_occupation: String(parents.father_occupation || ""),
+
+            mother_name: String(parents.mother_name || ""),
+            mother_phone: String(parents.mother_phone || ""),
+            mother_email: String(parents.mother_email || ""),
+            mother_occupation: String(parents.mother_occupation || ""),
+
+            guardian_name: String(parents.guardian_name || ""),
+            guardian_phone: String(parents.guardian_phone || ""),
+            guardian_email: String(parents.guardian_email || ""),
+            guardian_occupation: String(parents.guardian_occupation || ""),
+            guardian_relation: String(parents.guardian_relation || ""),
+            guardian_address: String(parents.guardian_address || ""),
+            guardian_is: String(parents.guardian_is || ""),
+        }));
+
+    }, [student, student_id, selectedSibling]);
+
+    // Find guardian end
+
     const handleChange = (value: any, name?: string) => {
         setErrors((prev: any) => ({ ...prev, [name || value.target.name]: undefined }))
         if (name) {
@@ -276,7 +357,7 @@ const AddStudent = () => {
 
     const { data } = useAuth();
 
-    const [isLoading, setIsLoading] = useState(false)
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = async () => {
         setIsLoading(true);
@@ -388,6 +469,7 @@ const AddStudent = () => {
         label: cls.name,
         value: cls.id,
     }));
+    console.log("studentClasses: ", studentClasses)
 
     const { data: sections } = useFetchAllSections();
     const sectionOptions = sections?.map((cls: any) => ({
@@ -395,7 +477,7 @@ const AddStudent = () => {
         value: cls.id,
     }));
 
-    const genderOptions = [{ name: "Male", id: "Male" }, { name: "Female", id: "Female" }, { name: "Other", id: "Other" }]?.map((cls: any) => ({
+    const genderOptions = [{ name: "Male", id: "male" }, { name: "Female", id: "female" }, { name: "Other", id: "other" }]?.map((cls: any) => ({
         label: cls.name,
         value: cls.id,
     }));
@@ -410,38 +492,39 @@ const AddStudent = () => {
     return (
         <div className="page_wrapper">
             <div className="add_student" >
-                {isAddAdmissionQuery && <PopupScreen title="Add Admission Query" onClick={handleAddAdmissionQuery} >
+                {isFindParent && <PopupScreen title="Find Parent" onClick={handleFindParent} >
                     <div className="popup_body" >
                         <div className="fields_wrapper">
-                            <div className="body_section" >
+                            {/* <div className="body_section" >
                                 <InputRadioButtons
                                     options={siblingStaffOptions}
                                     selectedValue={siblingStaff}
                                     onChange={setSiblingStaff}
                                     name="sibling_staff"
                                 />
-                            </div>
+                            </div> */}
                             <div className="body_section" >
-                                {siblingStaff === "from_sibling" && <CustomSelect value={formData?.class_id} label="Class" placeholder="Select class" options={classOptions || []} onChange={(value) => setFormData((prev: any) => ({ ...prev, class_id: value }))} />}
-                                {siblingStaff === "from_sibling" && <CustomSelect value={formData?.section_id} name="section_id" label="Section" placeholder="Select section" options={sectionOptions || []} onChange={(value) => setFormData((prev: any) => ({ ...prev, section_id: value }))} />}
-                                {siblingStaff === "from_staff" && <CustomSelect value={formData?.section_id} name="staff_id" label="Staff" placeholder="Select section" options={sectionOptions || []} onChange={(value) => setFormData((prev: any) => ({ ...prev, section_id: value }))} />}
+                                {siblingStaff === "from_sibling" && <CustomSelect value={filterData?.class_id} label="Class" placeholder="Select class" options={classOptions || []} onChange={(value) => setFilterData((prev: any) => ({ ...prev, class_id: value }))} />}
+                                {siblingStaff === "from_sibling" && <CustomSelect value={filterData?.section_id} name="section_id" label="Section" placeholder="Select section" options={sectionOptions || []} onChange={(value) => setFilterData((prev: any) => ({ ...prev, section_id: value }))} />}
+                                {siblingStaff === "from_staff" && <CustomSelect value={filterData?.section_id} name="staff_id" label="Staff" placeholder="Select section" options={sectionOptions || []} onChange={(value) => setFilterData((prev: any) => ({ ...prev, section_id: value }))} />}
                             </div>
                             {siblingStaff === "from_sibling" && <div className="body_section" >
-                                <CustomSelect label="Sibling" placeholder="Select sibling" options={[{ label: "Pending", value: "Pending" }, { label: "Solved", value: "Solved" }, { label: "In Progress", value: "In Progress" }, { label: "Closed", value: "Closed" }]} onChange={(val) => console.log("Selected:", val)} />
+                                <CustomSelect label="Sibling" placeholder="Select sibling" value={selecteSibling} options={studentsAsSiblings} onChange={(val) => setSelecteSibling(val)} />
                             </div>}
 
                             <div className="buttons">
-                                <SecondaryButton />
-                                <PrimaryButton title="Save" />
+                                <SecondaryButton onClick={handleResetFilterData} title="Reset" />
+                                <PrimaryButton onClick={handleSelectSibling} title="Save" />
                             </div>
                         </div>
                     </div>
                 </PopupScreen>}
 
-                {isImportStudents && <PopupScreen title="Import Student" onClick={handleImportStudents} >
+                {/* {isImportStudents && <PopupScreen title="Import students" onClick={handleImportStudents} > */}
+                {isImportStudents && <PopupScreen title="Bulk Upload" onClick={handleImportStudents} >
                     <div className="popup_body" >
-                        <div className="fields_wrapper">
-                            <BulkUpload />
+                        <div className="fields_wrapper" >
+                            <BulkUpload onClick={handleImportStudents} />
                         </div>
                     </div>
                 </PopupScreen>}
@@ -622,8 +705,12 @@ const AddStudent = () => {
 
                     {selectedInputTitleTab === "Family / Contact" && <div className="search_screen">
                         <>
+                            <div className="need_margin add_parent_button_wrapper" >
+                                <PrimaryButton onClick={handleFindParent} title="Find Parent" />
+                            </div>
+
                             {/* 1 */}
-                            <p className="search_screen_title need_margin" >Father Info</p>
+                            <p className="search_screen_title" >Father Info</p>
                             <div className="popup_body" >
                                 <div className="fields_wrapper" >
                                     <div className="body_section" >
@@ -647,12 +734,12 @@ const AddStudent = () => {
                                     <div className="body_section" >
                                         <InputFiles title="Mother’s Photo" />
                                     </div>
-                                    <div className="body_section" >
+                                    {/* <div className="body_section" >
                                         <div className="add_additional_contact" onClick={handleAddAdmissionQuery} >
                                             <p>Add Additional Contact</p>
                                             <img src="/svgs/+.svg" alt="" />
                                         </div>
-                                    </div>
+                                    </div> */}
                                 </div>
                             </div>
 
@@ -823,3 +910,128 @@ const AddStudent = () => {
 }
 
 export default AddStudent;
+
+
+const student = {
+    "id": 6,
+    "user_id": null,
+    "admission_no": "ADM2026001",
+    "admission_date": null,
+    "roll_no": null,
+    "first_name": "John",
+    "last_name": "Doe",
+    "dob": null,
+    "religion": null,
+    "caste": null,
+    "blood_group": null,
+    "height": null,
+    "weight": null,
+    "as_on_date": null,
+    "gender": "male",
+    "phone": "0987654321",
+    "emergency_phone": null,
+    "alternate_phone": null,
+    "email": "john.doe@example.com",
+    "category_id": null,
+    "student_group_id": null,
+    "photo": null,
+    "status": 1,
+    "created_at": "2026-03-30T10:46:25.000000Z",
+    "updated_at": "2026-07-30T14:17:02.000000Z",
+    "deleted_at": null,
+    "class_id": 6,
+    "section_id": 4,
+    "address": null,
+    "date_of_birth": "2010-01-01",
+    "nationality": "American",
+    "current_address": "456 Test Ave",
+    "permanent_address": "456 Test Ave",
+    "bank_account_no": null,
+    "bank_name": null,
+    "ifsc_code": null,
+    "national_id_no": null,
+    "local_id_no": null,
+    "birth_certificate_no": null,
+    "apaar_id": null,
+    "aadharshila_no": null,
+    "pen_no": null,
+    "previous_school_name": null,
+    "previous_qualification": null,
+    "medical_history": null,
+    "previous_school_details": null,
+    "note": null,
+    "is_disabled": 1,
+    "disable_reason": "NB",
+    "disable_date": "2026-07-30",
+    "route_id": null,
+    "vehicle_id": null,
+    "dormitory_id": null,
+    "room_id": null,
+    "user": null,
+    "class": {
+        "id": 6,
+        "name": "Class 10",
+        "branch_id": 2,
+        "academic_year_id": 7,
+        "created_at": "2026-03-30T10:46:25.000000Z",
+        "updated_at": "2026-03-30T10:46:25.000000Z",
+        "deleted_at": null
+    },
+    "section": {
+        "id": 4,
+        "class_id": 6,
+        "name": "A",
+        "created_at": "2026-03-30T10:46:25.000000Z",
+        "updated_at": "2026-03-30T10:46:25.000000Z",
+        "deleted_at": null
+    },
+    "category": null,
+    "parents": {
+        "id": 2,
+        "student_id": 6,
+        "father_name": "Michael Doe",
+        "father_phone": "1122334455",
+        "father_email": null,
+        "father_occupation": null,
+        "father_photo": null,
+        "mother_name": "Sarah Doe",
+        "mother_phone": "5544332211",
+        "mother_email": null,
+        "mother_occupation": null,
+        "mother_photo": null,
+        "guardian_name": null,
+        "guardian_phone": null,
+        "guardian_occupation": null,
+        "guardian_email": null,
+        "guardian_relation": null,
+        "guardian_address": null,
+        "guardian_photo": null,
+        "guardian_is": null,
+        "created_at": "2026-03-30T10:46:25.000000Z",
+        "updated_at": "2026-03-30T10:46:25.000000Z",
+        "deleted_at": null
+    },
+    "student_academics": [
+        {
+            "id": 2,
+            "student_id": 6,
+            "class_id": 6,
+            "section_id": 4,
+            "roll_no": "101",
+            "academic_year_id": 7,
+            "created_at": "2026-03-30T10:53:40.000000Z",
+            "updated_at": "2026-03-30T10:53:40.000000Z",
+            "academic_year": {
+                "id": 7,
+                "name": "2026-2027",
+                "start_date": "2026-04-01",
+                "end_date": "2027-03-31",
+                "is_current": 0,
+                "created_at": "2026-03-21T06:11:09.000000Z",
+                "updated_at": "2026-03-21T06:11:09.000000Z",
+                "deleted_at": null
+            }
+        }
+    ],
+    "emergency_contacts": []
+}

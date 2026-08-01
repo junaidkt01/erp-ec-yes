@@ -6,8 +6,6 @@ import { academicYear } from "../api/endpoints";
 
 const ACADEMIC_YEAR_KEY = ["academic-years"]; // Academic Years key
 
-
-
 // Fetch All Academic Years
 export interface AcademicYear {
   id: number;

@@ -120,7 +120,7 @@ const StaffList = () => {
                         onPageChange={(p) => setPage(p)}
                         actions={(row) => (
                             <div className="actions">
-                                <button><img src="/svgs/eye_open.svg" alt="" /></button>
+                                <button onClick={() => navigate(`/human-resource/profile/${row?.full_data?.id}`)} ><img src="/svgs/eye_open.svg" alt="" /></button>
                                 <button onClick={() => navigate(`/human-resource/add-staff/${row?.full_data?.id}`)} ><img src="/svgs/edit.svg" alt="" /></button>
                                 <button><img src="/svgs/delete.svg" alt="" /></button>
                                 <button><img src="/svgs/block.svg" alt="" /></button>

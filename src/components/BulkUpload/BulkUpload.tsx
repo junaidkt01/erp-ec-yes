@@ -110,7 +110,7 @@ const smartAutoMap = (headers: string[], fields: string[]) => {
     return result;
 };
 
-const BulkUpload = () => {
+const BulkUpload = ({ onClick }: { onClick: () => void }) => {
     const [step, setStep] = useState(1);
     const [headers, setHeaders] = useState<string[]>([]);
     const [rawData, setRawData] = useState<any[]>([]);
@@ -265,6 +265,8 @@ const BulkUpload = () => {
         { key: "caste", title: "Caste" },
         { key: "religion", title: "Religion" },
         { key: "mobile", title: "Mobile" },
+
+        // For staff only
         { key: "email", title: "Email" },
         { key: "addmission_date", title: "Admission Date" },
         { key: "blood_group", title: "Blood Group" },
@@ -282,8 +284,11 @@ const BulkUpload = () => {
         { key: "guardian_phone", title: "Guardian Phone" },
         { key: "guardian_occupation", title: "Guardian Occupation" },
         { key: "current_address", title: "Current Address" },
+
+        // For staff only
         { key: "bank_account_no", title: "Bank Account No" },
         { key: "bank_name", title: "Bank Name" },
+        
         { key: "national_identification_no", title: "National Identification No" },
         { key: "previous_school_details", title: "Previous School Details" },
         { key: "note", title: "Note" }
@@ -299,9 +304,7 @@ const BulkUpload = () => {
 
                     return (
                         <div key={i} className="step-wrap">
-                            <div
-                                className={`step ${isDone ? "done" : ""} ${isActive ? "active" : ""}`}
-                            >
+                            <div className={`step ${isDone ? "done" : ""} ${isActive ? "active" : ""}`} >
                                 <span className="num">
                                     {isDone ? "✓" : stepNum}
                                 </span>
@@ -334,6 +337,7 @@ const BulkUpload = () => {
                     </div>
 
                     <div className="buttons">
+                        <SecondaryButton title="Cancel" onClick={() => onClick()} />
                         <PrimaryButton title="Next" onClick={() => setStep(2)} />
                     </div>
                 </>

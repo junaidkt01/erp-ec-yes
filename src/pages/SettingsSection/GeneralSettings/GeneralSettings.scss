@@ -1,0 +1,53 @@
+.general_settings_page {
+  .general_settings_title {
+    h2 {
+      font-weight: 500;
+      font-size: 18px;
+      line-height: 120%;
+      letter-spacing: 0%;
+      color: #212121;
+    }
+  }
+
+  .general_setting_section {
+    display: flex;
+    gap: 24px;
+
+    .tab_inputs_wrapper {
+      flex: 1;
+
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+
+      .settings_icon_input {
+        display: flex;
+        flex-direction: column;
+        align-items: end;
+
+        gap: 16px;
+      }
+    }
+
+    .tab_content_wrapper {
+      flex: 2;
+      background-color: #fff;
+
+      .tab_title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        padding: 16px;
+
+        h1 {
+          font-weight: 500;
+          font-size: 18px;
+          line-height: 120%;
+          letter-spacing: 0%;
+          color: #212121;
+        }
+      }
+    }
+  }
+}

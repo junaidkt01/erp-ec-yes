@@ -51,17 +51,47 @@ interface Pagination<T> {
 // }
 
 // Fetch All Students
-export const useFetchAllStudents = (page: number = 1) => {
+// export const useFetchAllStudents = (page: number = 1, academic_year_id:number | string, class_id:number|string,section_id:number|string,search:string) => {
+//   return useQuery<Pagination<Student>>({
+//     queryKey: [...STUDENTS_KEY, page, academic_year_id, class_id, section_id, search],
+//     queryFn: async () => {
+//       const res = await axiosInstance.get<any>(
+//         `${student.students}?page=${page}&academic_year_id=${academic_year_id}&class_id=${class_id}&section_id=${section_id}&search=${search}`,
+//       );
+//       return res.data;
+//     },
+
+//     placeholderData: (previousData) => previousData, //keep previous data, show skeleton data,show partial data
+//   });
+// };
+
+
+interface StudentFilters {
+  academic_year_id?: number | string;
+  class_id?: number | string;
+  section_id?: number | string;
+  search?: string;
+}
+
+export const useFetchAllStudents = (
+  page = 1,
+  filters?: StudentFilters
+) => {
   return useQuery<Pagination<Student>>({
-    queryKey: [...STUDENTS_KEY, page],
+    queryKey: [...STUDENTS_KEY, page, filters],
+
     queryFn: async () => {
-      const res = await axiosInstance.get<any>(
-        `${student.students}?page=${page}`,
-      );
+      const res = await axiosInstance.get(student.students, {
+        params: {
+          page,
+          ...filters,
+        },
+      });
+
       return res.data;
     },
 
-    placeholderData: (previousData) => previousData, //keep previous data, show skeleton data,show partial data
+    placeholderData: (previousData) => previousData,
   });
 };
 
@@ -214,7 +244,7 @@ export const useUpdateStudent = (student_id: string) => {
 export const useRemoveStudent = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (id: number) => {
+    mutationFn: async (id: string) => {
       const res = await axiosInstance.delete(`${student.students}/${id}`);
 
       return res.data;
@@ -224,6 +254,41 @@ export const useRemoveStudent = () => {
       queryClient.invalidateQueries({
         queryKey: STUDENTS_KEY,
       });
+    },
+  });
+};
+
+// Block by updating student
+
+interface BlockStudentParams {
+  studentId: string;
+  data: {
+    disable_reason: string | null;
+    is_disabled: 0 | 1;
+  };
+}
+
+export const useBlockStudent = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ studentId, data }: BlockStudentParams) => {
+      const res = await axiosInstance.put(
+        `${student.students}/${studentId}`,
+        data,
+      );
+
+      return res.data;
+    },
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: STUDENTS_KEY,
+      });
+    },
+
+    onError: (error) => {
+      console.error("Update student error:", error);
     },
   });
 };

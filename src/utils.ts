@@ -98,7 +98,8 @@ export const sidebar_menus = [
         ],
       },
       {
-        title: "Behaviour Records",
+        title: "Remarks Point",
+        // title: "Behaviour Records",
         icon: "/sidebar_icons/behaviour_records.svg",
         path: "/behaviour-records",
 
@@ -106,7 +107,8 @@ export const sidebar_menus = [
           "Incidents",
           "Assign Incident",
           "Student Incident Report",
-          "Behaviour Report",
+          "Remarks Report",
+          // "Behaviour Report",
           "Incident Wise report",
           "Settings",
         ],
@@ -135,12 +137,13 @@ export const sidebar_menus = [
         path: "/library",
       },
       {
-        title: "transport",
+        title: "Transport",
         icon: "/sidebar_icons/transport.svg",
         path: "/transport",
       },
       {
-        title: "Dormitory",
+        title: "YES Garden",
+        // title: "Dormitory",
         icon: "/sidebar_icons/dormitory.svg",
         path: "/dormitory",
       },
@@ -177,6 +180,19 @@ export const sidebar_menus = [
         title: "Online Exam",
         icon: "/sidebar_icons/online_exam.svg",
         path: "/online_exam",
+      },
+    ],
+  },
+
+  {
+    title: "Settings Section",
+    menus: [
+      {
+        title: "General Settings",
+        icon: "/sidebar_icons/examination.svg",
+        path: "/settings-section",
+
+        sub_menus: ["General Settings"],
       },
     ],
   },

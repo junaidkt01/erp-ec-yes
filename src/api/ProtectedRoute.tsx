@@ -4,11 +4,14 @@ import { useAuth } from "../auth/useAuth";
 
 export const ProtectedRoute = ({ children }: { children: any }) => {
   const { data, isLoading, isError, error } = useAuth();
-  console.log("dalfjs",data, isLoading, isError, error)
+  console.log("dalfjs", data, isLoading, isError, error)
 
   if (isLoading) return <div>Checking auth...</div>;
 
-  if (isError || !data) {
+  console.log("checking: ", isError, data)
+
+  // need to improve
+  if (!data || isError) {
     return <Navigate to="/" replace />;
   }
 
