@@ -111,16 +111,16 @@ const Sidebar: React.FC = () => {
         }
     }, [activeSubMenu]);
 
-    useEffect(() => {
-        if (activeSubMenu) {
-            const btn = submenuRefs.current[activeSubMenu];
-            if (btn) {
-                setTimeout(() => {
-                    btn.scrollIntoView({ behavior: "smooth", block: "center" });
-                }, 100);
-            }
-        }
-    }, [activeSubMenu, expandedMenu]);
+    // useEffect(() => {
+    //     if (activeSubMenu) {
+    //         const btn = submenuRefs.current[activeSubMenu];
+    //         if (btn) {
+    //             setTimeout(() => {
+    //                 btn.scrollIntoView({ behavior: "smooth", block: "center" });
+    //             }, 100);
+    //         }
+    //     }
+    // }, [activeSubMenu, expandedMenu]);
 
     const toggleMenu = (menuPath: string) => {
         setExpandedMenu(prev => (prev === menuPath ? null : menuPath));
@@ -200,7 +200,7 @@ const Sidebar: React.FC = () => {
                                         <div key={mIndex}>
                                             <button
                                                 onClick={() => toggleMenu(menu.path)}
-                                                className={`menu_button ${isMenuActive ? "active" : ""}`}
+                                                className={`menu_button hvr_zm_out ${isMenuActive ? "active" : ""}`}
                                             >
                                                 <div className="menu_button_icon_text">
                                                     <SvgIcon src={menu.icon} className="sidebar-icon" />
@@ -225,7 +225,7 @@ const Sidebar: React.FC = () => {
                                                         <button
                                                             key={sIndex}
                                                             ref={(el: any) => (submenuRefs.current[finalPath] = el)}
-                                                            className={`sub_menu_button ${isSubActive ? "active" : ""}`}
+                                                            className={`sub_menu_button hvr_zm_out ${isSubActive ? "active" : ""}`}
                                                             onClick={() => handleSubNavigate(menu.path, sub)}
                                                         >
                                                             <div className="menu_button_icon_text">

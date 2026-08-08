@@ -66,7 +66,8 @@ const AddStudent = () => {
     console.log("students: ", students?.data?.[0])
 
     const studentsAsSiblings = students?.data?.map((student) => ({
-        label: `${student.first_name} ${student.last_name}`,
+        label: student.full_name,
+        // label: `${student.first_name} ${student.last_name}`,
         value: student.id,
     }));
 
@@ -104,39 +105,159 @@ const AddStudent = () => {
         { label: "From Staff", value: "from_staff" },
     ];
 
+    // upload inputs start
+
+    // 1.
+    type PhotoType = | "photo" | "father_photo" | "mother_photo" | "guardian_photo";
+
+    interface PhotoState { file: File | null; preview: string | null }
+
+    const initialPhotosState: Record<PhotoType, PhotoState> = {
+        photo: { file: null, preview: null },
+        father_photo: { file: null, preview: null },
+        mother_photo: { file: null, preview: null },
+        guardian_photo: { file: null, preview: null },
+    };
+
+    const [photos, setPhotos] = useState<Record<PhotoType, PhotoState>>(initialPhotosState);
+
+    const handlePhotoUpload = (type: PhotoType) => (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setPhotos((prev) => ({
+            ...prev,
+            [type]: {
+                file,
+                preview: URL.createObjectURL(file),
+            },
+        }));
+
+        setFormData((prev: any) => ({
+            ...prev,
+            [type]: file
+        }));
+    };
+
+    const handleDocumentUpload = (key: string, e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+
+        if (!file) return;
+
+        const allowedTypes = [
+            "application/pdf",
+            "image/jpeg",
+            "image/png",
+            "image/jpg",
+            "image/webp"
+        ];
+
+        if (!allowedTypes.includes(file.type)) {
+            toast.error("Only PDF and image files are allowed.");
+            e.target.value = "";
+            return;
+        }
+
+        const index = parseInt(key.replace("document_", "")) - 1;
+        const targetIndex = index >= 0 ? index : 0;
+
+        setFormData((prev) => {
+            const currentDocs = [...(prev.documents || [])];
+            while (currentDocs.length <= targetIndex) {
+                currentDocs.push({ id: currentDocs.length + 1, title: "", file: "" });
+            }
+
+            currentDocs[targetIndex] = {
+                ...currentDocs[targetIndex],
+                id: targetIndex + 1,
+                file: file as any,
+                preview: URL.createObjectURL(file),
+            };
+
+            return {
+                ...prev,
+                documents: currentDocs,
+            };
+        });
+    };
+
+    const handleDocumentTitleChange = (key: string, value: string) => {
+        const index = parseInt(key.replace("document_title_", "")) - 1;
+        const targetIndex = index >= 0 ? index : 0;
+
+        setFormData((prev) => {
+            const currentDocs = [...(prev.documents || [])];
+            while (currentDocs.length <= targetIndex) {
+                currentDocs.push({ id: currentDocs.length + 1, title: "", file: "" });
+            }
+
+            currentDocs[targetIndex] = {
+                ...currentDocs[targetIndex],
+                id: targetIndex + 1,
+                title: value,
+            };
+
+            return {
+                ...prev,
+                documents: currentDocs,
+            };
+        });
+    };
+    // upload inputs end
 
     const { mutateAsync: addStudent } = useAddStudent();
     const { mutateAsync: updateStudent } = useUpdateStudent(student_id || "");
 
     const [errors, setErrors] = useState<any>({});
+    console.log("errors11: ", errors)
 
-    console.log("errors: ", errors)
+    useEffect(() => {
+        if (!errors || typeof errors !== "object") return;
+
+        Object.values(errors).forEach((error) => {
+            if (typeof error === "string" && error.trim()) {
+                toast.error(error);
+            }
+        });
+    }, [errors]);
+
     const studentForm = {
-        first_name: "",
-        last_name: "",
+        full_name: "",
+        // first_name: "",
+        // last_name: "",
         phone: "",
         email: "",
-        class_id: "",
-        section_id: "",
-        academic_year_id: "",
+        class_id: 0,
+        section_id: 0,
+        academic_year_id: 0,
 
-        photo: null,
+        student_code: "",
+        apaar_id: "",
+        pen_no: "",
+        aadharshila_no: "",
+
+        photo: null as File | string | null,
+        father_photo: null as File | string | null,
+        mother_photo: null as File | string | null,
+        guardian_photo: null as File | string | null,
         blood_group: "",
         religion: "",
         admission_date: "",
         admission_no: "",
-        dob: "",
+        // dob: "",
+        dob: null as Date | null,
         gender: "",
         emergencyContacts: [{
             name: "",
             relation: "",
             phone: ""
         }],
-        documents: [{
-            id: 1,
-            title: "",
-            file: ""
-        }],
+        documents: [
+            { id: 1, title: "", file: "" as any, preview: "" },
+            { id: 2, title: "", file: "" as any, preview: "" },
+            { id: 3, title: "", file: "" as any, preview: "" },
+            { id: 4, title: "", file: "" as any, preview: "" },
+        ] as { id: number; title: string; file: any; preview?: string }[],
 
         caste: "",
         roll_no: "",
@@ -168,63 +289,7 @@ const AddStudent = () => {
         previous_qualification: "",
         previous_school_details: "",
     }
-    const [formData, setFormData] = useState({
-        first_name: "",
-        last_name: "",
-        phone: "",
-        email: "",
-        class_id: "",
-        section_id: "",
-        academic_year_id: "",
-
-        photo: null,
-        blood_group: "",
-        religion: "",
-        admission_date: "",
-        admission_no: "",
-        dob: "",
-        gender: "",
-        emergencyContacts: [{
-            name: "",
-            relation: "",
-            phone: ""
-        }],
-        documents: [{
-            id: 1,
-            title: "",
-            file: ""
-        }],
-
-        caste: "",
-        roll_no: "",
-
-        current_address: "",
-        permanent_address: "",
-
-        father_name: "",
-        father_phone: "",
-        father_email: "",
-        father_occupation: "",
-        mother_name: "",
-        mother_phone: "",
-        mother_email: "",
-        mother_occupation: "",
-        guardian_name: "",
-        guardian_phone: "",
-        guardian_occupation: "",
-        guardian_email: "",
-        guardian_relation: "",
-        guardian_address: "",
-        guardian_is: "",
-
-        national_id_no: "",
-        birth_certificate_no: "",
-        note: "",
-
-        previous_school_name: "",
-        previous_qualification: "",
-        previous_school_details: "",
-    });
+    const [formData, setFormData] = useState(studentForm);
 
     console.log("formData: ", formData)
 
@@ -234,20 +299,26 @@ const AddStudent = () => {
         const data = student.data || {};
         const parents = data.parents || {};
 
+        setPhotos({
+            photo: { file: null, preview: data.photo || null },
+            father_photo: { file: null, preview: parents.father_photo || null },
+            mother_photo: { file: null, preview: parents.mother_photo || null },
+            guardian_photo: { file: null, preview: parents.guardian_photo || null },
+        });
+
         setFormData((prev) => ({
             ...prev,
 
-            academic_year_id: String(data.academic_year_id || ""),
+            academic_year_id: Number(data.academic_year_id || ""),
             admission_date: String(data.admission_date || ""),
             admission_no: String(data.admission_no || ""),
             birth_certificate_no: String(data.birth_certificate_no || ""),
             blood_group: String(data.blood_group || ""),
             caste: String(data.caste || ""),
             current_address: String(data.current_address || ""),
-            dob: String(data.dob || ""),
+            dob: data.dob ? new Date(data.dob) : null,
             email: String(data.email || ""),
-            first_name: String(data.first_name || ""),
-            last_name: String(data.last_name || ""),
+            full_name: String(data.full_name || ""),
             gender: String(data.gender || ""),
             national_id_no: String(data.national_id_no || ""),
             note: String(data.note || ""),
@@ -257,8 +328,15 @@ const AddStudent = () => {
             previous_school_details: String(data.previous_school_details || ""),
             previous_school_name: String(data.previous_school_name || ""),
 
-            class_id: String(data.class_id || ""),
-            section_id: String(data.section_id || ""),
+            student_code: String(data.student_code || ""),
+            apaar_id: String(data.apaar_id || ""),
+            pen_no: String(data.pen_no || ""),
+            aadharshila_no: String(data.aadharshila_no || ""),
+
+            photo: data.photo || null,
+
+            class_id: Number(data.class_id || ""),
+            section_id: Number(data.section_id || ""),
 
             religion: String(data.religion || ""),
             roll_no: String(data.roll_no || ""),
@@ -268,11 +346,13 @@ const AddStudent = () => {
             father_phone: String(parents.father_phone || ""),
             father_email: String(parents.father_email || ""),
             father_occupation: String(parents.father_occupation || ""),
+            father_photo: parents.father_photo || null,
 
             mother_name: String(parents.mother_name || ""),
             mother_phone: String(parents.mother_phone || ""),
             mother_email: String(parents.mother_email || ""),
             mother_occupation: String(parents.mother_occupation || ""),
+            mother_photo: parents.mother_photo || null,
 
             guardian_name: String(parents.guardian_name || ""),
             guardian_phone: String(parents.guardian_phone || ""),
@@ -281,6 +361,7 @@ const AddStudent = () => {
             guardian_relation: String(parents.guardian_relation || ""),
             guardian_address: String(parents.guardian_address || ""),
             guardian_is: String(parents.guardian_is || ""),
+            guardian_photo: parents.guardian_photo || null,
 
             // arrays
             documents: data.documents || [],
@@ -290,8 +371,8 @@ const AddStudent = () => {
     }, [student, student_id]);
 
     // Find guardian start
-
     useEffect(() => {
+        if (!selectedSibling) return;
         // if (!student || !student_id) return;
 
         const parents = selectedSibling?.parents || {};
@@ -320,8 +401,8 @@ const AddStudent = () => {
         }));
 
     }, [student, student_id, selectedSibling]);
-
     // Find guardian end
+
 
     const handleChange = (value: any, name?: string) => {
         setErrors((prev: any) => ({ ...prev, [name || value.target.name]: undefined }))
@@ -345,7 +426,7 @@ const AddStudent = () => {
                 fieldValue = e.target.files[0]; // or full FileList if needed
             } else {
                 // normal input
-                fieldValue = e.target.value;
+                fieldValue = e.target.value.toUpperCase();
             }
 
             setFormData((prev) => ({
@@ -356,6 +437,7 @@ const AddStudent = () => {
     };
 
     const { data } = useAuth();
+    console.log("dsds: ", data?.user?.id)
 
     const [isLoading, setIsLoading] = useState(false);
 
@@ -363,27 +445,36 @@ const AddStudent = () => {
         setIsLoading(true);
         const payload = new FormData();
 
-        payload.append("user_id", data?.data?.user?.id || "1");
+        payload.append("user_id", data?.user?.id || "1");
 
         payload.append("admission_no", formData?.admission_no);
-        payload.append("first_name", formData?.first_name);
-        payload.append("email", formData?.email);
+
+        // payload.append("first_name", formData?.first_name);
+        // payload.append("last_name", formData?.last_name);
+        payload.append("full_name", formData?.full_name);
+
+        // payload.append("email", formData?.email);
         payload.append("class_id", String(formData?.class_id));
         payload.append("section_id", String(formData?.section_id));
         payload.append("academic_year_id", String(formData?.academic_year_id));
         payload.append("gender", formData?.gender);
 
+        payload.append("student_code", String(formData?.student_code));
+        payload.append("apaar_id", String(formData?.apaar_id));
+        payload.append("pen_no", String(formData?.pen_no));
+        payload.append("aadharshila_no", String(formData?.aadharshila_no));
+
         payload.append("roll_no", formData?.roll_no);
 
-        payload.append("last_name", formData?.last_name);
-        payload.append("dob", formData?.dob);
+        // payload.append("dob", formData?.dob);
+        payload.append("dob", formData.dob ? formData.dob.toISOString() : "");
         payload.append("phone", formData?.phone);
 
         payload.append("blood_group", formData?.blood_group);
         payload.append("religion", formData?.religion);
         payload.append("caste", formData?.caste);
 
-        // payload.append("admission_date", formData.admission_date);
+        payload.append("admission_date", formData.admission_date);
 
         payload.append("current_address", formData?.current_address);
         payload.append("permanent_address", formData?.permanent_address);
@@ -414,9 +505,37 @@ const AddStudent = () => {
         payload.append("previous_qualification", formData?.previous_qualification);
         payload.append("previous_school_details", formData?.previous_school_details);
 
-        // // Arrays → stringify
+        // Append photo files if present
+        if (photos.photo.file) {
+            payload.append("photo", photos.photo.file);
+        } else if (formData?.photo instanceof File) {
+            payload.append("photo", formData.photo);
+        }
+
+        if (photos.father_photo.file) {
+            payload.append("father_photo", photos.father_photo.file);
+        } else if (formData?.father_photo instanceof File) {
+            payload.append("father_photo", formData.father_photo);
+        }
+
+        if (photos.mother_photo.file) {
+            payload.append("mother_photo", photos.mother_photo.file);
+        } else if (formData?.mother_photo instanceof File) {
+            payload.append("mother_photo", formData.mother_photo);
+        }
+
+        if (photos.guardian_photo.file) {
+            payload.append("guardian_photo", photos.guardian_photo.file);
+        } else if (formData?.guardian_photo instanceof File) {
+            payload.append("guardian_photo", formData.guardian_photo);
+        }
+
+        // Arrays → stringify
         payload.append("emergencyContacts", JSON.stringify(formData?.emergencyContacts));
         payload.append("documents", JSON.stringify(formData?.documents));
+
+        const formDataObject = Object.fromEntries(payload.entries());
+        console.log("formDataObject: ", formDataObject);
 
         try {
             if (student && student_id) {
@@ -425,6 +544,7 @@ const AddStudent = () => {
                 if (res.success) {
                     toast('Student updated successfully')
                     setFormData(studentForm);
+                    setPhotos(initialPhotosState);
                     setReadyToSubmit(false);
                 } else {
                     toast('Student updation failed')
@@ -434,6 +554,7 @@ const AddStudent = () => {
                 console.log("aa: res:", res);
                 toast('Student added successfully')
                 setFormData(studentForm);
+                setPhotos(initialPhotosState);
                 setReadyToSubmit(false);
             }
             setIsLoading(false);
@@ -576,13 +697,17 @@ const AddStudent = () => {
                                 <div className="student_content_to_submit_wrapper" style={{ display: "grid", gap: "24px" }} >
                                     <div className="student_content_to_submit" style={{ display: "flex", justifyContent: "space-between" }} >
                                         <div>
+                                            <p className="title" >Full Name</p>
+                                            <p className="value" >{formData?.full_name || "N/A"}</p>
+                                        </div>
+                                        {/* <div>
                                             <p className="title" >First Name</p>
                                             <p className="value" >{formData?.first_name || "N/A"}</p>
                                         </div>
                                         <div>
                                             <p className="title" >Last Name</p>
                                             <p className="value" >{formData?.last_name || "N/A"}</p>
-                                        </div>
+                                        </div> */}
                                         <div>
                                             <p className="title" >Gender</p>
                                             <p className="value" >{formData?.gender || "N/A"}</p>
@@ -591,7 +716,7 @@ const AddStudent = () => {
                                     <div className="student_content_to_submit" style={{ display: "flex", justifyContent: "space-between" }} >
                                         <div>
                                             <p className="title" >Date of Birth</p>
-                                            <p className="value" >{formData?.dob || "N/A"}</p>
+                                            {/* <p className="value" >{formData?.dob || "N/A"}</p> */}
                                         </div>
                                         <div>
                                             <p className="title" >Religion</p>
@@ -637,6 +762,14 @@ const AddStudent = () => {
                                         {/* <InputField name="email" value={formData?.email} onChange={handleChange} type="text" label="Email" placeHolder="Enter mail address" /> */}
                                         <InputField error={errors.roll_no} name="roll_no" value={formData?.roll_no} onChange={handleChange} type="text" label="Roll Number" placeHolder="Enter roll number" />
                                     </div>
+                                    <div className="body_section" >
+                                        <InputField error={errors.apaar_id} type="text" label="Apaar ID" placeHolder="Enter Apaar ID number" name="apaar_id" value={formData?.apaar_id} onChange={handleChange} />
+                                        <InputField error={errors.aadharshila_no} type="text" label="Aadharshila Number" placeHolder="Enter Aadharshila ID number" name="aadharshila_no" value={formData?.aadharshila_no} onChange={handleChange} />
+                                    </div>
+                                    <div className="body_section" >
+                                        <InputField error={errors.pen_no} type="text" label="Pen Number" placeHolder="Enter Pen number" name="pen_no" value={formData?.pen_no} onChange={handleChange} />
+                                        <InputField error={errors.student_code} type="text" label="Student ID" placeHolder="Enter student ID" name="student_code" value={formData?.student_code} onChange={handleChange} />
+                                    </div>
                                 </div>
                             </div>
 
@@ -645,18 +778,21 @@ const AddStudent = () => {
                             <div className="popup_body" >
                                 <div className="fields_wrapper" >
                                     <div className="body_section" >
-                                        <InputField error={errors.first_name} type="text" label="First Name" placeHolder="Enter name" name="first_name" value={formData?.first_name} onChange={handleChange} />
-                                        <InputField error={errors.last_name} type="text" label="Last Name" placeHolder="Enter name" name="last_name" value={formData?.last_name} onChange={handleChange} />
+                                        <InputField error={errors.full_name} type="text" label="Full Name" placeHolder="Enter name" name="full_name" value={formData?.full_name} onChange={handleChange} />
+                                        {/* <InputField error={errors.first_name} type="text" label="First Name" placeHolder="Enter name" name="first_name" value={formData?.first_name} onChange={handleChange} /> */}
+                                        {/* <InputField error={errors.last_name} type="text" label="Last Name" placeHolder="Enter name" name="last_name" value={formData?.last_name} onChange={handleChange} /> */}
                                         <CustomSelect value={formData?.gender} name="gender" label="Gender" placeholder="Select gender" options={genderOptions || []} onChange={(value) => setFormData((prev: any) => ({ ...prev, gender: value }))} />
                                     </div>
                                     <div className="body_section" >
+                                        <InputField error={errors.dob} name="dob" type="date" label="Date Of Birth" value={formData.dob} placeHolder="Select date" onChange={handleChange} />
+
                                         {/* <InputField name="dob" type="date" label="Date Of Birth" value={formData.dob} placeHolder="Select date" onChange={handleChange} /> */}
                                         <CustomSelect error={errors.religion} value={formData?.religion} name="religion" label="Religion" placeholder="Select religion" options={[{ label: "Muslim", value: "Muslim" }, { label: "Hindu", value: "Hindu" }, { label: "Christian", value: "Christian" }]} onChange={(value) => setFormData((prev: any) => ({ ...prev, religion: value }))} />
                                         <InputField error={errors.caste} name="caste" value={formData?.caste} onChange={handleChange} type="text" label="Cast" placeHolder="Enter cast" />
                                     </div>
                                     <div className="body_section" >
-                                        {/* <InputFiles title="Student photo" /> */}
-                                        <InputFiles name="photo" title="Student photo" onChange={handleChange} />
+                                        <InputFiles image={photos.photo.preview || data?.data?.photo} accept="image/*" name="photo" title="Student Photo" onChange={handlePhotoUpload("photo")} />
+                                        {/* <InputFiles image={previewPhoto || data?.data?.photo} accept="image/*" name="photo" onChange={handlePhotoUpload} title="Student photo" /> */}
                                     </div>
                                 </div>
                             </div>
@@ -718,7 +854,8 @@ const AddStudent = () => {
                                         <InputField error={errors.father_phone} name="father_phone" type="text" label="Father Phone Number" placeHolder="Enter phone number" value={formData?.father_phone} onChange={handleChange} />
                                     </div>
                                     <div className="body_section" >
-                                        <InputFiles title="Father’s Photo" />
+                                        <InputFiles image={photos.father_photo.preview || data?.data?.father_photo} accept="image/*" name="father_photo" title="Father's Photo" onChange={handlePhotoUpload("father_photo")} />
+                                        {/* <InputFiles image={previewFatherPhoto || data?.data?.father_photo} accept="image/*" name="father_photo" onChange={handleFatherPhotoUpload} title="Father’s Photo" /> */}
                                     </div>
                                 </div>
                             </div>
@@ -732,7 +869,8 @@ const AddStudent = () => {
                                         <InputField error={errors.mother_phone} name="mother_phone" type="text" label="Mother Phone Number" placeHolder="Enter phone number" value={formData?.mother_phone} onChange={handleChange} />
                                     </div>
                                     <div className="body_section" >
-                                        <InputFiles title="Mother’s Photo" />
+                                        <InputFiles image={photos.mother_photo.preview || data?.data?.mother_photo} accept="image/*" name="mother_photo" title="Mother's Photo" onChange={handlePhotoUpload("mother_photo")} />
+                                        {/* <InputFiles image={previewMotherPhoto || data?.data?.mother_photo} accept="image/*" name="mother_photo" onChange={handleMotherPhotoUpload} title="Mother’s Photo" /> */}
                                     </div>
                                     {/* <div className="body_section" >
                                         <div className="add_additional_contact" onClick={handleAddAdmissionQuery} >
@@ -768,7 +906,8 @@ const AddStudent = () => {
                                         <InputField error={errors.guardian_address} name="guardian_address" value={formData?.guardian_address} onChange={handleChange} type="text" label="Guardian Address" placeHolder="Enter guardian's address" />
                                     </div>
                                     <div className="body_section" >
-                                        <InputFiles title="Guardian Photo" />
+                                        <InputFiles image={photos.guardian_photo.preview || data?.data?.guardian_photo} accept="image/*" name="guardian_photo" title="Guardian Photo" onChange={handlePhotoUpload("guardian_photo")} />
+                                        {/* <InputFiles image={previewGuardianPhoto || data?.data?.guardian_photo} accept="image/*" name="guardian_photo" onChange={handleGuardianPhotoUpload} title="Guardian Photo" /> */}
                                     </div>
                                 </div>
 
@@ -811,21 +950,21 @@ const AddStudent = () => {
                             <div className="popup_body" >
                                 <div className="fields_wrapper" >
                                     <div className="body_section" >
-                                        <InputField type="text" label="Document 1" placeHolder="Enter document 1 title" />
-                                        <InputField type="text" label="Document 2" placeHolder="Enter document 2 title" />
+                                        <InputField type="text" label="Document 1" name="document_title_1" placeHolder="Enter document 1 title" value={formData.documents?.[0]?.title || ""} onChange={(e: any) => handleDocumentTitleChange("document_title_1", e.target ? e.target.value : e)} />
+                                        <InputField type="text" label="Document 2" name="document_title_2" placeHolder="Enter document 2 title" value={formData.documents?.[1]?.title || ""} onChange={(e: any) => handleDocumentTitleChange("document_title_2", e.target ? e.target.value : e)} />
                                     </div>
                                     <div className="body_section" >
-                                        <InputFiles />
-                                        <InputFiles />
+                                        <InputFiles name="document_1" accept="image/*,.pdf" image={formData.documents?.[0]?.preview || (typeof formData.documents?.[0]?.file === "string" ? formData.documents?.[0]?.file : undefined)} onChange={(e) => handleDocumentUpload("document_1", e)} />
+                                        <InputFiles name="document_2" accept="image/*,.pdf" image={formData.documents?.[1]?.preview || (typeof formData.documents?.[1]?.file === "string" ? formData.documents?.[1]?.file : undefined)} onChange={(e) => handleDocumentUpload("document_2", e)} />
                                     </div>
 
                                     <div className="body_section" >
-                                        <InputField type="text" label="Document 3" placeHolder="Enter document 3 title" />
-                                        <InputField type="text" label="Document 4" placeHolder="Enter document 4 title" />
+                                        <InputField type="text" label="Document 3" name="document_title_3" placeHolder="Enter document 3 title" value={formData.documents?.[2]?.title || ""} onChange={(e: any) => handleDocumentTitleChange("document_title_3", e.target ? e.target.value : e)} />
+                                        <InputField type="text" label="Document 4" name="document_title_4" placeHolder="Enter document 4 title" value={formData.documents?.[3]?.title || ""} onChange={(e: any) => handleDocumentTitleChange("document_title_4", e.target ? e.target.value : e)} />
                                     </div>
                                     <div className="body_section" >
-                                        <InputFiles />
-                                        <InputFiles />
+                                        <InputFiles name="document_3" accept="image/*,.pdf" image={formData.documents?.[2]?.preview || (typeof formData.documents?.[2]?.file === "string" ? formData.documents?.[2]?.file : undefined)} onChange={(e) => handleDocumentUpload("document_3", e)} />
+                                        <InputFiles name="document_4" accept="image/*,.pdf" image={formData.documents?.[3]?.preview || (typeof formData.documents?.[3]?.file === "string" ? formData.documents?.[3]?.file : undefined)} onChange={(e) => handleDocumentUpload("document_4", e)} />
                                     </div>
                                 </div>
 
@@ -911,127 +1050,98 @@ const AddStudent = () => {
 
 export default AddStudent;
 
-
 const student = {
-    "id": 6,
-    "user_id": null,
+    "user_id": "14",
     "admission_no": "ADM2026001",
-    "admission_date": null,
-    "roll_no": null,
-    "first_name": "John",
-    "last_name": "Doe",
-    "dob": null,
-    "religion": null,
-    "caste": null,
-    "blood_group": null,
-    "height": null,
-    "weight": null,
-    "as_on_date": null,
+    "first_name": "JUNAID",
+    "email": "",
+    "class_id": "4",
+    "section_id": "6",
+    "academic_year_id": "7",
     "gender": "male",
-    "phone": "0987654321",
-    "emergency_phone": null,
-    "alternate_phone": null,
-    "email": "john.doe@example.com",
-    "category_id": null,
-    "student_group_id": null,
-    "photo": null,
-    "status": 1,
-    "created_at": "2026-03-30T10:46:25.000000Z",
-    "updated_at": "2026-07-30T14:17:02.000000Z",
-    "deleted_at": null,
-    "class_id": 6,
-    "section_id": 4,
-    "address": null,
-    "date_of_birth": "2010-01-01",
-    "nationality": "American",
-    "current_address": "456 Test Ave",
-    "permanent_address": "456 Test Ave",
-    "bank_account_no": null,
-    "bank_name": null,
-    "ifsc_code": null,
-    "national_id_no": null,
-    "local_id_no": null,
-    "birth_certificate_no": null,
-    "apaar_id": null,
-    "aadharshila_no": null,
-    "pen_no": null,
-    "previous_school_name": null,
-    "previous_qualification": null,
-    "medical_history": null,
-    "previous_school_details": null,
-    "note": null,
-    "is_disabled": 1,
-    "disable_reason": "NB",
-    "disable_date": "2026-07-30",
-    "route_id": null,
-    "vehicle_id": null,
-    "dormitory_id": null,
-    "room_id": null,
-    "user": null,
-    "class": {
-        "id": 6,
-        "name": "Class 10",
-        "branch_id": 2,
-        "academic_year_id": 7,
-        "created_at": "2026-03-30T10:46:25.000000Z",
-        "updated_at": "2026-03-30T10:46:25.000000Z",
-        "deleted_at": null
-    },
-    "section": {
-        "id": 4,
-        "class_id": 6,
-        "name": "A",
-        "created_at": "2026-03-30T10:46:25.000000Z",
-        "updated_at": "2026-03-30T10:46:25.000000Z",
-        "deleted_at": null
-    },
-    "category": null,
-    "parents": {
-        "id": 2,
-        "student_id": 6,
-        "father_name": "Michael Doe",
-        "father_phone": "1122334455",
-        "father_email": null,
-        "father_occupation": null,
-        "father_photo": null,
-        "mother_name": "Sarah Doe",
-        "mother_phone": "5544332211",
-        "mother_email": null,
-        "mother_occupation": null,
-        "mother_photo": null,
-        "guardian_name": null,
-        "guardian_phone": null,
-        "guardian_occupation": null,
-        "guardian_email": null,
-        "guardian_relation": null,
-        "guardian_address": null,
-        "guardian_photo": null,
-        "guardian_is": null,
-        "created_at": "2026-03-30T10:46:25.000000Z",
-        "updated_at": "2026-03-30T10:46:25.000000Z",
-        "deleted_at": null
-    },
-    "student_academics": [
-        {
-            "id": 2,
-            "student_id": 6,
-            "class_id": 6,
-            "section_id": 4,
-            "roll_no": "101",
-            "academic_year_id": 7,
-            "created_at": "2026-03-30T10:53:40.000000Z",
-            "updated_at": "2026-03-30T10:53:40.000000Z",
-            "academic_year": {
-                "id": 7,
-                "name": "2026-2027",
-                "start_date": "2026-04-01",
-                "end_date": "2027-03-31",
-                "is_current": 0,
-                "created_at": "2026-03-21T06:11:09.000000Z",
-                "updated_at": "2026-03-21T06:11:09.000000Z",
-                "deleted_at": null
-            }
-        }
-    ],
-    "emergency_contacts": []
+    "student_code": "DFGSFGGD",
+    "apaar_id": "EFERFERFER4334",
+    "pen_no": "GRGRFDFSSSSSSS",
+    "aadharshila_no": "FDVSERG45G",
+    "roll_no": "3444",
+    "last_name": "KT",
+    "dob": "Fri Aug 21 2026 00:00:00 GMT+0530 (India Standard Time)",
+    "phone": "",
+    "blood_group": "B+",
+    "religion": "Muslim",
+    "caste": "MAPPILA",
+    "admission_date": "Fri Aug 21 2026 00:00:00 GMT+0530 (India Standard Time)",
+    "current_address": "KZHGMTHTTHL",
+    "permanent_address": "KOOMANNA",
+    "father_name": "TEST",
+    "father_phone": "9961260138",
+    "father_email": "",
+    "father_occupation": "",
+    "mother_name": "FDD",
+    "mother_phone": "9961260138",
+    "mother_email": "",
+    "mother_occupation": "",
+    "guardian_name": "",
+    "guardian_phone": "",
+    "guardian_email": "JUNAIDKTKMN@GMAIL.COM",
+    "guardian_occupation": "",
+    "guardian_relation": "",
+    "guardian_address": "KZHGMTHTTHL",
+    "guardian_is": "",
+    "national_id_no": "",
+    "birth_certificate_no": "",
+    "note": "",
+    "previous_school_name": "",
+    "previous_qualification": "",
+    "previous_school_details": "",
+    "emergencyContacts": "[{\"name\":\"\",\"relation\":\"\",\"phone\":\"\"}]",
+    "documents": "[{\"id\":1,\"title\":\"\",\"file\":\"\",\"preview\":\"\"},{\"id\":2,\"title\":\"\",\"file\":\"\",\"preview\":\"\"},{\"id\":3,\"title\":\"\",\"file\":\"\",\"preview\":\"\"},{\"id\":4,\"title\":\"\",\"file\":\"\",\"preview\":\"\"}]"
 }
+
+// const student = {
+//     "user_id": "1",
+//     "admission_no": "ADM2026001",
+//     "first_name": "AHAMMED",
+//     "email": "",
+//     "class_id": "4",
+//     "section_id": "6",
+//     "academic_year_id": "6",
+//     "gender": "male",
+//     "student_code": "DFGSFGGD",
+//     "apaar_id": "EFERFERFER4334",
+//     "pen_no": "GRGRFDFSSSSSSS",
+//     "aadharshila_no": "FDVSERG45G",
+//     "roll_no": "FDFD",
+//     "last_name": "T",
+//     "dob": "",
+//     "phone": "",
+//     "blood_group": "B+",
+//     "religion": "Muslim",
+//     "caste": "MAPPILA",
+//     "admission_date": "Fri Aug 07 2026 00:00:00 GMT+0530 (India Standard Time)",
+//     "current_address": "ULLINCHEERATHIL HOUSE, KOOMANNA, OLAKARA POST",
+//     "permanent_address": "KOOMANNA",
+//     "father_name": "FDF",
+//     "father_phone": "9961260138",
+//     "father_email": "",
+//     "father_occupation": "",
+//     "mother_name": "FATHIMA",
+//     "mother_phone": "9961260138",
+//     "mother_email": "",
+//     "mother_occupation": "",
+//     "guardian_name": "",
+//     "guardian_phone": "",
+//     "guardian_email": "JUNAIDKTKMN@GMAIL.COM",
+//     "guardian_occupation": "",
+//     "guardian_relation": "",
+//     "guardian_address": "KZHGMTHTTHL",
+//     "guardian_is": "",
+//     "national_id_no": "6768768768768",
+//     "birth_certificate_no": "86876",
+//     "note": "GJHGJ",
+//     "previous_school_name": "NAJATH",
+//     "previous_qualification": "",
+//     "previous_school_details": "HSS SCHOOL, KADAPPADI",
+//     "emergencyContacts": "[{\"name\":\"\",\"relation\":\"\",\"phone\":\"\"}]",
+//     "documents": "[{\"id\":1,\"title\":\"doc 01\",\"file\":{},\"preview\":\"blob:http://localhost:5173/136a2b1c-6a26-4847-a96d-60e338ace719\"},{\"id\":2,\"title\":\"doc 02\",\"file\":{},\"preview\":\"blob:http://localhost:5173/cbd726d9-9bfb-4a9c-811b-ba040328c0c2\"},{\"id\":3,\"title\":\"doc 03\",\"file\":{},\"preview\":\"blob:http://localhost:5173/a57ee9da-cf54-48ad-860b-53ce2be27f87\"},{\"id\":4,\"title\":\"doc 04\",\"file\":{},\"preview\":\"blob:http://localhost:5173/aa90cd49-1b03-4320-b8f0-959f23a32c88\"}]"
+// }

@@ -42,6 +42,12 @@ export interface DashboardData {
   roles: string[];
   current_month_year: string;
   current_year: number;
+  school_info: {
+    category_of_institution?: string
+    school_name?: string
+    suic_code?: string
+    zone?: string
+  }
 }
 
 interface DashboardResponse {

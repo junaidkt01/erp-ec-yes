@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useFetchAllAcademicYears } from "../hooks/useAcademicYear"
 import { SvgIcon } from "./Sidebar"
 import { useNavigate } from "react-router-dom"
@@ -23,10 +23,10 @@ const Header = () => {
         <div className="header_wrapper">
             <div className="header" >
                 <div className="header_left_icons" >
-                    <div className="search_selection_wrapper" >
-                        <div className={`search_bar_wrapper ${searchTerm ? "has" : ""}`}>
+                    <div className="search_selection_wrapper hvr_zm_in" >
+                        <div className={`search_bar_wrapper ${searchTerm ? "has" : ""}`} >
                             <div className="search_bar" >
-                                <span className="search_icon">
+                                <span className="search_icon" >
                                     <img src="/header_icons/search_icon.svg" alt="search" />
                                 </span>
                                 <input onChange={(e) => setSearchTerm(e.target.value)} value={searchTerm} type="text" placeholder="Search Name/Admission.." />
@@ -72,10 +72,13 @@ const Header = () => {
                     </div>
                 </div>
                 <div className="header_left_icons" >
-                    <div className="icon_box" ><img src="/header_icons/notification.svg" alt="" /> </div>
-                    <div className="icon_box" ><img src="/header_icons/messages.svg" alt="" /> </div>
-                    <div className="icon_box profile" onMouseEnter={() => setIsProfile(!isProfile)} ><img src="/header_icons/profile_pic.png" alt="" />
+                    <div className="icon_box hvr_zm_out" ><img className="hvr_zm_in" src="/header_icons/notification.svg" alt="" /> </div>
+                    <div className="icon_box hvr_zm_out" ><img className="hvr_zm_in" src="/header_icons/messages.svg" alt="" /> </div>
+                    <div className="icon_box profile hvr_zm_out" onClick={() => setIsProfile(!isProfile)} ><img className="hvr_zm_in" src="/header_icons/profile_pic.png" alt="" />
                     </div>
+
+
+                    {isProfile && <div onClick={() => setIsProfile(false)} className="overlay_wrapper"></div>}
                     {isProfile && <Profile />}
                 </div>
             </div>
@@ -87,26 +90,25 @@ export default Header;
 
 
 
-const dat = [
-    "2025 (Jun - Mar)",
-    "2024 (Jun - Mar)",
-    "2023 (Jun - Mar)",
-    "2022 (Jun - Mar)",
-    "2021 (Jun - Mar)",
-    "2020 (Jun - Mar)",
-    "2019 (Jun - Mar)",
-    "2018 (Jun - Mar)",
-    "2017 (Jun - Mar)",
-    "2016 (Jun - Mar)",
-];
+// const dat = [
+//     "2025 (Jun - Mar)",
+//     "2024 (Jun - Mar)",
+//     "2023 (Jun - Mar)",
+//     "2022 (Jun - Mar)",
+//     "2021 (Jun - Mar)",
+//     "2020 (Jun - Mar)",
+//     "2019 (Jun - Mar)",
+//     "2018 (Jun - Mar)",
+//     "2017 (Jun - Mar)",
+//     "2016 (Jun - Mar)",
+// ];
 
 const YearFilter = () => {
     const [open, setOpen] = useState(false);
-    const [selected, setSelected] = useState(dat[0]);
+    const [selected, setSelected] = useState<any>();
     const [search, setSearch] = useState("");
 
-
-    const { data: academicYears } = useFetchAllAcademicYears();
+    const { data: academicYears, isLoading } = useFetchAllAcademicYears();
 
     const formattedData = academicYears?.map((item) => ({
         id: item.id,
@@ -117,8 +119,16 @@ const YearFilter = () => {
         item.label.toLowerCase().includes(search.toLowerCase())
     );
 
+    useEffect(() => {
+        if (isLoading) {
+            setSelected("2025 - 2026 (Jun - Mar)")
+        } else if (formattedData) {
+            setSelected(formattedData?.[0]?.label)
+        }
+    }, [formattedData])
+
     return (
-        <div className="year-filter">
+        <div className={`year-filter ${open ? "" : "hvr_zm_in"}`}>
             <div className={`filter-header ${open ? "active" : ""}`} onClick={() => setOpen(!open)} >
                 <span>{selected}</span>
                 <span className="chevron" />
@@ -133,7 +143,7 @@ const YearFilter = () => {
                         <input placeholder="Search" value={search} onChange={(e) => setSearch(e.target.value)} />
                     </div>
 
-                    <div className="list">
+                    <div className="list" >
                         {filtered?.map((item) => (
                             <div
                                 key={item.id}
@@ -168,8 +178,9 @@ const Profile = () => {
 
     return (
         <div className="profile-dropdown">
+
             {/* Header */}
-            <div className="profile-header">
+            <div className="profile-header hvr_zm_out" >
                 <div className="profile_pic">
                     <img src="/header_icons/profile_pic.png" alt="user" />
                 </div>
@@ -184,14 +195,14 @@ const Profile = () => {
 
             {/* Menu */}
             <div className="menu">
-                <div className="item">
+                <div className="item hvr_zm_out">
                     <span>
                         <img src="/header_icons/change_password.svg" alt="" />
                     </span>
                     <p>Change Password</p>
                 </div>
 
-                <div className="item">
+                <div className="item hvr_zm_out">
                     <span>
                         <img src="/header_icons/language.svg" alt="" />
                     </span>
@@ -204,7 +215,7 @@ const Profile = () => {
                     </span>
                 </div>
 
-                <div className="item">
+                <div className="item hvr_zm_out">
                     <span>
                         <img src="/header_icons/sidebar_manager.svg" alt="" />
                     </span>
@@ -213,7 +224,7 @@ const Profile = () => {
             </div>
 
             {/* Logout */}
-            <div className="logout" onClick={handleLogout} >
+            <div className="logout hvr_zm_in" onClick={handleLogout} >
                 <span>
                     <img src="/header_icons/logout.svg" alt="" />
                 </span>

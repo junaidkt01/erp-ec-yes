@@ -44,8 +44,8 @@ const DataTable: React.FC<DataTableProps> = ({ columns, data, currentPage, total
     };
 
     return (
-        <div className="table_wrapper">
-            <table className="custom_table">
+        <div className="table_wrapper" >
+            <table className="custom_table" >
                 <thead>
                     <tr>
                         {select && <th>Select</th>}
@@ -59,6 +59,27 @@ const DataTable: React.FC<DataTableProps> = ({ columns, data, currentPage, total
 
                 <tbody>
                     {data?.map((row: any, i: number) => (
+                        <tr className="hvr_zm_in" key={i}>
+                            {select && <td>{select(row.progress)}</td>}
+
+                            {columns.map((c) => {
+                                const value = row[c.key];
+                                const MAX_LETTERS = 30;
+
+                                return (
+                                    <td key={c.key} title={typeof value === "string" ? value : ""} >
+                                        {typeof value === "string" && value.length > MAX_LETTERS
+                                            ? `${value.slice(0, MAX_LETTERS)}...`
+                                            : value}
+                                    </td>
+                                );
+                            })}
+
+                            {progress && <td>{progress(row.progress)}</td>}
+                            {actions && <td>{actions(row)}</td>}
+                        </tr>
+                    ))}
+                    {/* {data?.map((row: any, i: number) => (
                         <tr key={i}>
                             {select && <td>{select(row.progress)}</td>}
                             {columns.map((c) => (
@@ -67,7 +88,7 @@ const DataTable: React.FC<DataTableProps> = ({ columns, data, currentPage, total
                             {progress && <td>{progress(row.progress)}</td>}
                             {actions && <td>{actions(row)}</td>}
                         </tr>
-                    ))}
+                    ))} */}
                 </tbody>
             </table>
 
