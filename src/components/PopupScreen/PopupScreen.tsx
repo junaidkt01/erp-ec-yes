@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "./PopupScreen.scss";
-import { AddButton, PrimaryButton } from "../Buttons/Buttons";
+// import { AddButton, PrimaryButton } from "../Buttons/Buttons";
 
 const PopupScreen = ({title, children, onClick }: {title:string; children: any; onClick?: any }) => {
     const [closing, setClosing] = useState(false);
@@ -19,8 +19,8 @@ const PopupScreen = ({title, children, onClick }: {title:string; children: any; 
             <div className={`popup_screen ${closing ? "closing" : ""}`}>
                 <div className="popup_header">
                     <p className="popup_header_title" >{title}</p>
-                    {/* {onClick && <img src="/svgs/close.svg" onClick={handleClose} />} */}
-                        <AddButton onClick={onClick} title={title = "Import Student"} />
+                    {onClick && <img src="/svgs/close.svg" onClick={handleClose} />}
+                        {/* <AddButton onClick={onClick} title={title = "Import Student"} /> */}
                 </div>
 
                 {children}

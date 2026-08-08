@@ -18,13 +18,34 @@ const InputFiles: React.FC<InputFilesProps> = ({
 }) => {
     const inputRef = useRef<HTMLInputElement | null>(null);
     const [isDragging, setIsDragging] = useState(false);
+    const [fileName, setFileName] = useState("");
 
     const handleClick = () => {
         inputRef.current?.click();
     };
 
+    const getAcceptedFilesText = () => {
+        if (!accept) return "All file types are allowed";
+
+        return accept
+            .split(",")
+            .map((item) =>
+                item
+                    .trim()
+                    .replace(".", "")
+                    .replace("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "XLSX")
+                    .replace("application/vnd.ms-excel", "XLS")
+                    .toUpperCase()
+            )
+            .join(", ");
+    };
+
     const handleFiles = (files: FileList | null) => {
-        if (!files || !onChange) return;
+        if (!files || files.length === 0) return;
+
+        setFileName(files[0].name);
+
+        if (!onChange) return;
 
         const event = {
             target: {
@@ -37,7 +58,7 @@ const InputFiles: React.FC<InputFilesProps> = ({
     };
 
     return (
-        <div className="input-file-wrapper">
+        <div className="input-file-wrapper hvr_zm_in" >
             {title && <label>{title}</label>}
 
             <div
@@ -66,13 +87,16 @@ const InputFiles: React.FC<InputFilesProps> = ({
                 {image ? (
                     <div className="content">
                         <div className="icon">
-                            {/* your svg */}
                             <img
                                 src={image}
                                 alt="Preview"
                                 className="preview-image"
                             />
                         </div>
+
+                        {fileName && (
+                            <p className="file-name">{fileName}</p>
+                        )}
                     </div>
                 ) : (
                     <div className="content">
@@ -81,12 +105,22 @@ const InputFiles: React.FC<InputFilesProps> = ({
                         </div>
 
                         <p className="title">
-                            Drag and Drop File here{" "}
-                            <span className="choose">Choose File</span>
+                            {fileName ? (
+                                <span className="selected-file">
+                                    {fileName}
+                                </span>
+                            ) : (
+                                <>
+                                    Drag and Drop File here{" "}
+                                    <span className="choose">
+                                        Choose File
+                                    </span>
+                                </>
+                            )}
                         </p>
 
                         <p className="sub">
-                            (PDF,DOC,DOCX,JPG,JPEG,PNG,TXT are allowed for upload)
+                            Allowed: {getAcceptedFilesText()}
                         </p>
                     </div>
                 )}
@@ -97,18 +131,24 @@ const InputFiles: React.FC<InputFilesProps> = ({
 
 export default InputFiles;
 
-// import React, { useRef, useState } from "react";
+// import { useRef, useState } from "react";
 // import "./inputField.scss";
 
 // interface InputFilesProps {
-//     // onChange?: (files: FileList | null) => void;
 //     onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 //     title?: string;
 //     name?: string;
-//     accept: string;
+//     accept?: string;
+//     image?: string | null;
 // }
 
-// const InputFiles: React.FC<InputFilesProps> = ({ onChange, title, name, accept }) => {
+// const InputFiles: React.FC<InputFilesProps> = ({
+//     onChange,
+//     title,
+//     name,
+//     accept,
+//     image,
+// }) => {
 //     const inputRef = useRef<HTMLInputElement | null>(null);
 //     const [isDragging, setIsDragging] = useState(false);
 
@@ -123,15 +163,16 @@ export default InputFiles;
 //             target: {
 //                 name,
 //                 files,
-//             },
-//         } as unknown as React.ChangeEvent<HTMLInputElement>;
+//             }
+//         } as React.ChangeEvent<HTMLInputElement>;
 
 //         onChange(event);
 //     };
 
 //     return (
-//         <div className="input-file-wrapper" >
-//             {title && <label htmlFor="">{title}</label>}
+//         <div className="input-file-wrapper">
+//             {title && <label>{title}</label>}
+
 //             <div
 //                 className={`input-file ${isDragging ? "dragging" : ""}`}
 //                 onClick={handleClick}
@@ -149,41 +190,39 @@ export default InputFiles;
 //                 <input
 //                     ref={inputRef}
 //                     type="file"
-//                     accept={accept}
 //                     hidden
 //                     multiple
+//                     accept={accept}
 //                     onChange={(e) => handleFiles(e.target.files)}
 //                 />
 
-//                 <div className="content">
-//                     <div className="icon">
-//                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-//                             <path
-//                                 d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V8L14 2Z"
-//                                 stroke="#5B61FF"
-//                                 strokeWidth="1.5"
-//                                 strokeLinecap="round"
-//                                 strokeLinejoin="round"
+//                 {image ? (
+//                     <div className="content">
+//                         <div className="icon">
+//                             {/* your svg */}
+//                             <img
+//                                 src={image}
+//                                 alt="Preview"
+//                                 className="preview-image"
 //                             />
-//                             <path
-//                                 d="M14 2V8H20"
-//                                 stroke="#5B61FF"
-//                                 strokeWidth="1.5"
-//                                 strokeLinecap="round"
-//                                 strokeLinejoin="round"
-//                             />
-//                         </svg>
+//                         </div>
 //                     </div>
+//                 ) : (
+//                     <div className="content">
+//                         <div className="icon">
+//                             {/* your svg */}
+//                         </div>
 
-//                     <p className="title">
-//                         Drag and Drop File here{" "}
-//                         <span className="choose">Choose File</span>
-//                     </p>
+//                         <p className="title">
+//                             Drag and Drop File here{" "}
+//                             <span className="choose">Choose File</span>
+//                         </p>
 
-//                     <p className="sub">
-//                         (PDF,DOC,DOCX,JPG,JPEG,PNG,TXT are allowed for upload)
-//                     </p>
-//                 </div>
+//                         <p className="sub">
+//                             (PDF,DOC,DOCX,JPG,JPEG,PNG,TXT are allowed for upload)
+//                         </p>
+//                     </div>
+//                 )}
 //             </div>
 //         </div>
 //     );

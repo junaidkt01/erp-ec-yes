@@ -295,6 +295,9 @@
 // }
 
 .preview {
+  max-width: 860px;
+  overflow: auto;
+  
   .row {
     display: flex;
     gap: 10px;

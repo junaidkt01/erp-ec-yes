@@ -28,7 +28,8 @@ const Profile = ({ type, data, details, tabs, profileDetails, activeTab, setActi
                             <img src="/sample/pic.png" alt="" />
                             <div className="name-and-details" >
                                 {/* <h1>Laya Sayd <span>(Female)</span></h1> */}
-                                <h1>{`${data?.data?.first_name || "N/A"} ${data?.data?.last_name || "N/A"}`}<span>{(data?.data?.section?.gender)}</span></h1>
+                                <h1>{`${data?.data?.full_name || "N/A"}`}<span>{(data?.data?.section?.gender)}</span></h1>
+                                {/* <h1>{`${data?.data?.first_name || "N/A"} ${data?.data?.last_name || "N/A"}`}<span>{(data?.data?.section?.gender)}</span></h1> */}
 
                                 <div className="student-details">
                                     {details?.map((item: any) => (

@@ -9,14 +9,20 @@ const STUDENTS_KEY = ["students"];
 export interface Student {
   id: number;
   admission_no: string;
-  first_name: string;
-  last_name: string;
-  dob: string | null;
+  full_name: string;
+  // first_name: string;
+  // last_name: string;
+  dob: string | null | any;
   gender: string;
   phone: string;
   email: string;
   class_id: number;
   section_id: number;
+
+  student_code: string;
+  apaar_id: string;
+  pen_no: string;
+  aadharshila_no: string;
 
   class: {
     id: number;
@@ -133,8 +139,9 @@ interface StudentDocument {
 
 export interface CreateStudentPayload {
   // Basic Info (likely required)
-  first_name: string;
-  last_name: string;
+  full_name: string;
+  // first_name: string;
+  // last_name: string;
   phone: string;
   email: string;
   class_id: number;
@@ -207,8 +214,9 @@ export const useAddStudent = () => {
 
 export interface UpdateStudentPayload {
   id: number;
-  first_name: string;
-  last_name: string;
+  full_name: string;
+  // first_name: string;
+  // last_name: string;
   phone: string;
   email: string;
   class_id: number;
@@ -296,8 +304,9 @@ export const useBlockStudent = () => {
 // bulk student upload api
 export interface BulkStudentItem {
   admission_no: string;
-  first_name: string;
-  last_name: string;
+  full_name: string;
+  // first_name: string;
+  // last_name: string;
   email: string;
   class_id: number;
   section_id: number;

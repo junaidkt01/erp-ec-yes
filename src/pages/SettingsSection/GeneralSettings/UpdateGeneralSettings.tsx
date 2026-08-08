@@ -196,13 +196,13 @@ const UpdateGeneralSettings = () => {
         try {
             const res = await updateGeneralSettings(payload as any);
             console.log("general settings: updated", res);
-            toast('Student added successfully')
+            toast('General setting updated')
             // setFormData(studentForm);
 
             setIsLoading(false);
         } catch (err) {
             setIsLoading(false);
-            toast('Student added failed')
+            toast('General setting changes failed')
             console.log("aa: error:", err);
         }
     };
@@ -275,7 +275,7 @@ const UpdateGeneralSettings = () => {
                                 </div>
                                 <div className="body_section" >
                                     <InputField error={errors.admission_no} type="text" label="Zone" placeHolder="Enter Zone" name="zone" value={formData?.zone} onChange={handleChange} />
-                                    <InputField error={errors.admission_no} type="text" label="Zone" placeHolder="Enter SUIC Code" name="suic_code" value={formData?.suic_code} onChange={handleChange} />
+                                    <InputField error={errors.admission_no} type="text" label="SUIC Code" placeHolder="Enter SUIC Code" name="suic_code" value={formData?.suic_code} onChange={handleChange} />
                                 </div>
                                 <div className="body_section" >
                                     <InputRadioButtons selectedValue={promotionWithoutExam || (data?.data?.promotion_without_exam || "")} name="promotion_without_exam" onChange={setPromotionWithoutExam} title="Promotion Without Exam" options={[{ label: "Enable", value: "Enable" }, { label: "Disable", value: "Disable" }]} />

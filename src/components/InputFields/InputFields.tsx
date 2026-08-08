@@ -5,8 +5,10 @@ export const InputField = ({ onChange, value, type, placeHolder, label, name, re
     value?: any; type: string; placeHolder: string; name?: string;
     label: string; required?: boolean; error?: string;
 }) => {
+
+
     return (
-        <div className={`input_field ${error ? "error" : ""}`} >
+        <div className={`input_field ${error ? "error" : ""} ${type === "date" ? "" : "hvr_zm_in"}`} >
             <label>{label}</label>
 
             {type === "date" ? (

@@ -46,7 +46,7 @@ export const CustomSelect = ({
     };
 
     return (
-        <div className={`custom_select_container ${open ? "is-open" : ""}`} ref={ref}>
+        <div className={`custom_select_container ${open ? "is-open" : "hvr_zm_in"}`} ref={ref}>
             {label && <label>{label}</label>}
 
             <div className={`select_box ${open ? "open" : ""}`} onClick={() => setOpen((prev) => !prev)}>

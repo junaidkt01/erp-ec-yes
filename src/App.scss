@@ -3,6 +3,33 @@
   
 }
 
+.overlay_wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: hsla(0, 0%, 0%, 0.068);
+  z-index: 2;
+}
+
+.hvr_zm_out {
+  transition: transform 0.25s ease;
+
+  &:hover {
+    transform: scale(0.97);
+  }
+}
+
+.hvr_zm_in {
+  transition: transform 0.45s ease;
+
+  &:hover {
+    // transform: scale(1.0091);
+    transform: scale(1.01);
+  }
+}
+
 .complaint_page,
 .admission_query,
 .postal_receive,

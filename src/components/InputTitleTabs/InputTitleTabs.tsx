@@ -8,7 +8,7 @@ const InputTitleTabs = ({ tabsTitles, onSetSelectedInputTitleTab, selected }: { 
             {
                 tabsTitles.map((item, i) => {
                     return (
-                        <div key={i} onClick={() => onSetSelectedInputTitleTab(item)} className={`input_title_tab ${item === selected ? "opened" : ""}`}>
+                        <div key={i} onClick={() => onSetSelectedInputTitleTab(item)} className={`hvr_zm_in input_title_tab ${item === selected ? "opened" : ""}`}>
                             <p className="number" >{i + 1}</p>
                             <p className="title" >{item}</p>
                         </div>

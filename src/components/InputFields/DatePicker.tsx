@@ -8,7 +8,7 @@ interface DatePickerProps {
 
 export const DatePicker = ({ value, onChange }: DatePickerProps) => {
     return (
-        <div className="date_picker_container">
+        <div className="date_picker_container" >
             <ReactDatePicker
                 dateFormat="dd/MM/yyyy"
                 placeholderText="Select Date"

@@ -37,6 +37,7 @@ const StudentList = () => {
         section_id: filteredData.section_id,
         search: debouncedSearch || filteredData.name,
     });
+    console.log("sampleData: ", sampleData)
     // const { data: sampleData, isLoading } = useFetchAllStudents(
     //     page,
     //     filteredData.academic_year_id,
@@ -116,7 +117,8 @@ const StudentList = () => {
         const mappedData = sampleData?.data?.map((student: any, index: number) => ({
             sl: index + 1,
             admission_no: student.admission_no || "",
-            name: `${student.first_name || ""} ${student.last_name || ""}`.trim(),
+            name: student.full_name.trim(),
+            // name: `${student.first_name || ""} ${student.last_name || ""}`.trim(),
             father_name: student.parents?.father_name || "",
             date_of_birth: student.dob || "",
             class_and_section: `${student?.class?.name || ""} ${student?.section?.name || ""}`.trim(),
@@ -166,7 +168,7 @@ const StudentList = () => {
     const { mutate: updateStudent, isPending: isBlockPending } = useBlockStudent();
 
     const [blockingReason, setBlockingReason] = useState("");
-    console.log("blockingReason",blockingReason)
+    console.log("blockingReason", blockingReason)
     const handleConfirmBlockStudent = (studentId: string) => {
         updateStudent(
             {
@@ -315,10 +317,10 @@ const StudentList = () => {
                         onPageChange={(p) => setPage(p)}
                         actions={(row) => (
                             <div className="actions">
-                                <button onClick={() => navigate(`/student-info/profile/${row?.full_data?.id}`)} ><img src="/svgs/eye_open.svg" alt="" /></button>
-                                <button onClick={() => navigate(`/student-info/add-student/${row?.full_data?.id}`)} ><img src="/svgs/edit.svg" alt="" /></button>
-                                <button onClick={() => handleDeleteStudent(row?.full_data?.id, `${row.full_data?.first_name} ${row.full_data?.last_name}`)} ><img src="/svgs/delete.svg" alt="" /></button>
-                                <button onClick={() => handleBlockStudent(row?.full_data?.id, `${row.full_data?.first_name} ${row.full_data?.last_name}`, row?.full_data?.disable_reason)} >{row.full_data?.is_disabled ? <img src="/svgs/enable.svg" alt="" /> : <img src="/svgs/block.svg" alt="" />}</button>
+                                <button className="hvr_zm_out" onClick={() => navigate(`/student-info/profile/${row?.full_data?.id}`)} ><img src="/svgs/eye_open.svg" alt="" /></button>
+                                <button className="hvr_zm_out" onClick={() => navigate(`/student-info/add-student/${row?.full_data?.id}`)} ><img src="/svgs/edit.svg" alt="" /></button>
+                                <button className="hvr_zm_out" onClick={() => handleDeleteStudent(row?.full_data?.id, `${row.full_data?.first_name} ${row.full_data?.last_name}`)} ><img src="/svgs/delete.svg" alt="" /></button>
+                                <button className="hvr_zm_out" onClick={() => handleBlockStudent(row?.full_data?.id, `${row.full_data?.first_name} ${row.full_data?.last_name}`, row?.full_data?.disable_reason)} >{row.full_data?.is_disabled ? <img src="/svgs/enable.svg" alt="" /> : <img src="/svgs/block.svg" alt="" />}</button>
                             </div>
                         )}
                     />
