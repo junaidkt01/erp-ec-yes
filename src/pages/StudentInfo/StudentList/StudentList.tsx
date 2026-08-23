@@ -31,13 +31,16 @@ const StudentList = () => {
     const [filterData, setFilterData] = useState(initialFilter);
     const [filteredData, setFilteredData] = useState(initialFilter);
 
-    const { data: sampleData, isLoading } = useFetchAllStudents(page, {
+    const { data: sampleData, isLoading, isFetching } = useFetchAllStudents(page, {
         academic_year_id: filteredData.academic_year_id,
         class_id: filteredData.class_id,
         section_id: filteredData.section_id,
         search: debouncedSearch || filteredData.name,
     });
-    console.log("sampleData: ", sampleData)
+    console.log("sampleData: ", sampleData);
+
+    const isFiltering = isFetching && (filterData.academic_year_id !== "" || filterData.class_id !== "" || filterData.section_id !== "" || filterData.name !== "" || filterData.roll_no !== "");
+
     // const { data: sampleData, isLoading } = useFetchAllStudents(
     //     page,
     //     filteredData.academic_year_id,
@@ -54,47 +57,6 @@ const StudentList = () => {
         setFilterData(initialFilter);
         setFilteredData(initialFilter);
     };
-
-    // const [filterData, setFilterData] = useState({
-    //     academic_year_id: "",
-    //     class_id: "",
-    //     section_id: "",
-    //     name: "",
-    //     roll_no: "",
-    // })
-
-    // const [filteredData, setFilteredData] = useState({
-    //     academic_year_id: "",
-    //     class_id: "",
-    //     section_id: "",
-    //     name: "",
-    //     roll_no: ""
-    // })
-
-    // const { data: sampleData, isLoading } = useFetchAllStudents(page, filteredData.academic_year_id, filteredData.class_id, filteredData.section_id, filteredData.name);
-    // console.log("students: 02", sampleData, page);
-
-    // const handleSearch = async () => {
-    //     const { academic_year_id, class_id, section_id, name, roll_no } = filterData;
-    //     setFilteredData({ academic_year_id: academic_year_id, class_id: class_id, section_id: section_id, name: name, roll_no: roll_no })
-    // }
-
-    // const handleResetFilterData = async () => {
-    //     setFilterData({
-    //         academic_year_id: "",
-    //         class_id: "",
-    //         section_id: "",
-    //         name: "",
-    //         roll_no: "",
-    //     })
-    //     setFilteredData({
-    //         academic_year_id: "",
-    //         class_id: "",
-    //         section_id: "",
-    //         name: "",
-    //         roll_no: "",
-    //     })
-    // }
 
     const columns: Column[] = [
         { key: "sl", title: "SL" },
@@ -131,10 +93,6 @@ const StudentList = () => {
         setStudentList(mappedData);
     }, [sampleData]);
 
-    const [isAddAdmissionQuery, setIsAddAdmissionQuery] = useState(false)
-    const handleAddAdmissionQuery = () => {
-        setIsAddAdmissionQuery(!isAddAdmissionQuery)
-    }
 
 
     // Delete Student
@@ -197,7 +155,44 @@ const StudentList = () => {
         setBlockStudent({ id: "", name: "", reason: "" });
     }
 
+    // const list = [
+    //     { "label": "2026-2027 (Apr - Mar)", "value": 7 },
+    //     { "label": "2025-2026 (Jun - Mar)", "value": 6 },
+    //     { "label": "2025-2026 (Jun - Mar)", "value": 5 },
+    //     { "label": "2025-2026 (Jun - Mar)", "value": 4 },
+    //     { "label": "2025-2026 (Jun - Mar)", "value": 3 },
+    //     { "label": "2025-2026 (Jun - Mar)", "value": 1 },
+    //     { "label": "2025-2026 (Jun - Mar)", "value": 2 }
+    // ]
 
+    // const classesData = [
+    //     { "id": 3, "name": "Class 10 Updated" },
+    //     { "id": 4, "name": "Grade 10" },
+    //     { "id": 5, "name": "Class X" },
+    //     { "id": 6, "name": "Class 10" },
+    //     { "id": 7, "name": "Class 1" },
+    //     { "id": 8, "name": "Class 2" },
+    //     { "id": 9, "name": "Class 3" },
+    //     { "id": 10, "name": "Class 4" },
+    //     { "id": 11, "name": "Class 5" }
+    // ]
+
+    // const section = [
+    //     { "label": "A", "value": 5 },
+    //     { "label": "B", "value": 6 },
+    //     { "label": "A", "value": 7 },
+    //     { "label": "B", "value": 8 },
+    //     { "label": "A", "value": 9 },
+    //     { "label": "B", "value": 10 },
+    //     { "label": "A", "value": 11 },
+    //     { "label": "B", "value": 12 },
+    //     { "label": "A", "value": 13 },
+    //     { "label": "B", "value": 14 },
+    //     { "label": "A", "value": 4 },
+    //     { "label": "Section A", "value": 3 },
+    //     { "label": "Science", "value": 1 },
+    //     { "label": "Humanities", "value": 2 }
+    // ]
     ///////////////////////////
 
     const { data: academicYears } = useFetchAllAcademicYears();
@@ -205,6 +200,7 @@ const StudentList = () => {
         label: `${item.name} (${new Date(item.start_date).toLocaleString("default", { month: "short" })} - ${new Date(item.end_date).toLocaleString("default", { month: "short" })})`,
         value: item.id,
     }));
+
 
     const { data: studentClasses } = useFetchAllStudentClasses();
     const classOptions = studentClasses?.map((cls: any) => ({
@@ -217,6 +213,7 @@ const StudentList = () => {
         label: cls.name,
         value: cls.id,
     }));
+    console.log("sectionOptions: ", sectionOptions)
 
     ///////////////////////////
 
@@ -227,32 +224,6 @@ const StudentList = () => {
     return (
         <div className="page_wrapper" >
             <div className="student_list" >
-                {isAddAdmissionQuery && <PopupScreen title="Add Admission Query" onClick={handleAddAdmissionQuery} >
-                    <div className="popup_body" >
-                        <div className="body_section" >
-                            <InputField type="text" label="Name" placeHolder="Enter name" />
-                            <InputField type="text" label="Phone" placeHolder="Enter phone number" />
-                            <InputField type="text" label="Email" placeHolder="Enter email address" />
-                        </div>
-                        <div className="body_section" >
-                            <InputField type="text" label="Address" placeHolder="Enter address" />
-                        </div>
-                        <div className="body_section" >
-                            <InputField type="text" label="Discription" placeHolder="Enter discription" />
-                        </div>
-                        <div className="body_section" >
-                            <InputField type="date" label="Date From" placeHolder="Select date" />
-                            <InputField type="date" label="Next Follow Up Date" placeHolder="Select date" />
-                            <InputField type="text" label="Assigned" placeHolder="Enter assignee name" />
-                        </div>
-
-                        <div className="buttons">
-                            <SecondaryButton />
-                            <PrimaryButton title="Save" />
-                        </div>
-                    </div>
-                </PopupScreen>}
-
                 {blockStudent.id && <PopupScreen title={`Block ${blockStudent.name}`} onClick={handleCancelBlockStudent} >
                     <div className="popup_body" >
                         <div className="body_section" >
@@ -262,7 +233,7 @@ const StudentList = () => {
                             <InputField value={blockingReason || blockStudent.reason} onChange={(e) => setBlockingReason(e.target.value)} type="text" label="Type reasone to block this student" placeHolder="Enter reasone" />
                         </div>
 
-                        <div className="buttons">
+                        <div className="buttons" >
                             <SecondaryButton onClick={handleCancelBlockStudent} title="Cancel" />
                             <PrimaryButton onClick={() => handleConfirmBlockStudent(blockStudent.id)} disabled={isBlockPending} title={isBlockPending ? "Blocking..." : "Block"} />
                         </div>
@@ -301,7 +272,7 @@ const StudentList = () => {
 
                             <div className="buttons">
                                 <SecondaryButton title="Reset" onClick={handleResetFilterData} />
-                                <PrimaryButton title="Search" onClick={handleSearch} />
+                                <PrimaryButton isLoading={isFiltering} title="Search" onClick={handleSearch} />
                             </div>
                         </div>
                     </div>
@@ -313,7 +284,8 @@ const StudentList = () => {
                         columns={columns}
                         data={studentList}
                         currentPage={sampleData?.meta?.current_page || 0}
-                        totalPages={sampleData?.meta?.total || 0}
+                        totalPages={Math.ceil(Number(sampleData?.meta?.total) / Number(sampleData?.meta?.per_page)) || 0}
+                        // totalPages={sampleData?.meta?.total || 0}
                         onPageChange={(p) => setPage(p)}
                         actions={(row) => (
                             <div className="actions">

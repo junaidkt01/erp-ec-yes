@@ -3,13 +3,13 @@ import { DatePicker } from "./DatePicker";
 export const InputField = ({ onChange, value, type, placeHolder, label, name, required, error }: {
     onChange?: (value: any, name?: string) => void;
     value?: any; type: string; placeHolder: string; name?: string;
-    label: string; required?: boolean; error?: string;
+    label?: string; required?: boolean; error?: string;
 }) => {
 
 
     return (
         <div className={`input_field ${error ? "error" : ""} ${type === "date" ? "" : "hvr_zm_in"}`} >
-            <label>{label}</label>
+            {label && <label>{label}</label>}
 
             {type === "date" ? (
                 <>

@@ -429,54 +429,37 @@ const BulkUpload = ({ onClick }: { onClick: () => void }) => {
     };
 
     const columns: Column[] = [
-        { key: "sl", title: "SL" },
-        { key: "student_code", title: "Student Code" },
-        { key: "admission_no", title: "Admission No" },
-        { key: "admission_date", title: "Admission Date" },
+        // { key: "sl", title: "SL" },
         { key: "roll_no", title: "Roll No" },
-
-        { key: "first_name", title: "First Name" },
-        { key: "last_name", title: "Last Name" },
-        { key: "dob", title: "Date of Birth" },
+        { key: "admission_no", title: "Admission No" },
+        { key: "aadharshila_no", title: "Aadharshila No" },
+        { key: "pen_no", title: "PEN No" },
+        { key: "apaar_id", title: "APAAR ID" },
+        { key: "national_id_no", title: "Adhaar No" },
+        { key: "student_code", title: "Student ID" },
+        { key: "admission_date", title: "Admission Date" },
+        { key: "full_name", title: "Full Name" },
         { key: "gender", title: "Gender" },
+        { key: "dob", title: "Date of Birth" },
         { key: "religion", title: "Religion" },
         { key: "caste", title: "Caste" },
         { key: "blood_group", title: "Blood Group" },
-
-        { key: "nationality", title: "Nationality" },
-        { key: "class_id", title: "Class" },
-        { key: "section_id", title: "Section" },
-        { key: "category_id", title: "Category" },
-
-        { key: "address", title: "Address" },
-        { key: "current_address", title: "Current Address" },
-        { key: "permanent_address", title: "Permanent Address" },
-
-        { key: "national_id_no", title: "Adhaar No" },
-        { key: "birth_certificate_no", title: "Birth Certificate No" },
-        { key: "apaar_id", title: "APAAR ID" },
-        { key: "aadharshila_no", title: "Aadharshila No" },
-        { key: "pen_no", title: "PEN No" },
-
-        { key: "previous_school_name", title: "Previous School Name" },
-        { key: "note", title: "Note" },
 
         { key: "father_name", title: "Father Name" },
         { key: "father_phone", title: "Father Phone" },
         { key: "father_email", title: "Father Email" },
         { key: "father_occupation", title: "Father Occupation" },
-
+        
         { key: "mother_name", title: "Mother Name" },
         { key: "mother_phone", title: "Mother Phone" },
         { key: "mother_email", title: "Mother Email" },
         { key: "mother_occupation", title: "Mother Occupation" },
-
-        { key: "guardian_name", title: "Guardian Name" },
-        { key: "guardian_phone", title: "Guardian Phone" },
-        { key: "guardian_email", title: "Guardian Email" },
-        { key: "guardian_occupation", title: "Guardian Occupation" },
-        { key: "guardian_relation", title: "Guardian Relation" },
-        { key: "guardian_address", title: "Guardian Address" },
+        
+        { key: "class_id", title: "Class" },
+        { key: "section_id", title: "Section" },
+        { key: "category_id", title: "Category" },
+        { key: "current_address", title: "Current Address" },
+        { key: "permanent_address", title: "Permanent Address" },
     ];
 
     // sample student data excel start
@@ -675,50 +658,50 @@ const BulkUpload = ({ onClick }: { onClick: () => void }) => {
 
 export default BulkUpload;
 
-const student = {
-    "student_code": null,
-    "admission_no": "ADM2026001",
-    "admission_date": null,
-    "roll_no": null,
+// const student = {
+//     "student_code": null,
+//     "admission_no": "ADM2026001",
+//     "admission_date": null,
+//     "roll_no": null,
 
-    "first_name": "John",
-    "last_name": "Doe",
-    "dob": null,
-    "religion": null,
-    "caste": null,
-    "blood_group": null,
+//     "first_name": "John",
+//     "last_name": "Doe",
+//     "dob": null,
+//     "religion": null,
+//     "caste": null,
+//     "blood_group": null,
 
-    "gender": "male",
-    "category_id": null,
-    "class_id": 6,
-    "section_id": 4,
-    "address": null,
-    "nationality": "American",
-    "current_address": "456 Test Ave",
-    "permanent_address": "456 Test Ave",
-    "national_id_no": null, // adhaar_number
-    "birth_certificate_no": null,
-    "apaar_id": null,
-    "aadharshila_no": null,
-    "pen_no": null,
-    "previous_school_name": null,
-    "note": null,
+//     "gender": "male",
+//     "category_id": null,
+//     "class_id": 6,
+//     "section_id": 4,
+//     "address": null,
+//     "nationality": "American",
+//     "current_address": "456 Test Ave",
+//     "permanent_address": "456 Test Ave",
+//     "national_id_no": null, // adhaar_number
+//     "birth_certificate_no": null,
+//     "apaar_id": null,
+//     "aadharshila_no": null,
+//     "pen_no": null,
+//     "previous_school_name": null,
+//     "note": null,
 
-    "father_name": "Michael Doe",
-    "father_phone": "1122334455",
-    "father_email": null,
-    "father_occupation": null,
-    "mother_name": "Sarah Doe",
-    "mother_phone": "5544332211",
-    "mother_email": null,
-    "mother_occupation": null,
-    "guardian_name": null,
-    "guardian_phone": null,
-    "guardian_occupation": null,
-    "guardian_email": null,
-    "guardian_relation": null,
-    "guardian_address": null,
-}
+//     "father_name": "Michael Doe",
+//     "father_phone": "1122334455",
+//     "father_email": null,
+//     "father_occupation": null,
+//     "mother_name": "Sarah Doe",
+//     "mother_phone": "5544332211",
+//     "mother_email": null,
+//     "mother_occupation": null,
+//     "guardian_name": null,
+//     "guardian_phone": null,
+//     "guardian_occupation": null,
+//     "guardian_email": null,
+//     "guardian_relation": null,
+//     "guardian_address": null,
+// }
 
 // const student = {
 //     "student_code": null,

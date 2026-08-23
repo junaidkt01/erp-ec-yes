@@ -59,8 +59,8 @@ export const GlobalButton = ({ title, onClick, icon, bg, border, color }: {
     )
 }
 
-export const PrimaryButton = ({ title, type, onClick, disabled }: {
-    title: string; type?: "button" | "submit" | "reset"; onClick?: any; disabled?: boolean
+export const PrimaryButton = ({ title, type, onClick, disabled, isLoading }: {
+    title: string; type?: "button" | "submit" | "reset"; onClick?: any; disabled?: boolean, isLoading?: boolean
 }) => {
     const { ref, onPointerDown, onClickCapture } = useButton();
     return (
@@ -68,15 +68,15 @@ export const PrimaryButton = ({ title, type, onClick, disabled }: {
             onClick={onClick} type={type} disabled={disabled}
             onPointerDown={onPointerDown} onClickCapture={onClickCapture}>
             <div className="ripple-layer" />
-            {title}
+            {isLoading ? <div className="loader" ></div> : title}
         </button>
     )
 }
 
-export const SecondaryButton = ({ title, onClick }: { title?: string; onClick?: () => void }) => {
+export const SecondaryButton = ({ title, onClick, disable }: { title?: string; onClick?: () => void; disable?: boolean; }) => {
     const { ref, onPointerDown, onClickCapture } = useButton()
     return (
-        <button ref={ref} className="button secondary_button"
+        <button ref={ref} disabled={disable} className="button secondary_button"
             onClick={onClick} onPointerDown={onPointerDown} onClickCapture={onClickCapture}>
             <div className="ripple-layer" />
             {title || "Reset"}

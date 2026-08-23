@@ -21,6 +21,7 @@ import BulkUpload from "../../../components/BulkUpload/BulkUpload.tsx"
 import { validate } from "../../../utils/validate.ts"
 import { studentFamilyDetailsSchema, studentPersonalDetailsSchema } from "../../../validations/studentsSchema.ts"
 import { useDebounce } from "../../../hooks/useDebounce.ts"
+import { BASE_URL } from "../../../api/endpoints.ts"
 
 const AddStudent = () => {
     const { student_id } = useParams();
@@ -120,6 +121,8 @@ const AddStudent = () => {
     };
 
     const [photos, setPhotos] = useState<Record<PhotoType, PhotoState>>(initialPhotosState);
+
+    console.log("photos.photo.preview: ", photos.photo.preview)
 
     const handlePhotoUpload = (type: PhotoType) => (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -300,10 +303,10 @@ const AddStudent = () => {
         const parents = data.parents || {};
 
         setPhotos({
-            photo: { file: null, preview: data.photo || null },
-            father_photo: { file: null, preview: parents.father_photo || null },
-            mother_photo: { file: null, preview: parents.mother_photo || null },
-            guardian_photo: { file: null, preview: parents.guardian_photo || null },
+            photo: { file: null, preview: `${BASE_URL}/public/${data.photo}` || null },
+            father_photo: { file: null, preview: `${BASE_URL}/public/${parents.father_photo}` || null },
+            mother_photo: { file: null, preview: `${BASE_URL}/public/${parents.mother_photo}` || null },
+            guardian_photo: { file: null, preview: `${BASE_URL}/public/${parents.guardian_photo}` || null },
         });
 
         setFormData((prev) => ({
@@ -579,7 +582,7 @@ const AddStudent = () => {
     }
     /////////////////////
 
-    const { data: academicYears } = useFetchAllAcademicYears();
+    const { data: academicYears, isLoading: academicYearsLoading, error: academicYearsError } = useFetchAllAcademicYears();
     const formattedData = academicYears?.map((item) => ({
         label: `${item.name} (${new Date(item.start_date).toLocaleString("default", { month: "short" })} - ${new Date(item.end_date).toLocaleString("default", { month: "short" })})`,
         value: item.id,
@@ -791,8 +794,14 @@ const AddStudent = () => {
                                         <InputField error={errors.caste} name="caste" value={formData?.caste} onChange={handleChange} type="text" label="Cast" placeHolder="Enter cast" />
                                     </div>
                                     <div className="body_section" >
-                                        <InputFiles image={photos.photo.preview || data?.data?.photo} accept="image/*" name="photo" title="Student Photo" onChange={handlePhotoUpload("photo")} />
-                                        {/* <InputFiles image={previewPhoto || data?.data?.photo} accept="image/*" name="photo" onChange={handlePhotoUpload} title="Student photo" /> */}
+                                        {/* <InputFiles image={photos.photo.preview || data?.data?.photo} accept="image/*" name="photo" title="Student Photo" onChange={handlePhotoUpload("photo")} /> */}
+
+                                        <InputFiles
+                                            image={photos.photo.preview || data?.data?.photo}
+                                            accept="image/*" name="photo"
+                                            title="Student Photo" cropSize={{ width: 350, height: 450 }}
+                                            onChange={handlePhotoUpload("photo")}
+                                        />
                                     </div>
                                 </div>
                             </div>
@@ -854,7 +863,7 @@ const AddStudent = () => {
                                         <InputField error={errors.father_phone} name="father_phone" type="text" label="Father Phone Number" placeHolder="Enter phone number" value={formData?.father_phone} onChange={handleChange} />
                                     </div>
                                     <div className="body_section" >
-                                        <InputFiles image={photos.father_photo.preview || data?.data?.father_photo} accept="image/*" name="father_photo" title="Father's Photo" onChange={handlePhotoUpload("father_photo")} />
+                                        <InputFiles cropSize={{ width: 350, height: 450 }} image={photos.father_photo.preview || data?.data?.father_photo} accept="image/*" name="father_photo" title="Father's Photo" onChange={handlePhotoUpload("father_photo")} />
                                         {/* <InputFiles image={previewFatherPhoto || data?.data?.father_photo} accept="image/*" name="father_photo" onChange={handleFatherPhotoUpload} title="Father’s Photo" /> */}
                                     </div>
                                 </div>
@@ -869,7 +878,7 @@ const AddStudent = () => {
                                         <InputField error={errors.mother_phone} name="mother_phone" type="text" label="Mother Phone Number" placeHolder="Enter phone number" value={formData?.mother_phone} onChange={handleChange} />
                                     </div>
                                     <div className="body_section" >
-                                        <InputFiles image={photos.mother_photo.preview || data?.data?.mother_photo} accept="image/*" name="mother_photo" title="Mother's Photo" onChange={handlePhotoUpload("mother_photo")} />
+                                        <InputFiles cropSize={{ width: 350, height: 450 }} image={photos.mother_photo.preview || data?.data?.mother_photo} accept="image/*" name="mother_photo" title="Mother's Photo" onChange={handlePhotoUpload("mother_photo")} />
                                         {/* <InputFiles image={previewMotherPhoto || data?.data?.mother_photo} accept="image/*" name="mother_photo" onChange={handleMotherPhotoUpload} title="Mother’s Photo" /> */}
                                     </div>
                                     {/* <div className="body_section" >
@@ -906,7 +915,7 @@ const AddStudent = () => {
                                         <InputField error={errors.guardian_address} name="guardian_address" value={formData?.guardian_address} onChange={handleChange} type="text" label="Guardian Address" placeHolder="Enter guardian's address" />
                                     </div>
                                     <div className="body_section" >
-                                        <InputFiles image={photos.guardian_photo.preview || data?.data?.guardian_photo} accept="image/*" name="guardian_photo" title="Guardian Photo" onChange={handlePhotoUpload("guardian_photo")} />
+                                        <InputFiles cropSize={{ width: 350, height: 450 }} image={photos.guardian_photo.preview || data?.data?.guardian_photo} accept="image/*" name="guardian_photo" title="Guardian Photo" onChange={handlePhotoUpload("guardian_photo")} />
                                         {/* <InputFiles image={previewGuardianPhoto || data?.data?.guardian_photo} accept="image/*" name="guardian_photo" onChange={handleGuardianPhotoUpload} title="Guardian Photo" /> */}
                                     </div>
                                 </div>

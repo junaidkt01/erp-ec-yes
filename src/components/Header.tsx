@@ -177,7 +177,7 @@ const Profile = () => {
     }
 
     return (
-        <div className="profile-dropdown">
+        <div className="profile-dropdown hvr_zm_out">
 
             {/* Header */}
             <div className="profile-header hvr_zm_out" >

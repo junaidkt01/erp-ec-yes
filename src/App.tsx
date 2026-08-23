@@ -66,6 +66,7 @@ function App() {
   const { open, statusCode, message, hide } = useOverlayStore();
   console.log("test: ", open, statusCode, message, hide);
 
+  // temp start
   const { data, isLoading, error } = useFetchGeneralSettings();
   useSiteSettings(data?.data);
 
@@ -76,6 +77,7 @@ function App() {
   if (error) {
     return <ErrorStatusOverlay isError={true} status={404} message={"error"} />
   }
+  // temp end
 
   return (
     <div className='app'>
@@ -148,7 +150,7 @@ function App() {
               <Route path='/student-info/multi-class-student' element={<MultiClassStudent />} />
               <Route path='/student-info/delete-student-record' element={<DeleteStudentRecord />} />
               <Route path='/student-info/unassigned-student' element={<UnassignedStudent />} />
-              <Route path='/student-info/student-attendance' element={<div>student-attendance</div>} /> {/* pending */}
+              <Route path='/student-info/student-attendance' element={<StudentAttendance />} />
               <Route path='/student-info/student-group' element={<StudentGroup />} />
               <Route path='/student-info/student-promote' element={<StudentPromote />} />
               <Route path='/student-info/disabled-students' element={<DisabledStudents />} />

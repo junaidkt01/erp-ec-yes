@@ -1,0 +1,145 @@
+.attendance_button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 72px;
+    height: 33px;
+    padding: 8px 12px;
+
+    border: 1px solid;
+    border-radius: 16px;
+    
+    // font-family: Roboto;
+    font-weight: 400;
+    // font-style: Regular;
+    font-size: 14px;
+    line-height: 120%;
+    letter-spacing: 0%;
+    
+    
+    cursor: pointer;
+    
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.15s ease;
+        
+        // Small press interaction
+        &:active:not(:disabled) {
+            transform: scale(0.94);
+    }
+
+    // -------------------------
+    // Present
+    // -------------------------
+    &.status_present {
+        color: #4caf7d;
+        border-color: #4caf7d;
+
+        &:hover:not(:disabled) {
+            color: #fff;
+            background: #4caf7d;
+            box-shadow: 0 4px 10px rgba(76, 175, 125, 0.25);
+        }
+
+        &.active {
+            color: #fff;
+            background: #4caf7d;
+            box-shadow: 0 3px 8px rgba(76, 175, 125, 0.3);
+        }
+    }
+
+    // -------------------------
+    // Late
+    // -------------------------
+    &.status_late {
+        color: #e6a000;
+        border-color: #e6a000;
+
+        &:hover:not(:disabled) {
+            color: #fff;
+            background: #e6a000;
+            box-shadow: 0 4px 10px rgba(230, 160, 0, 0.25);
+        }
+
+        &.active {
+            color: #fff;
+            background: #e6a000;
+            box-shadow: 0 3px 8px rgba(230, 160, 0, 0.3);
+        }
+    }
+
+    // -------------------------
+    // Absent
+    // -------------------------
+    &.status_absent {
+        color: #ff4141;
+        border-color: #ff4141;
+
+        &:hover:not(:disabled) {
+            color: #fff;
+            background: #ff4141;
+            box-shadow: 0 4px 10px rgba(255, 65, 65, 0.25);
+        }
+
+        &.active {
+            color: #fff;
+            background: #ff4141;
+            box-shadow: 0 3px 8px rgba(255, 65, 65, 0.3);
+        }
+    }
+
+    // -------------------------
+    // Half Day
+    // -------------------------
+    &.status_half-day {
+        color: #c34eaa;
+        border-color: #c34eaa;
+
+        &:hover:not(:disabled) {
+            color: #fff;
+            background: #c34eaa;
+            box-shadow: 0 4px 10px rgba(195, 78, 170, 0.25);
+        }
+
+        &.active {
+            color: #fff;
+            background: #c34eaa;
+            box-shadow: 0 3px 8px rgba(195, 78, 170, 0.3);
+        }
+    }
+
+    // -------------------------
+    // Leave
+    // -------------------------
+    &.status_leave {
+        color: #24509b;
+        border-color: #24509b;
+
+        &:hover:not(:disabled) {
+            color: #fff;
+            background: #24509b;
+            box-shadow: 0 4px 10px rgba(36, 80, 155, 0.25);
+        }
+
+        &.active {
+            color: #fff;
+            background: #24509b;
+            box-shadow: 0 3px 8px rgba(36, 80, 155, 0.3);
+        }
+    }
+
+    // -------------------------
+    // Disabled
+    // -------------------------
+    &:disabled,
+    &.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        box-shadow: none;
+    }
+}

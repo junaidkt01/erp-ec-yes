@@ -22,6 +22,7 @@ export const CustomSelect = ({
     const [open, setOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
     const selectedOption = options?.find((opt) => opt.value == value);
+    console.log("selection: ", label, value, options)
 
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {

@@ -59,7 +59,7 @@ const Dashboard = () => {
       <div className="dashboard" >
         <div className="school_details" >
           <p>Welcome</p>
-          <h2>{data?.school_info?.school_name}, {data?.school_info?.suic_code}, {data?.school_info?.zone}, {data?.school_info?.category_of_institution}</h2>
+          <h2>{data?.school_info?.school_name} <span className="pipe" >|</span> {data?.school_info?.suic_code} <span className="pipe" >|</span> {data?.school_info?.zone} <span className="pipe" >|</span> {data?.school_info?.category_of_institution}</h2>
           {/* <h2>School name, SUIC Code, Zone, Category of insitution</h2> */}
           {/* <h2>EC YES - Super Admin</h2> */}
         </div>

@@ -29,6 +29,7 @@ const StudentProfilePage = () => {
 
     const profileDetails = [
         { label: "Admission Details", value: student?.data?.admission_date || "N/A" },
+        { label: "Student ID", value: student?.data?.student_code || "N/A" },
         { label: "Date Of Birth", value: student?.data?.date_of_birth || "N/A" },
         { label: "Age", value: "17 years" },
         { label: "Category", value: student?.data?.category?.name || "N/A" },

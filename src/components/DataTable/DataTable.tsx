@@ -1,5 +1,6 @@
 import React from "react";
 import "./DataTable.scss";
+import { BASE_URL } from "../../api/endpoints";
 
 export interface Column {
     key: string;
@@ -15,10 +16,11 @@ interface DataTableProps {
     select?: (row: any) => React.ReactNode;
     progress?: (row: any) => React.ReactNode;
     actions?: (row: any) => React.ReactNode;
+    attendance?: (row: any) => React.ReactNode;
+    note?: (row: any) => React.ReactNode;
 }
 
-const DataTable: React.FC<DataTableProps> = ({ columns, data, currentPage, totalPages, onPageChange, select, progress, actions }) => {
-    console.log("dadadad", data)
+const DataTable: React.FC<DataTableProps> = ({ columns, data, currentPage, totalPages, onPageChange, select, progress, actions, attendance, note }) => {
 
     const getPagination = () => {
         const pages: (number | string)[] = [];
@@ -54,6 +56,8 @@ const DataTable: React.FC<DataTableProps> = ({ columns, data, currentPage, total
                         ))}
                         {progress && <th>Progress</th>}
                         {actions && <th>Actions</th>}
+                        {attendance && <th>Attendance</th>}
+                        {note && <th>Note</th>}
                     </tr>
                 </thead>
 
@@ -68,15 +72,23 @@ const DataTable: React.FC<DataTableProps> = ({ columns, data, currentPage, total
 
                                 return (
                                     <td key={c.key} title={typeof value === "string" ? value : ""} >
-                                        {typeof value === "string" && value.length > MAX_LETTERS
-                                            ? `${value.slice(0, MAX_LETTERS)}...`
-                                            : value}
+                                        {c.key === "photo" && value !== "N/A" ? (
+                                            <div className="profile_pic">
+                                                <img src={`${BASE_URL}/public/${value}`} alt="Student" />
+                                            </div>
+                                        ) : (
+                                            typeof value === "string" && value.length > MAX_LETTERS
+                                                ? `${value.slice(0, MAX_LETTERS)}...`
+                                                : value
+                                        )}
                                     </td>
                                 );
                             })}
 
                             {progress && <td>{progress(row.progress)}</td>}
                             {actions && <td>{actions(row)}</td>}
+                            {attendance && <td>{attendance(row)}</td>}
+                            {note && <td>{note(row)}</td>}
                         </tr>
                     ))}
                     {/* {data?.map((row: any, i: number) => (
