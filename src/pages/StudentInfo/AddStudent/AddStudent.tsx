@@ -22,6 +22,15 @@ import { validate } from "../../../utils/validate.ts"
 import { studentFamilyDetailsSchema, studentPersonalDetailsSchema } from "../../../validations/studentsSchema.ts"
 import { useDebounce } from "../../../hooks/useDebounce.ts"
 import { BASE_URL } from "../../../api/endpoints.ts"
+import {
+    GENDER_OPTIONS,
+    RELIGION_OPTIONS,
+    BLOOD_GROUP_OPTIONS,
+    GUARDIAN_RELATION_OPTIONS,
+    SIBLING_STAFF_OPTIONS,
+    ROUTE_OPTIONS,
+    HOSTEL_ROOM_OPTIONS
+} from "../../../utils/studentOptions.ts"
 
 const AddStudent = () => {
     const { student_id } = useParams();
@@ -94,17 +103,10 @@ const AddStudent = () => {
 
 
     const [relation, setRelation] = useState("father");
-    const options = [
-        { label: "Father", value: "father" },
-        { label: "Mother", value: "mother" },
-        { label: "Other", value: "other" },
-    ];
+    const options = GUARDIAN_RELATION_OPTIONS;
 
     const [siblingStaff, setSiblingStaff] = useState("from_sibling");
-    const siblingStaffOptions = [
-        { label: "From Sibling", value: "from_sibling" },
-        { label: "From Staff", value: "from_staff" },
-    ];
+    const siblingStaffOptions = SIBLING_STAFF_OPTIONS;
 
     // upload inputs start
 
@@ -601,10 +603,7 @@ const AddStudent = () => {
         value: cls.id,
     }));
 
-    const genderOptions = [{ name: "Male", id: "male" }, { name: "Female", id: "female" }, { name: "Other", id: "other" }]?.map((cls: any) => ({
-        label: cls.name,
-        value: cls.id,
-    }));
+    const genderOptions = GENDER_OPTIONS;
 
     /////////////////////
 
@@ -790,7 +789,7 @@ const AddStudent = () => {
                                         <InputField error={errors.dob} name="dob" type="date" label="Date Of Birth" value={formData.dob} placeHolder="Select date" onChange={handleChange} />
 
                                         {/* <InputField name="dob" type="date" label="Date Of Birth" value={formData.dob} placeHolder="Select date" onChange={handleChange} /> */}
-                                        <CustomSelect error={errors.religion} value={formData?.religion} name="religion" label="Religion" placeholder="Select religion" options={[{ label: "Muslim", value: "Muslim" }, { label: "Hindu", value: "Hindu" }, { label: "Christian", value: "Christian" }]} onChange={(value) => setFormData((prev: any) => ({ ...prev, religion: value }))} />
+                                        <CustomSelect error={errors.religion} value={formData?.religion} name="religion" label="Religion" placeholder="Select religion" options={RELIGION_OPTIONS} onChange={(value) => setFormData((prev: any) => ({ ...prev, religion: value }))} />
                                         <InputField error={errors.caste} name="caste" value={formData?.caste} onChange={handleChange} type="text" label="Cast" placeHolder="Enter cast" />
                                     </div>
                                     <div className="body_section" >
@@ -825,7 +824,7 @@ const AddStudent = () => {
                                 <div className="fields_wrapper" >
                                     <div className="body_section" >
                                         {/* <CustomSelect name="blood_group" label="Blood Group" placeholder="Select blood group" options={["A+", "O+", "B+", "AB+", "A-", "O-", "B-", "AB-"]} onChange={(value) => setFormData((prev) => ({ ...prev, blood_group: value }))} /> */}
-                                        <CustomSelect error={errors.blood_group} value={formData?.blood_group} name="blood_group" label="Blood Group" placeholder="Select blood group" options={[{ label: "A+", value: "A+" }, { label: "O+", value: "O+" }, { label: "B+", value: "B+" }, { label: "AB+", value: "AB+" }, { label: "A-", value: "A-" }, { label: "O-", value: "O-" }, { label: "B-", value: "B-" }, { label: "AB-", value: "AB-" }]} onChange={(value) => setFormData((prev: any) => ({ ...prev, blood_group: value }))} />
+                                        <CustomSelect error={errors.blood_group} value={formData?.blood_group} name="blood_group" label="Blood Group" placeholder="Select blood group" options={BLOOD_GROUP_OPTIONS} onChange={(value) => setFormData((prev: any) => ({ ...prev, blood_group: value }))} />
                                         {/* <CustomSelect label="Category" placeholder="Select category" options={["Pending", "Solved", "In Progress", "Closed"]} onChange={(val) => console.log("Selected:", val)} /> */}
                                     </div>
                                 </div>

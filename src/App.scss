@@ -19,6 +19,14 @@
   &:hover {
     transform: scale(0.97);
   }
+  
+}
+.hvr_zm_out_tbl_rw {
+  transition: transform 0.25s ease;
+
+  &:hover {
+    transform: scale(0.99);
+  } 
 }
 
 .hvr_zm_in {

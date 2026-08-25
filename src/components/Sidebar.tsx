@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { sidebar_menus } from "../utils";
 import { useQueryClient } from "@tanstack/react-query";
 import { GENERAL_SETTINGS_KEY, type generalSettings } from "../hooks/useGeneralSettings";
+import { useTranslation } from "../i18n/LanguageContext";
 
 const slugify = (s: string) =>
     s
@@ -11,9 +12,14 @@ const slugify = (s: string) =>
         .replace(/[^\w\s-]/g, "")
         .replace(/\s+/g, "-");
 
+const getNavKey = (text: string) => {
+    return `nav.${text.toLowerCase().trim().replace(/[^\w\s]/g, "").replace(/\s+/g, "_")}`;
+};
+
 const Sidebar: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
     const [activeSubMenu, setActiveSubMenu] = useState<string | null>(null);
@@ -65,11 +71,12 @@ const Sidebar: React.FC = () => {
         const all = getAllSearchableItems();
 
         const matched = all.filter(item =>
-            item.label.toLowerCase().includes(searchTerm.toLowerCase())
+            item.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            t(getNavKey(item.label), item.label).toLowerCase().includes(searchTerm.toLowerCase())
         );
 
         setFilteredMenus(matched);
-    }, [searchTerm]);
+    }, [searchTerm, t]);
     //////////////////////////////////
 
     useEffect(() => {
@@ -111,17 +118,6 @@ const Sidebar: React.FC = () => {
         }
     }, [activeSubMenu]);
 
-    // useEffect(() => {
-    //     if (activeSubMenu) {
-    //         const btn = submenuRefs.current[activeSubMenu];
-    //         if (btn) {
-    //             setTimeout(() => {
-    //                 btn.scrollIntoView({ behavior: "smooth", block: "center" });
-    //             }, 100);
-    //         }
-    //     }
-    // }, [activeSubMenu, expandedMenu]);
-
     const toggleMenu = (menuPath: string) => {
         setExpandedMenu(prev => (prev === menuPath ? null : menuPath));
     };
@@ -147,7 +143,6 @@ const Sidebar: React.FC = () => {
                 <div className="sidebar_head_wrapper">
                     <div className="sidebar_head">
                         <img className="logo" width={120} height={48} src={data?.data?.logo} alt="logo" />
-                        {/* <img className="logo" width={120} height={48} src="/YES_india_logo.png" alt="logo" /> */}
                         <img className="sidebar_arrow" src="/sidebar_icons/arrow_icon.svg" alt="arrow icon" />
                     </div>
 
@@ -155,7 +150,7 @@ const Sidebar: React.FC = () => {
                         <span className="search_icon">
                             <img src="/sidebar_icons/search_icon.svg" alt="search" />
                         </span>
-                        <input onChange={(e) => setSearchTerm(e.target.value)} value={searchTerm} type="text" placeholder="Search" />
+                        <input onChange={(e) => setSearchTerm(e.target.value)} value={searchTerm} type="text" placeholder={t("header.search", "Search")} />
                         <div className={`sidebar_search_list ${searchTerm ? "open" : "close"}`}>
                             {filteredMenus.length > 0 ? (
                                 filteredMenus.map((item, index) => (
@@ -166,11 +161,11 @@ const Sidebar: React.FC = () => {
                                             setSearchTerm("");
                                         }}
                                     >
-                                        {item.label}
+                                        {t(getNavKey(item.label), item.label)}
                                     </button>
                                 ))
                             ) : searchTerm ? (
-                                <p>No results found</p>
+                                <p>{t("common.no_results", "No results found")}</p>
                             ) : null}
                         </div>
                     </div>
@@ -183,14 +178,14 @@ const Sidebar: React.FC = () => {
                     >
                         <div className="menu_button_icon_text">
                             <SvgIcon src="/sidebar_icons/dormitory.svg" className="sidebar-icon" />
-                            <span>Dashboard</span>
+                            <span>{t("nav.dashboard", "Dashboard")}</span>
                         </div>
                     </button>
 
                     <div className="sidebar_menus">
                         {sidebar_menus.map((group, i) => (
                             <div key={i}>
-                                <p className="menus_title">{group.title}</p>
+                                <p className="menus_title">{t(getNavKey(group.title), group.title)}</p>
 
                                 {group.menus.map((menu, mIndex) => {
                                     const isMenuOpen = expandedMenu === menu.path;
@@ -204,7 +199,7 @@ const Sidebar: React.FC = () => {
                                             >
                                                 <div className="menu_button_icon_text">
                                                     <SvgIcon src={menu.icon} className="sidebar-icon" />
-                                                    <span>{menu.title}</span>
+                                                    <span>{t(getNavKey(menu.title), menu.title)}</span>
                                                 </div>
 
                                                 <SvgIcon
@@ -229,8 +224,7 @@ const Sidebar: React.FC = () => {
                                                             onClick={() => handleSubNavigate(menu.path, sub)}
                                                         >
                                                             <div className="menu_button_icon_text">
-                                                                {/* You can add small sub-icons here if you want */}
-                                                                <span>{sub}</span>
+                                                                <span>{t(getNavKey(sub), sub)}</span>
                                                             </div>
                                                         </button>
                                                     );

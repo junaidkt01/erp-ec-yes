@@ -6,10 +6,13 @@ import { useAuth } from "../auth/useAuth"
 import { useDebounce } from "../hooks/useDebounce"
 import { useSearchUsers } from "../hooks/useSearchUsers"
 import { highlightText } from "../utils/utils"
+import { useTranslation } from "../i18n/LanguageContext"
+import { LANGUAGES } from "../i18n/translations"
 
 const Header = () => {
     const [searchTerm, setSearchTerm] = useState("")
     const [isProfile, setIsProfile] = useState(false)
+    const { t } = useTranslation();
 
     const debouncedSearch = useDebounce(searchTerm, 500);
 
@@ -29,7 +32,7 @@ const Header = () => {
                                 <span className="search_icon" >
                                     <img src="/header_icons/search_icon.svg" alt="search" />
                                 </span>
-                                <input onChange={(e) => setSearchTerm(e.target.value)} value={searchTerm} type="text" placeholder="Search Name/Admission.." />
+                                <input onChange={(e) => setSearchTerm(e.target.value)} value={searchTerm} type="text" placeholder={t("header.search_placeholder", "Search Name/Admission..")} />
                             </div>
                             <div className="search_sort_close" >
                                 <span className="search_icon">
@@ -165,6 +168,8 @@ const YearFilter = () => {
 
 const Profile = () => {
     const navigate = useNavigate();
+    const { language, setLanguage, currentLanguage, t } = useTranslation();
+    const [isLangOpen, setIsLangOpen] = useState(false);
 
     const { data } = useAuth();
     console.log("user: ", data?.user)
@@ -184,7 +189,7 @@ const Profile = () => {
                 <div className="profile_pic">
                     <img src="/header_icons/profile_pic.png" alt="user" />
                 </div>
-                <div onClick={() => navigate(`/student-info/profile/${data?.user?.id}`)} >
+                <div onClick={() => navigate(`/student-info/profile/${data?.user?.id}`)} style={{ cursor: "pointer" }}>
                     <p className="email">{data?.user?.email}</p>
                     <span className="role">{data?.user?.roles[0]?.name}</span>
                 </div>
@@ -199,27 +204,45 @@ const Profile = () => {
                     <span>
                         <img src="/header_icons/change_password.svg" alt="" />
                     </span>
-                    <p>Change Password</p>
+                    <p>{t("header.change_password", "Change Password")}</p>
                 </div>
 
-                <div className="item hvr_zm_out">
+                <div className="item hvr_zm_out" onClick={(e) => { e.stopPropagation(); setIsLangOpen(!isLangOpen); }}>
                     <span>
                         <img src="/header_icons/language.svg" alt="" />
                     </span>
-                    <p>Language (EN)</p>
+                    <p>{t("header.language", "Language")} ({currentLanguage.short})</p>
                     <span className="arrow">
                         <SvgIcon
                             src="/sidebar_icons/down_arrow.svg"
-                            className={`sidebar-ico ${true ? "rotate" : ""}`}
+                            className={`sidebar-ico ${isLangOpen ? "rotate" : ""}`}
                         />
                     </span>
                 </div>
+
+                {isLangOpen && (
+                    <div className="language-submenu">
+                        {LANGUAGES.map((lang) => (
+                            <div
+                                key={lang.code}
+                                className={`item sub-item hvr_zm_out ${language === lang.code ? "active-lang" : ""}`}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setLanguage(lang.code);
+                                }}
+                            >
+                                <span>{lang.label} ({lang.nativeName})</span>
+                                {language === lang.code && <span className="check-mark">✓</span>}
+                            </div>
+                        ))}
+                    </div>
+                )}
 
                 <div className="item hvr_zm_out">
                     <span>
                         <img src="/header_icons/sidebar_manager.svg" alt="" />
                     </span>
-                    <p>Sidebar Manager & Style</p>
+                    <p>{t("header.sidebar_manager", "Sidebar Manager & Style")}</p>
                 </div>
             </div>
 
@@ -228,7 +251,7 @@ const Profile = () => {
                 <span>
                     <img src="/header_icons/logout.svg" alt="" />
                 </span>
-                <p>Logout</p>
+                <p>{t("header.logout", "Logout")}</p>
             </div>
         </div>
     )

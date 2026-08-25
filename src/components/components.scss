@@ -597,6 +597,49 @@
       background: #f1f5f9;
     }
   }
+
+  .language-submenu {
+    background-color: #ffffff;
+    border-top: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 4px 0;
+
+    .sub-item {
+      padding: 8px 14px 8px 42px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #374151;
+      font-weight: 400;
+      cursor: pointer;
+      font-size: 13px;
+      transition: background-color 0.2s ease, color 0.2s ease;
+
+      span {
+        font-size: 13px;
+      }
+
+      .check-mark {
+        font-size: 12px;
+        color: #4338ca;
+        font-weight: 600;
+      }
+
+      &:hover {
+        background-color: #f1f5f9;
+      }
+
+      &.active-lang {
+        background-color: #eef2ff;
+        color: #4338ca;
+        font-weight: 600;
+
+        &:hover {
+          background-color: #e0e7ff;
+        }
+      }
+    }
+  }
 }
 
 .logout {
