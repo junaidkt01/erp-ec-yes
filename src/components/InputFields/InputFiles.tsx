@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import Cropper from "react-easy-crop";
-import { createCroppedImage } from "./cropImage";
+import { createCroppedImage } from "./CropImage";
 import "./inputField.scss";
 import { PrimaryButton, SecondaryButton } from "../Buttons/Buttons";
 

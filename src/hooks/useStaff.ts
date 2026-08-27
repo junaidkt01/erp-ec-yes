@@ -54,16 +54,18 @@ export interface StaffFilters {
   department_id?: number | string;
 }
 
-interface StaffResponse {
-  data: Staff[];
-  meta?: {
-    total: number;
-    current_page: number;
-    per_page?: number;
-  };
-}
+// interface StaffResponse {
+//   data: Staff[];
+//   meta?: {
+//     total: number;
+//     current_page: number;
+//     per_page?: number;
+//   };
+// }
 
 // Fetch All Staffs
+
+
 export const useFetchAllStaff = (page = 1, filters?: StaffFilters) => {
   return useQuery<any>({
     queryKey: [...STAFF_KEY, page, filters],
@@ -76,7 +78,7 @@ export const useFetchAllStaff = (page = 1, filters?: StaffFilters) => {
       });
       return res.data;
     },
-    placeholderData: (previousData) => previousData,
+    placeholderData: (previousData: any) => previousData,
   });
 };
 

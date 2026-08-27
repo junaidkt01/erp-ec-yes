@@ -20,32 +20,29 @@ const UpdateGeneralSettings = () => {
     const [errors, setErrors] = useState<any>({});
     console.log("errors: ", errors)
 
-    const generalSettingsForm = {
-        // logo: "",
-        // favicon: "",
+    // const generalSettingsForm = {
+    //     school_name: "",
+    //     site_title: "",
+    //     address: "",
+    //     phone: "",
+    //     email: "",
+    //     school_code: "",
+    //     academic_year_id: "",
+    //     language: "",
+    //     date_format: "",
+    //     week_start_day: "",
+    //     time_zone: "",
+    //     fees_income_head: "",
+    //     max_upload_size: "",
+    //     promotion_without_exam: "",
 
-        school_name: "",
-        site_title: "",
-        address: "",
-        phone: "",
-        email: "",
-        school_code: "",
-        academic_year_id: "",
-        language: "",
-        date_format: "",
-        week_start_day: "",
-        time_zone: "",
-        fees_income_head: "",
-        max_upload_size: "",
-        promotion_without_exam: "",
-
-        result_type: "",
-        due_fees_login_restriction: "",
-        currency: "",
-        currency_symbol: "",
-        in_news_auto_approval_comment: "",
-        copyright_text: "",
-    }
+    //     result_type: "",
+    //     due_fees_login_restriction: "",
+    //     currency: "",
+    //     currency_symbol: "",
+    //     in_news_auto_approval_comment: "",
+    //     copyright_text: "",
+    // }
 
     const [formData, setFormData] = useState({
         school_name: "",

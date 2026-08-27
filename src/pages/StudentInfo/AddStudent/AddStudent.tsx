@@ -27,9 +27,9 @@ import {
     RELIGION_OPTIONS,
     BLOOD_GROUP_OPTIONS,
     GUARDIAN_RELATION_OPTIONS,
-    SIBLING_STAFF_OPTIONS,
-    ROUTE_OPTIONS,
-    HOSTEL_ROOM_OPTIONS
+    // SIBLING_STAFF_OPTIONS,
+    // ROUTE_OPTIONS,
+    // HOSTEL_ROOM_OPTIONS
 } from "../../../utils/studentOptions.ts"
 
 const AddStudent = () => {
@@ -38,7 +38,7 @@ const AddStudent = () => {
     console.log("student: ", student)
 
     // find students starts
-    const [searchTerm, setSearchTerm] = useState("");
+    const [searchTerm] = useState("");
     const debouncedSearch = useDebounce(searchTerm, 500);
 
     const initialFilter = {
@@ -105,8 +105,8 @@ const AddStudent = () => {
     const [relation, setRelation] = useState("father");
     const options = GUARDIAN_RELATION_OPTIONS;
 
-    const [siblingStaff, setSiblingStaff] = useState("from_sibling");
-    const siblingStaffOptions = SIBLING_STAFF_OPTIONS;
+    const [siblingStaff, _] = useState("from_sibling");
+    // const siblingStaffOptions = SIBLING_STAFF_OPTIONS;
 
     // upload inputs start
 
@@ -584,7 +584,7 @@ const AddStudent = () => {
     }
     /////////////////////
 
-    const { data: academicYears, isLoading: academicYearsLoading, error: academicYearsError } = useFetchAllAcademicYears();
+    const { data: academicYears} = useFetchAllAcademicYears();
     const formattedData = academicYears?.map((item) => ({
         label: `${item.name} (${new Date(item.start_date).toLocaleString("default", { month: "short" })} - ${new Date(item.end_date).toLocaleString("default", { month: "short" })})`,
         value: item.id,
@@ -1057,99 +1057,3 @@ const AddStudent = () => {
 }
 
 export default AddStudent;
-
-const student = {
-    "user_id": "14",
-    "admission_no": "ADM2026001",
-    "first_name": "JUNAID",
-    "email": "",
-    "class_id": "4",
-    "section_id": "6",
-    "academic_year_id": "7",
-    "gender": "male",
-    "student_code": "DFGSFGGD",
-    "apaar_id": "EFERFERFER4334",
-    "pen_no": "GRGRFDFSSSSSSS",
-    "aadharshila_no": "FDVSERG45G",
-    "roll_no": "3444",
-    "last_name": "KT",
-    "dob": "Fri Aug 21 2026 00:00:00 GMT+0530 (India Standard Time)",
-    "phone": "",
-    "blood_group": "B+",
-    "religion": "Muslim",
-    "caste": "MAPPILA",
-    "admission_date": "Fri Aug 21 2026 00:00:00 GMT+0530 (India Standard Time)",
-    "current_address": "KZHGMTHTTHL",
-    "permanent_address": "KOOMANNA",
-    "father_name": "TEST",
-    "father_phone": "9961260138",
-    "father_email": "",
-    "father_occupation": "",
-    "mother_name": "FDD",
-    "mother_phone": "9961260138",
-    "mother_email": "",
-    "mother_occupation": "",
-    "guardian_name": "",
-    "guardian_phone": "",
-    "guardian_email": "JUNAIDKTKMN@GMAIL.COM",
-    "guardian_occupation": "",
-    "guardian_relation": "",
-    "guardian_address": "KZHGMTHTTHL",
-    "guardian_is": "",
-    "national_id_no": "",
-    "birth_certificate_no": "",
-    "note": "",
-    "previous_school_name": "",
-    "previous_qualification": "",
-    "previous_school_details": "",
-    "emergencyContacts": "[{\"name\":\"\",\"relation\":\"\",\"phone\":\"\"}]",
-    "documents": "[{\"id\":1,\"title\":\"\",\"file\":\"\",\"preview\":\"\"},{\"id\":2,\"title\":\"\",\"file\":\"\",\"preview\":\"\"},{\"id\":3,\"title\":\"\",\"file\":\"\",\"preview\":\"\"},{\"id\":4,\"title\":\"\",\"file\":\"\",\"preview\":\"\"}]"
-}
-
-// const student = {
-//     "user_id": "1",
-//     "admission_no": "ADM2026001",
-//     "first_name": "AHAMMED",
-//     "email": "",
-//     "class_id": "4",
-//     "section_id": "6",
-//     "academic_year_id": "6",
-//     "gender": "male",
-//     "student_code": "DFGSFGGD",
-//     "apaar_id": "EFERFERFER4334",
-//     "pen_no": "GRGRFDFSSSSSSS",
-//     "aadharshila_no": "FDVSERG45G",
-//     "roll_no": "FDFD",
-//     "last_name": "T",
-//     "dob": "",
-//     "phone": "",
-//     "blood_group": "B+",
-//     "religion": "Muslim",
-//     "caste": "MAPPILA",
-//     "admission_date": "Fri Aug 07 2026 00:00:00 GMT+0530 (India Standard Time)",
-//     "current_address": "ULLINCHEERATHIL HOUSE, KOOMANNA, OLAKARA POST",
-//     "permanent_address": "KOOMANNA",
-//     "father_name": "FDF",
-//     "father_phone": "9961260138",
-//     "father_email": "",
-//     "father_occupation": "",
-//     "mother_name": "FATHIMA",
-//     "mother_phone": "9961260138",
-//     "mother_email": "",
-//     "mother_occupation": "",
-//     "guardian_name": "",
-//     "guardian_phone": "",
-//     "guardian_email": "JUNAIDKTKMN@GMAIL.COM",
-//     "guardian_occupation": "",
-//     "guardian_relation": "",
-//     "guardian_address": "KZHGMTHTTHL",
-//     "guardian_is": "",
-//     "national_id_no": "6768768768768",
-//     "birth_certificate_no": "86876",
-//     "note": "GJHGJ",
-//     "previous_school_name": "NAJATH",
-//     "previous_qualification": "",
-//     "previous_school_details": "HSS SCHOOL, KADAPPADI",
-//     "emergencyContacts": "[{\"name\":\"\",\"relation\":\"\",\"phone\":\"\"}]",
-//     "documents": "[{\"id\":1,\"title\":\"doc 01\",\"file\":{},\"preview\":\"blob:http://localhost:5173/136a2b1c-6a26-4847-a96d-60e338ace719\"},{\"id\":2,\"title\":\"doc 02\",\"file\":{},\"preview\":\"blob:http://localhost:5173/cbd726d9-9bfb-4a9c-811b-ba040328c0c2\"},{\"id\":3,\"title\":\"doc 03\",\"file\":{},\"preview\":\"blob:http://localhost:5173/a57ee9da-cf54-48ad-860b-53ce2be27f87\"},{\"id\":4,\"title\":\"doc 04\",\"file\":{},\"preview\":\"blob:http://localhost:5173/aa90cd49-1b03-4320-b8f0-959f23a32c88\"}]"
-// }

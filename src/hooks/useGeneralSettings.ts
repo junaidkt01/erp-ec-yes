@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "../api/axiosInstance";
 import { generalSettings } from "../api/endpoints";
+import { useAuth, getStoredAuth } from "../auth/useAuth";
 
 export const GENERAL_SETTINGS_KEY = ["general-settings"];
 
@@ -67,7 +68,10 @@ export interface generalSettings {
 //   });
 // };
 
-export const useFetchGeneralSettings = () => {
+export const useFetchGeneralSettings = (options?: { enabled?: boolean }) => {
+  const { data: authData } = useAuth();
+  const isLoggedIn = Boolean(authData || getStoredAuth());
+
   return useQuery<generalSettings>({
     queryKey: GENERAL_SETTINGS_KEY,
     queryFn: async () => {
@@ -77,6 +81,8 @@ export const useFetchGeneralSettings = () => {
 
       return res.data;
     },
+
+    enabled: options?.enabled !== undefined ? options.enabled && isLoggedIn : isLoggedIn,
 
     // Consider data fresh for 1 hour
     staleTime: 1000 * 60 * 60,
