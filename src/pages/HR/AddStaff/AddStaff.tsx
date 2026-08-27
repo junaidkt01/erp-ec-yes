@@ -1,18 +1,19 @@
 import { useEffect, useState } from "react"
 import { PrimaryButton, SecondaryButton } from "../../../components/Buttons/Buttons"
 import { InputField } from "../../../components/InputFields/InputFields"
-// import PopupScreen from "../../../components/PopupScreen/PopupScreen"
+import PopupScreen from "../../../components/PopupScreen/PopupScreen"
 import InputTitleTabs, { addStaffsTabs } from "../../../components/InputTitleTabs/InputTitleTabs.tsx"
 import TableWrapper from "../../../components/TableWrapper"
 import { CustomSelect } from "../../../components/InputFields/CustomSelect.tsx"
 import InputFiles from "../../../components/InputFields/InputFiles.tsx"
-// import InputRadioButtons from "../../../components/InputRadioButtons/InputRadioButtons.tsx"
 import { useAddStaff, useUpdateStaff, useFetchOneStaff } from "../../../hooks/useStaff.ts"
 
 import { useAuth } from "../../../auth/useAuth.ts"
 import { useParams } from "react-router-dom"
 import LoadingOverlay from "../../../components/Loadingoverlay.tsx"
 import { toast } from "sonner"
+import StaffBulkUpload from "../../../components/BulkUpload/StaffBulkUpload.tsx"
+import { STAFF_CATEGORY_OPTIONS } from "../../../utils/studentOptions.ts"
 
 const AddStaff = () => {
     const { staff_id } = useParams();
@@ -25,21 +26,17 @@ const AddStaff = () => {
         setSelectedInputTitleTab(title);
     }
 
-    const [isAddAdmissionQuery, setIsAddAdmissionQuery] = useState(false)
-    const handleAddAdmissionQuery = () => {
-        setIsAddAdmissionQuery(!isAddAdmissionQuery)
+    const [isImportStaff, setIsImportStaff] = useState(false);
+    const handleImportStaff = () => {
+        setIsImportStaff(!isImportStaff);
     }
-
-    // const [siblingStaff, setSiblingStaff] = useState("from_sibling");
-    // const siblingStaffOptions = [
-    //     { label: "From Sibling", value: "from_sibling" },
-    //     { label: "From Staff", value: "from_staff" },
-    // ];
 
     const { mutateAsync: addStaff } = useAddStaff();
     const { mutateAsync: updateStaff } = useUpdateStaff(staff_id || "");
 
     const [formData, setFormData] = useState({
+        staff_code: "",
+        category: "",
         email: "",
         role: "",
         staff_no: "",
@@ -81,12 +78,13 @@ const AddStaff = () => {
 
     useEffect(() => {
         if (!staff || !staff_id) return;
-        console.log("dddd",staff_id)
 
         const data = staff.data || {};
 
         setFormData((prev) => ({
             ...prev,
+            staff_code: String(data.staff_code || ""),
+            category: String(data.category || ""),
             email: String(data.email || ""),
             role: String(data.role || ""),
             staff_no: String(data.staff_no || ""),
@@ -119,17 +117,11 @@ const AddStaff = () => {
             basic_salary: Number(data.basic_salary || ""),
             contract_type: String(data.contract_type || ""),
             location: String(data.location || ""),
-
-            // photo: String(data.photo),
-            // joining_letter: String(data.joining_letter),
-            // other_document: String(data.other_document),
-            // resume: String(data.resume)
         }));
     }, [staff, staff_id]);
 
     const handleChange = (value: any, name?: string) => {
         if (name) {
-            // for DatePicker or custom inputs
             setFormData((prev) => ({
                 ...prev,
                 [name]: value,
@@ -140,12 +132,10 @@ const AddStaff = () => {
             let fieldValue;
 
             if (e.target.files) {
-                // file input
                 fieldValue = e.target.files[0];
             } else if (e.target.type === "checkbox") {
                 fieldValue = e.target.checked;
             } else {
-                // normal input
                 fieldValue = e.target.value;
             }
 
@@ -165,7 +155,8 @@ const AddStaff = () => {
         setIsLoading(true);
         const payload = new FormData();
 
-        // payload.append("user_id", data?.data?.user?.id || "1");
+        payload.append("staff_code", formData?.staff_code);
+        payload.append("category", formData?.category);
         payload.append("email", formData?.email);
         payload.append("role", formData?.role);
         payload.append("staff_no", String(formData?.staff_no));
@@ -199,7 +190,6 @@ const AddStaff = () => {
         payload.append("contract_type", formData?.contract_type);
         payload.append("location", formData?.location);
 
-        // Append files if they exist
         if (formData.photo) payload.append("photo", formData.photo);
         if (formData.resume) payload.append("resume", formData.resume);
         if (formData.joining_letter) payload.append("joining_letter", formData.joining_letter);
@@ -207,7 +197,6 @@ const AddStaff = () => {
 
         try {
             if (staff && staff_id) {
-            // if (false) {
                 const res = await updateStaff(payload);
                 if (res.success) {
                     toast.success('Staff updated successfully')
@@ -264,35 +253,15 @@ const AddStaff = () => {
     return (
         <div className="page_wrapper">
             <div className="add_student" >
-                {/* {isAddAdmissionQuery && <PopupScreen title="Add Admission Query" onClick={handleAddAdmissionQuery} >
+                {isImportStaff && <PopupScreen title="Bulk Upload Staff" onClick={handleImportStaff} >
                     <div className="popup_body" >
-                        <div className="fields_wrapper">
-                            <div className="body_section" >
-                                <InputRadioButtons
-                                    options={siblingStaffOptions}
-                                    selectedValue={siblingStaff}
-                                    onChange={setSiblingStaff}
-                                    name="sibling_staff"
-                                />
-                            </div>
-                            <div className="body_section" >
-                                {siblingStaff === "from_sibling" && <CustomSelect value={formData?.class_id} label="Class" placeholder="Select class" options={[]} onChange={(value) => setFormData((prev: any) => ({ ...prev, class_id: value }))} />}
-                                {siblingStaff === "from_sibling" && <CustomSelect value={formData?.section_id} name="section_id" label="Section" placeholder="Select section" options={[]} onChange={(value) => setFormData((prev: any) => ({ ...prev, section_id: value }))} />}
-                                {siblingStaff === "from_staff" && <CustomSelect value={formData?.section_id} name="staff_id" label="Staff" placeholder="Select section" options={[]} onChange={(value) => setFormData((prev: any) => ({ ...prev, section_id: value }))} />}
-                            </div>
-                            {siblingStaff === "from_sibling" && <div className="body_section" >
-                                <CustomSelect label="Sibling" placeholder="Select sibling" options={[{ label: "Pending", value: "Pending" }, { label: "Solved", value: "Solved" }, { label: "In Progress", value: "In Progress" }, { label: "Closed", value: "Closed" }]} onChange={(val) => console.log("Selected:", val)} />
-                            </div>}
-
-                            <div className="buttons">
-                                <SecondaryButton />
-                                <PrimaryButton title="Save" />
-                            </div>
+                        <div className="fields_wrapper" >
+                            <StaffBulkUpload onClick={handleImportStaff} />
                         </div>
                     </div>
-                </PopupScreen>} */}
+                </PopupScreen>}
 
-                <TableWrapper isAddButton title={readyToSubmit ? "Details Preview" : "Add Staff"} onClick={handleAddAdmissionQuery} >
+                <TableWrapper isAddButton title={readyToSubmit ? "Details Preview" : "Add Staff"} onClick={handleImportStaff} >
                     <InputTitleTabs tabsTitles={addStaffsTabs} onSetSelectedInputTitleTab={handleSelecteInputTitleTab} selected={selectedInputTitleTab} />
 
                     {(selectedInputTitleTab === "Basic Info" && readyToSubmit) && <div className="search_screen">
@@ -302,19 +271,23 @@ const AddStaff = () => {
                                 <div className="student_content_to_submit_wrapper" style={{ display: "grid", gap: "24px" }} >
                                     <div className="student_content_to_submit" style={{ display: "flex", justifyContent: "space-between" }} >
                                         <div>
+                                            <p className="title" >Staff ID</p>
+                                            <p className="value" >{formData?.staff_code || "N/A"}</p>
+                                        </div>
+                                        <div>
+                                            <p className="title" >Category</p>
+                                            <p className="value" >{formData?.category || "N/A"}</p>
+                                        </div>
+                                        <div>
                                             <p className="title" >Staff Number</p>
                                             <p className="value" >{formData?.staff_no || "N/A"}</p>
                                         </div>
+                                    </div>
+                                    <div className="student_content_to_submit" style={{ display: "flex", justifyContent: "space-between" }} >
                                         <div>
                                             <p className="title" >Role</p>
                                             <p className="value" >{formData?.role || "N/A"}</p>
                                         </div>
-                                        {/* <div>
-                                            <p className="title" >Department</p>
-                                            <p className="value" >{formData?.department || "N/A"}</p>
-                                        </div> */}
-                                    </div>
-                                    <div className="student_content_to_submit" style={{ display: "flex", justifyContent: "space-between" }} >
                                         <div>
                                             <p className="title" >Designation</p>
                                             <p className="value" >{formData?.designation || "N/A"}</p>
@@ -323,6 +296,8 @@ const AddStaff = () => {
                                             <p className="title" >First Name</p>
                                             <p className="value" >{formData?.first_name || "N/A"}</p>
                                         </div>
+                                    </div>
+                                    <div className="student_content_to_submit" style={{ display: "flex", justifyContent: "space-between" }} >
                                         <div>
                                             <p className="title" >Last Name</p>
                                             <p className="value" >{formData?.last_name || "N/A"}</p>
@@ -377,16 +352,17 @@ const AddStaff = () => {
                             <div className="popup_body" >
                                 <div className="fields_wrapper" >
                                     <div className="body_section" >
+                                        <InputField type="text" label="Staff ID" placeHolder="Enter staff ID" name="staff_code" value={formData?.staff_code} onChange={handleChange} />
                                         <InputField type="text" label="Staff Number" placeHolder="Enter staff number" name="staff_no" value={formData?.staff_no} onChange={handleChange} />
-                                        <InputField type="text" label="Role" placeHolder="Enter role" name="role" value={formData?.role} onChange={handleChange} />
-                                        {/* <InputField type="text" label="Department" placeHolder="Enter department" name="department" value={formData?.department} onChange={handleChange} /> */}
+                                        <CustomSelect value={formData?.category} label="Category" placeholder="Select category" options={STAFF_CATEGORY_OPTIONS} onChange={(val) => setFormData((prev: any) => ({ ...prev, category: val }))} />
                                     </div>
                                     <div className="body_section" >
+                                        <InputField type="text" label="Role" placeHolder="Enter role" name="role" value={formData?.role} onChange={handleChange} />
                                         <InputField type="text" label="Designation" placeHolder="Enter designation" name="designation" value={formData?.designation} onChange={handleChange} />
                                         <InputField name="first_name" value={formData?.first_name} onChange={handleChange} type="text" label="First Name" placeHolder="Enter first name" />
-                                        <InputField name="last_name" value={formData?.last_name} onChange={handleChange} type="text" label="Last Name" placeHolder="Enter last name" />
                                     </div>
                                     <div className="body_section" >
+                                        <InputField name="last_name" value={formData?.last_name} onChange={handleChange} type="text" label="Last Name" placeHolder="Enter last name" />
                                         <InputField name="father_name" value={formData?.father_name} onChange={handleChange} type="text" label="Father Name" placeHolder="Enter father name" />
                                         <InputField name="mother_name" value={formData?.mother_name} onChange={handleChange} type="text" label="Mother Name" placeHolder="Enter mother name" />
                                     </div>

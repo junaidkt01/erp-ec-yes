@@ -2,8 +2,8 @@
   width: 100%;
   border-radius: 10px;
   border: 0.5px solid #bdbcdb;
-  // overflow: hidden;
-  overflow: auto;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .custom_table {
@@ -118,17 +118,54 @@
   justify-content: center;
 }
 
-
-
 .profile_pic {
   width: 40px;
   height: 40px;
+  border-radius: 100%;
 
-  // overflow: hidden;
   img {
     width: 40px;
     height: 40px;
-    border-radius: 6px;
+    // border-radius: 6px;
+    border-radius: 100%;
     border: 0.5px solid #bdbcdb;
+  }
+}
+
+@media (max-width: 768px) {
+  .custom_table {
+    thead th {
+      padding: 10px 12px;
+      font-size: 13px;
+    }
+
+    tbody td {
+      padding: 12px 10px;
+      font-size: 13px;
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  .pagination_container {
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+    text-align: center;
+  }
+
+  .pagination_controls {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .page_btn,
+  .nav_btn,
+  .dots {
+    width: 34px;
+    height: 34px;
+    font-size: 13px;
+    border-radius: 8px;
   }
 }

@@ -52,6 +52,12 @@ export const HOSTEL_ROOM_OPTIONS: SelectOption[] = [
   { label: "Closed", value: "Closed" },
 ];
 
+export const STAFF_CATEGORY_OPTIONS: SelectOption[] = [
+  { label: "Teacher", value: "Teacher", id: "Teacher" },
+  { label: "Parent", value: "Parent", id: "Parent" },
+  { label: "Others", value: "Others", id: "Others" },
+];
+
 /**
  * Format options array into instruction description string dynamically
  */

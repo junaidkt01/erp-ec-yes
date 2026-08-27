@@ -243,6 +243,7 @@ import { useAddStudentAttendance, useFetchStudentAttendance, type CreateStudentA
 import { useFetchAllStudentClasses } from "../../../hooks/useStudentClass"
 import { useFetchAllSections } from "../../../hooks/useSections"
 import "./StudentAttendance.scss"
+import { toast } from "sonner"
 
 const StudentAttendance = () => {
     const [page, setPage] = useState(1);
@@ -278,6 +279,7 @@ const StudentAttendance = () => {
     const [filteredData, setFilteredData] = useState(initialFilter);
     const handleSearch = () => {
         setFilteredData({ ...filterData });
+        refetch();
     };
 
     const handleResetFilterData = () => {
@@ -293,13 +295,13 @@ const StudentAttendance = () => {
     //     search: debouncedSearch || filteredData.name,
     // });
 
-    const { data: studentAttendance } = useFetchStudentAttendance();
+    const { data: studentAttendance, isFetching, refetch } = useFetchStudentAttendance(filteredData);
     console.log("studentAttendance: ", studentAttendance);
 
-    const [isAddAdmissionQuery, setIsAddAdmissionQuery] = useState(false)
-    const handleAddAdmissionQuery = () => {
-        setIsAddAdmissionQuery(!isAddAdmissionQuery)
-    }
+    // const [isAddAdmissionQuery, setIsAddAdmissionQuery] = useState(false)
+    // const handleAddAdmissionQuery = () => {
+    //     setIsAddAdmissionQuery(!isAddAdmissionQuery)
+    // }
 
     const [selectedStatuses, setSelectedStatuses] = useState<Record<string | number, StatusType>>({});
     const [notes, setNotes] = useState<Record<string | number, string>>({});
@@ -317,9 +319,12 @@ const StudentAttendance = () => {
     };
 
     const handleSubmitAttendance = () => {
-        if (!studentAttendance || !Array.isArray(studentAttendance)) return;
+        if (!studentAttendance || !Array.isArray(studentAttendance) || studentAttendance.length === 0) {
+            console.warn("No attendance data to submit.");
+            return;
+        }
 
-        const formattedDate = formatDate(filterData.attendance_date);
+        const formattedDate = formatDate(filteredData.attendance_date);
 
         const toNum = (val: any) => {
             if (val === null || val === undefined || val === "") return undefined;
@@ -332,21 +337,19 @@ const StudentAttendance = () => {
             const status = selectedStatuses[row.id] ?? backendStatus ?? "present";
             const note = notes[row.id] ?? row.note ?? "";
 
-            const class_id = toNum(filterData.class_id) ?? toNum(row.class_id) ?? toNum(row.student?.class_id) ?? toNum(row.class?.id);
-            const section_id = toNum(filterData.section_id) ?? toNum(row.section_id) ?? toNum(row.student?.section_id) ?? toNum(row.section?.id);
-            // const academic_year_id = toNum((filterData as any).academic_year_id) ?? toNum(row.academic_year_id) ?? toNum(row.student?.academic_year_id) ?? toNum(row.class?.academic_year_id);
+            const class_id = toNum(filteredData.class_id) ?? toNum(row.class_id) ?? toNum(row.student?.class_id) ?? toNum(row.class?.id);
+            const section_id = toNum(filteredData.section_id) ?? toNum(row.section_id) ?? toNum(row.student?.section_id) ?? toNum(row.section?.id);
 
             return {
                 student_code: row.student_code || row.student?.student_code || row.admission_no || row.student?.admission_no || String(row.student_id || row.id),
-                class_id: class_id, 
+                class_id: class_id,
                 section_id: section_id,
-                // academic_year_id: academic_year_id,
                 date: formattedDate,
                 status: status,
                 note: note,
             };
         });
-
+        toast.success("Attendance submitted successfully");
         console.log("Submitting Attendance Payload:", payload);
         addStudentAttendance(payload);
     };
@@ -355,7 +358,7 @@ const StudentAttendance = () => {
         <div className="page_wrapper">
             <div className="student_attendance">
 
-                {isAddAdmissionQuery && <PopupScreen title="Add Admission Query" onClick={handleAddAdmissionQuery} >
+                {/* {isAddAdmissionQuery && <PopupScreen title="Add Admission Query" onClick={handleAddAdmissionQuery} >
                     <div className="popup_body" >
                         <div className="body_section" >
                             <InputField type="text" label="Name" placeHolder="Enter name" />
@@ -379,7 +382,7 @@ const StudentAttendance = () => {
                             <PrimaryButton title="Save" />
                         </div>
                     </div>
-                </PopupScreen>}
+                </PopupScreen>} */}
 
                 <TableWrapper title="Student Attendance" >
                     <div className="search_screen" >
@@ -399,7 +402,7 @@ const StudentAttendance = () => {
 
                             <div className="buttons">
                                 <SecondaryButton title="Reset" onClick={handleResetFilterData} />
-                                <PrimaryButton title="Search" onClick={handleSearch} />
+                                <PrimaryButton title="Search" isLoading={isFetching} onClick={handleSearch} />
                             </div>
                         </div>
                     </div>

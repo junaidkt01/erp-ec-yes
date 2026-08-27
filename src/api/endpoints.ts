@@ -69,7 +69,7 @@ export const section = { sections: "/sections" };
 
 export const sharedContent = { shared_Contents: "/shared-Contents" };
 
-export const staff = { staffs: "/staff" };
+export const staff = { staffs: "/staff", bulk: "/bulk" };
 
 export const staffAttendance = {
   staff_attendances: "/staff-attendance",

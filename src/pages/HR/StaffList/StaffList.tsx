@@ -6,124 +6,161 @@ import TableWrapper from "../../../components/TableWrapper"
 import DataTable, { type Column } from "../../../components/DataTable/DataTable"
 import { useNavigate } from "react-router-dom"
 import LoadingOverlay from "../../../components/Loadingoverlay"
-import { useFetchAllStaff } from "../../../hooks/useStaff"
+import { useBlockStaff, useFetchAllStaff, useRemoveStaff } from "../../../hooks/useStaff"
+import { useDebounce } from "../../../hooks/useDebounce"
+import { toast } from "sonner"
 
 const StaffList = () => {
     const navigate = useNavigate()
     const [page, setPage] = useState(1);
+    const [searchTerm, setSearchTerm] = useState("");
+    const debouncedSearch = useDebounce(searchTerm, 500);
 
-    const { data: sampleData, isLoading } = useFetchAllStaff(page);
-    console.log("staff: 01", sampleData);
+    const { data: sampleData, isLoading } = useFetchAllStaff(page, {
+        search: debouncedSearch,
+    });
 
     const columns: Column[] = [
         { key: "sl", title: "SL" },
-        { key: "staff_no", title: "Staff No" },
+        { key: "staff_code", title: "Staff ID" },
         { key: "name", title: "Name" },
-        { key: "father_name", title: "Father Name" },
-        { key: "department", title: "Department" },
+        { key: "category", title: "Category" },
+        { key: "role", title: "Role" },
         { key: "designation", title: "Designation" },
+        { key: "phone", title: "Phone" },
         { key: "gender", title: "Gender" },
-        { key: "type", title: "Type" },
     ];
 
-    const [studentList, setStudentList] = useState<any>([]);
+    const [staffList, setStaffList] = useState<any>([]);
 
     useEffect(() => {
         if (!sampleData) return;
 
-        const mappedData = sampleData?.map((staff: any, index: number) => ({
+        const rawList = Array.isArray(sampleData) ? sampleData : (sampleData?.data || []);
+
+        const mappedData = rawList?.map((staffItem: any, index: number) => ({
             sl: index + 1,
-            staff_no: staff.staff_no || "",
-            name: `${staff.first_name || ""} ${staff.last_name || ""}`.trim(),
-            father_name: staff?.father_name || "",
-            department: staff.department || "",
-            designation: staff?.designation || "",
-            gender: staff.gender || "",
-            type: "-",
+            staff_code: staffItem.staff_code || staffItem.staff_no || "",
+            name: staffItem.full_name || `${staffItem.first_name || ""} ${staffItem.last_name || ""}`.trim() || staffItem.name || "",
+            category: staffItem.category || "-",
+            role: staffItem.role || "-",
+            designation: staffItem.designation || "-",
+            phone: staffItem.phone || "-",
+            gender: staffItem.gender || "-",
 
-            full_data: staff,
-        }))
+            full_data: staffItem,
+        }));
 
-        setStudentList(mappedData);
+        setStaffList(mappedData);
     }, [sampleData]);
 
-    const [isAddAdmissionQuery, setIsAddAdmissionQuery] = useState(false)
-    const handleAddAdmissionQuery = () => {
-        setIsAddAdmissionQuery(!isAddAdmissionQuery)
+    // Delete Staff
+    const [deleteStaff, setDeleteStaff] = useState({ id: "", name: "" });
+    const handleDeleteStaff = (staffId: string, staffName: string) => {
+        setDeleteStaff({ id: staffId, name: staffName });
+    }
+    const { mutate: removeStaff, isPending: isDeletePending } = useRemoveStaff();
+    const handleConfirmDeleteStaff = (staffId: string) => {
+        removeStaff(staffId, {
+            onSuccess: () => {
+                setDeleteStaff({ id: "", name: "" });
+                toast.success('Staff deleted successfully');
+            },
+            onError: (error: any) => {
+                toast.error(error?.response?.data?.message || "Failed to delete staff");
+            },
+        });
+    };
+    const handleCancelDeleteStaff = () => {
+        setDeleteStaff({ id: "", name: "" });
+    }
+
+    // Block Staff
+    const [blockStaff, setBlockStaff] = useState({ id: "", name: "", reason: "" });
+    const handleBlockStaff = (staffId: string, staffName: string, reason: string) => {
+        setBlockStaff({ id: staffId, name: staffName, reason: reason });
+    }
+
+    const { mutate: updateStaffBlock, isPending: isBlockPending } = useBlockStaff();
+    const [blockingReason, setBlockingReason] = useState("");
+
+    const handleConfirmBlockStaff = (staffId: string) => {
+        const isCurrentlyDisabled = blockStaff.reason ? 0 : 1;
+        updateStaffBlock(
+            {
+                staffId: staffId,
+                data: {
+                    disable_reason: blockingReason || null,
+                    is_disabled: isCurrentlyDisabled as 0 | 1,
+                },
+            },
+            {
+                onSuccess: () => {
+                    toast.success(isCurrentlyDisabled ? 'Staff blocked successfully' : 'Staff unblocked successfully');
+                    setBlockStaff({ id: "", name: "", reason: "" });
+                    setBlockingReason("");
+                },
+                onError: (error: any) => {
+                    toast.error(error?.response?.data?.message || "Failed to update staff status");
+                }
+            }
+        );
+    };
+
+    const handleCancelBlockStaff = () => {
+        setBlockStaff({ id: "", name: "", reason: "" });
     }
 
     if (isLoading) {
         return <LoadingOverlay isLoading={true} />
     }
 
+    const totalPages = sampleData?.meta?.total
+        ? Math.ceil(Number(sampleData?.meta?.total) / Number(sampleData?.meta?.per_page || 10))
+        : 1;
 
     return (
         <div className="page_wrapper" >
             <div className="student_list" >
-                {isAddAdmissionQuery && <PopupScreen title="Add Admission Query" onClick={handleAddAdmissionQuery} >
+                {blockStaff.id && <PopupScreen title={`Block ${blockStaff.name}`} onClick={handleCancelBlockStaff} >
                     <div className="popup_body" >
                         <div className="body_section" >
-                            <InputField type="text" label="Name" placeHolder="Enter name" />
-                            <InputField type="text" label="Phone" placeHolder="Enter phone number" />
-                            <InputField type="text" label="Email" placeHolder="Enter email address" />
-                        </div>
-                        <div className="body_section" >
-                            <InputField type="text" label="Address" placeHolder="Enter address" />
-                        </div>
-                        <div className="body_section" >
-                            <InputField type="text" label="Discription" placeHolder="Enter discription" />
-                        </div>
-                        <div className="body_section" >
-                            <InputField type="date" label="Date From" placeHolder="Select date" />
-                            <InputField type="date" label="Next Follow Up Date" placeHolder="Select date" />
-                            <InputField type="text" label="Assigned" placeHolder="Enter assignee name" />
+                            <InputField value={blockingReason || blockStaff.reason} onChange={(e) => setBlockingReason(e.target.value)} type="text" label="Type reason to block this staff" placeHolder="Enter reason" />
                         </div>
 
-                        <div className="buttons">
-                            <SecondaryButton />
-                            <PrimaryButton title="Save" />
+                        <div className="buttons" >
+                            <SecondaryButton onClick={handleCancelBlockStaff} title="Cancel" />
+                            <PrimaryButton onClick={() => handleConfirmBlockStaff(blockStaff.id)} disabled={isBlockPending} title={isBlockPending ? "Updating..." : "Confirm"} />
                         </div>
                     </div>
                 </PopupScreen>}
 
-                {/* <TableWrapper isAddButton title={"Manage Students"} onClick={handleAddAdmissionQuery} >
-                    <div className="search_screen">
-                        <p className="search_screen_title" >Select Criteria</p>
-                        <div className="popup_body" >
-                            <div className="fields_wrapper" >
-                                <div className="body_section" >
-                                    <InputField type="date" label="Date From" placeHolder="Select date" />
-                                    <InputField type="date" label="Date From" placeHolder="Select date" />
-                                    <InputField type="date" label="Date To" placeHolder="Select date" />
-                                </div>
-                                <div className="body_section" >
-                                    <CustomSelect label="Choose Enquiry Source" placeholder="Select source" options={["Pending", "Solved", "In Progress", "Closed"]} onChange={(val) => console.log("Selected:", val)} />
-                                    <CustomSelect label="Choose Status" placeholder="Select status" options={["Pending", "Solved", "In Progress", "Closed"]} onChange={(val) => console.log("Selected:", val)} />
-                                </div>
-                            </div>
+                {deleteStaff.id && <PopupScreen title={`Delete ${deleteStaff.name}`} onClick={handleCancelDeleteStaff} >
+                    <div className="popup_body" >
+                        <div className="body_section" >
+                            <p>Are you sure you want to delete this staff record?</p>
+                        </div>
 
-                            <div className="buttons">
-                                <SecondaryButton />
-                                <PrimaryButton onClick={handleSubmit} title="sample" />
-                                <PrimaryButton title="Search" />
-                            </div>
+                        <div className="buttons">
+                            <SecondaryButton onClick={handleCancelDeleteStaff} title="Cancel" />
+                            <PrimaryButton onClick={() => handleConfirmDeleteStaff(deleteStaff.id)} disabled={isDeletePending} title={isDeletePending ? "Deleting..." : "Delete"} />
                         </div>
                     </div>
-                </TableWrapper> */}
+                </PopupScreen>}
 
-                <TableWrapper isAddButton onClick={() => navigate("/human-resource/add-staff")} isSearchBar title="Staff List" >
+                <TableWrapper isAddButton onClick={() => navigate("/human-resource/add-staff")} isSearchBar searchValue={searchTerm} searchOnchange={setSearchTerm} title="Staff List" >
                     <DataTable
                         columns={columns}
-                        data={studentList}
-                        currentPage={0}
-                        totalPages={0}
+                        data={staffList}
+                        currentPage={sampleData?.meta?.current_page || page}
+                        totalPages={totalPages}
                         onPageChange={(p) => setPage(p)}
                         actions={(row) => (
                             <div className="actions">
-                                <button onClick={() => navigate(`/human-resource/profile/${row?.full_data?.id}`)} ><img src="/svgs/eye_open.svg" alt="" /></button>
-                                <button onClick={() => navigate(`/human-resource/add-staff/${row?.full_data?.id}`)} ><img src="/svgs/edit.svg" alt="" /></button>
-                                <button><img src="/svgs/delete.svg" alt="" /></button>
-                                <button><img src="/svgs/block.svg" alt="" /></button>
+                                <button className="hvr_zm_out" onClick={() => navigate(`/human-resource/profile/${row?.full_data?.id}`)} ><img src="/svgs/eye_open.svg" alt="" /></button>
+                                <button className="hvr_zm_out" onClick={() => navigate(`/human-resource/add-staff/${row?.full_data?.id}`)} ><img src="/svgs/edit.svg" alt="" /></button>
+                                <button className="hvr_zm_out" onClick={() => handleDeleteStaff(row?.full_data?.id, `${row?.full_data?.first_name || ""} ${row?.full_data?.last_name || ""}`.trim() || row?.full_data?.name || "Staff")} ><img src="/svgs/delete.svg" alt="" /></button>
+                                <button className="hvr_zm_out" onClick={() => handleBlockStaff(row?.full_data?.id, `${row?.full_data?.first_name || ""} ${row?.full_data?.last_name || ""}`.trim() || row?.full_data?.name || "Staff", row?.full_data?.disable_reason)} >{row?.full_data?.is_disabled ? <img src="/svgs/enable.svg" alt="" /> : <img src="/svgs/block.svg" alt="" />}</button>
                             </div>
                         )}
                     />

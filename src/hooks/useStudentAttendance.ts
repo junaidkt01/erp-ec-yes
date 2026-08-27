@@ -7,9 +7,13 @@ import { studentAttendance } from "../api/endpoints";
 
 
 
-const STUDENT_ATTENDANCE_KEY = ["student-attendance"];
+const STUDENT_ATTENDANCE_KEY = "student-attendance";
 
-
+export interface StudentAttendanceFilterParams {
+    class_id?: string | number;
+    section_id?: string | number;
+    attendance_date?: Date | string;
+}
 
 // Fetch All Sections
 export interface StudentAttendanceItem {
@@ -23,15 +27,35 @@ interface StudentAttendanceResponse {
     data: StudentAttendanceItem[];
 }
 
-export const useFetchStudentAttendance = () => {
+export const useFetchStudentAttendance = (params?: StudentAttendanceFilterParams) => {
     return useQuery<StudentAttendanceItem[]>({
-        queryKey: STUDENT_ATTENDANCE_KEY,
+        queryKey: [STUDENT_ATTENDANCE_KEY, params],
         queryFn: async () => {
+            const queryParams: Record<string, string> = {};
+
+            if (params?.class_id !== undefined && params.class_id !== "")
+                queryParams.class_id = String(params.class_id);
+
+            if (params?.section_id !== undefined && params.section_id !== "")
+                queryParams.section_id = String(params.section_id);
+
+            if (params?.attendance_date) {
+                const d = new Date(params.attendance_date);
+                if (!isNaN(d.getTime())) {
+                    const year = d.getFullYear();
+                    const month = String(d.getMonth() + 1).padStart(2, "0");
+                    const day = String(d.getDate()).padStart(2, "0");
+                    queryParams.attendance_date = `${year}-${month}-${day}`;
+                }
+            }
+
             const res = await axiosInstance.get<StudentAttendanceResponse>(
                 `${studentAttendance.student_attendances}`,
+                { params: queryParams },
             );
             return res.data.data;
         },
+        enabled: false,
     });
 };
 
@@ -62,7 +86,7 @@ export const useAddStudentAttendance = () => {
 
         onSuccess: () => {
             queryClient.invalidateQueries({
-                queryKey: STUDENT_ATTENDANCE_KEY,
+                queryKey: [...STUDENT_ATTENDANCE_KEY],
             });
         },
     });
@@ -93,7 +117,7 @@ export const useUpdateSection = () => {
 
         onSuccess: () => {
             queryClient.invalidateQueries({
-                queryKey: STUDENT_ATTENDANCE_KEY,
+                queryKey: [...STUDENT_ATTENDANCE_KEY],
             });
         },
     });
@@ -114,7 +138,7 @@ export const useRemoveSection = () => {
 
         onSuccess: () => {
             queryClient.invalidateQueries({
-                queryKey: STUDENT_ATTENDANCE_KEY,
+                queryKey: [...STUDENT_ATTENDANCE_KEY],
             });
         },
     });

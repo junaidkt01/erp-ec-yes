@@ -63,7 +63,7 @@ const DataTable: React.FC<DataTableProps> = ({ columns, data, currentPage, total
 
                 <tbody>
                     {data?.map((row: any, i: number) => (
-                        <tr className="hvr_zm_out_tbl_rw" key={i}>
+                        <tr className="hvr_zm_out_tbl_rw" key={row.id ?? i}>
                             {select && <td>{select(row.progress)}</td>}
 
                             {columns.map((c) => {
