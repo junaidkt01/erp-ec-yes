@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useFetchGeneralSettings, useUpdateGeneralSettings } from "../../../hooks/useGeneralSettings.ts";
+import { useFetchGeneralSettings, useUpdateGeneralSettings, type GeneralSettings } from "../../../hooks/useGeneralSettings.ts";
 import LoadingOverlay from "../../../components/Loadingoverlay.tsx";
 import { PrimaryButton } from "../../../components/Buttons/Buttons.tsx";
 import { CustomSelect } from "../../../components/InputFields/CustomSelect.tsx";
@@ -8,11 +8,10 @@ import { useFetchAllAcademicYears } from "../../../hooks/useAcademicYear.ts";
 import { toast } from "sonner";
 import TableWrapper from "../../../components/TableWrapper.tsx";
 import InputRadioButtons from "../../../components/InputRadioButtons/InputRadioButtons.tsx";
-
-
+import { SCHOOLS_STATES } from "../../../utils/studentOptions.ts";
 
 const UpdateGeneralSettings = () => {
-    const { data, isLoading: generalSettingLoading, error } = useFetchGeneralSettings()
+    const { data, isLoading: generalSettingLoading, error } = useFetchGeneralSettings();
     console.log("data: dsds", data)
 
     const [promotionWithoutExam, setPromotionWithoutExam] = useState("");
@@ -70,6 +69,7 @@ const UpdateGeneralSettings = () => {
         category_of_institution: "",
         suic_code: "",
         zone: "",
+        state: "",
 
     });
 
@@ -108,6 +108,7 @@ const UpdateGeneralSettings = () => {
             category_of_institution: String(data?.data?.category_of_institution || ""),
             suic_code: String(data?.data?.suic_code || ""),
             zone: String(data?.data?.zone || ""),
+            state: String(data?.data?.state || ""),
 
             // multiple_roll_number: String(data?.data?.multiple_roll_number || ""),
             // subject_attendance_layout: String(data?.data?.subject_attendance_layout || ""),
@@ -157,53 +158,97 @@ const UpdateGeneralSettings = () => {
     console.log(isLoading)
     const { mutateAsync: updateGeneralSettings } = useUpdateGeneralSettings()
 
+    // const handleSubmit = async () => {
+    //     setIsLoading(true);
+    //     const payload = new FormData();
+
+    //     payload.append("school_name", formData?.school_name);
+    //     payload.append("site_title", formData?.site_title);
+    //     payload.append("address", formData?.address);
+    //     payload.append("phone", formData?.phone);
+    //     payload.append("email", formData?.email);
+    //     payload.append("school_code", formData?.school_code);
+    //     // payload.append("academic_year_id", formData?.academic_year_id ? String(formData.academic_year_id) : "");
+    //     // payload.append("academic_year_id", String(formData?.academic_year_id));
+
+    //     payload.append("language", formData?.language);
+
+    //     payload.append("date_format", formData?.date_format);
+    //     payload.append("week_start_day", formData?.week_start_day);
+    //     payload.append("time_zone", formData?.time_zone);
+
+    //     payload.append("fees_income_head", formData?.fees_income_head);
+    //     payload.append("max_upload_size", formData?.max_upload_size);
+    //     payload.append("promotion_without_exam", formData?.promotion_without_exam);
+
+    //     // payload.append("admission_date", formData.admission_date);
+
+    //     payload.append("result_type", formData?.result_type);
+    //     payload.append("due_fees_login_restriction", formData?.due_fees_login_restriction);
+
+    //     payload.append("currency", formData?.currency);
+    //     payload.append("currency_symbol", formData?.currency_symbol);
+    //     payload.append("in_news_auto_approval_comment", formData?.in_news_auto_approval_comment);
+    //     payload.append("copyright_text", formData?.copyright_text);
+
+    //     try {
+    //         const res = await updateGeneralSettings(payload as any);
+    //         console.log("general settings: updated", res);
+    //         toast('General setting updated')
+    //         // setFormData(studentForm);
+
+    //         setIsLoading(false);
+    //     } catch (err) {
+    //         setIsLoading(false);
+    //         toast('General setting changes failed')
+    //         console.log("aa: error:", err);
+    //     }
+    // };
+
     const handleSubmit = async () => {
         setIsLoading(true);
-        const payload = new FormData();
+        setErrors({});
 
-        payload.append("school_name", formData?.school_name);
-        payload.append("site_title", formData?.site_title);
-        payload.append("address", formData?.address);
-        payload.append("phone", formData?.phone);
-        payload.append("email", formData?.email);
-        payload.append("school_code", formData?.school_code);
-        // payload.append("academic_year_id", formData?.academic_year_id ? String(formData.academic_year_id) : "");
-        // payload.append("academic_year_id", String(formData?.academic_year_id));
-
-        payload.append("language", formData?.language);
-
-        payload.append("date_format", formData?.date_format);
-        payload.append("week_start_day", formData?.week_start_day);
-        payload.append("time_zone", formData?.time_zone);
-
-        payload.append("fees_income_head", formData?.fees_income_head);
-        payload.append("max_upload_size", formData?.max_upload_size);
-        payload.append("promotion_without_exam", formData?.promotion_without_exam);
-
-        // payload.append("admission_date", formData.admission_date);
-
-        payload.append("result_type", formData?.result_type);
-        payload.append("due_fees_login_restriction", formData?.due_fees_login_restriction);
-
-        payload.append("currency", formData?.currency);
-        payload.append("currency_symbol", formData?.currency_symbol);
-        payload.append("in_news_auto_approval_comment", formData?.in_news_auto_approval_comment);
-        payload.append("copyright_text", formData?.copyright_text);
+        const payload: Record<string, any> = {
+            school_name: formData?.school_name,
+            site_title: formData?.site_title,
+            address: formData?.address,
+            phone: formData?.phone,
+            email: formData?.email,
+            school_code: formData?.school_code,
+            zone: formData?.zone,
+            suic_code: formData?.suic_code,
+            state: formData?.state,
+            academic_year_id: formData?.academic_year_id,
+            language: formData?.language,
+            date_format: formData?.date_format,
+            week_start_day: formData?.week_start_day,
+            time_zone: formData?.time_zone,
+            fees_income_head: formData?.fees_income_head,
+            max_upload_size: formData?.max_upload_size,
+            promotion_without_exam: promotionWithoutExam || formData?.promotion_without_exam,
+            result_type: formData?.result_type,
+            due_fees_login_restriction: formData?.due_fees_login_restriction,
+            currency: formData?.currency,
+            currency_symbol: formData?.currency_symbol,
+            in_news_auto_approval_comment: formData?.in_news_auto_approval_comment,
+            copyright_text: formData?.copyright_text,
+        };
 
         try {
-            const res = await updateGeneralSettings(payload as any);
+            const res = await updateGeneralSettings(payload as GeneralSettings);
             console.log("general settings: updated", res);
-            toast('General setting updated')
-            // setFormData(studentForm);
-
+            toast.success('General setting updated');
             setIsLoading(false);
-        } catch (err) {
+        } catch (err: any) {
             setIsLoading(false);
-            toast('General setting changes failed')
+            if (err.response?.data?.errors) {
+                setErrors(err.response.data.errors);
+            }
+            toast.error(err.response?.data?.message || 'General setting changes failed');
             console.log("aa: error:", err);
         }
     };
-
 
     /////////////////////
     const { data: academicYears } = useFetchAllAcademicYears();
@@ -253,7 +298,8 @@ const UpdateGeneralSettings = () => {
                                     <CustomSelect error={errors.academic_year_id} value={formData?.academic_year_id} name="academic_year_id" label="Academic year" placeholder="Select year" options={formattedData || []} onChange={(value) => setFormData((prev: any) => ({ ...prev, academic_year_id: value }))} />
                                 </div>
                                 <div className="body_section" >
-                                    <InputField error={errors.admission_no} type="text" label="School Code" placeHolder="Enter School Code" name="school_code" value={formData?.school_code} onChange={handleChange} />
+                                    <InputField error={errors.admission_no} type="text" label="SUIC Code" placeHolder="Enter SUIC Code" name="suic_code" value={formData?.suic_code} onChange={handleChange} />
+                                    {/* <InputField error={errors.admission_no} type="text" label="School Code" placeHolder="Enter School Code" name="school_code" value={formData?.school_code} onChange={handleChange} /> */}
                                     <InputField error={errors.admission_no} type="text" label="Phone" placeHolder="Enter Phone number" name="phone" value={formData?.phone} onChange={handleChange} />
                                     <InputField error={errors.admission_no} type="text" label="Email" placeHolder="Enter Email address" name="email" value={formData?.email} onChange={handleChange} />
 
@@ -272,7 +318,8 @@ const UpdateGeneralSettings = () => {
                                 </div>
                                 <div className="body_section" >
                                     <InputField error={errors.admission_no} type="text" label="Zone" placeHolder="Enter Zone" name="zone" value={formData?.zone} onChange={handleChange} />
-                                    <InputField error={errors.admission_no} type="text" label="SUIC Code" placeHolder="Enter SUIC Code" name="suic_code" value={formData?.suic_code} onChange={handleChange} />
+                                    <CustomSelect error={errors.state} value={formData?.state} name="state" label="State" placeholder="Select state" options={SCHOOLS_STATES || []} onChange={(value) => setFormData((prev: any) => ({ ...prev, state: value }))} />
+                                    {/* <InputField error={errors.state} type="text" label="State" placeHolder="Enter State" name="state" value={formData?.state} onChange={handleChange} /> */}
                                 </div>
                                 <div className="body_section" >
                                     <InputRadioButtons selectedValue={promotionWithoutExam || (data?.data?.promotion_without_exam || "")} name="promotion_without_exam" onChange={setPromotionWithoutExam} title="Promotion Without Exam" options={[{ label: "Enable", value: "Enable" }, { label: "Disable", value: "Disable" }]} />
@@ -286,7 +333,7 @@ const UpdateGeneralSettings = () => {
                             </div>
                             <div className="buttons">
                                 {/* <SecondaryButton title="Save" /> */}
-                                <PrimaryButton onClick={handleSubmit} title="Save" />
+                                <PrimaryButton onClick={handleSubmit} isLoading={isLoading} disabled={isLoading} title={isLoading ? "Saving..." : "Save"} />
                             </div>
                         </div>
 

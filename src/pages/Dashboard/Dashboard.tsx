@@ -50,8 +50,7 @@ const Dashboard = () => {
   }
 
   if (isError) {
-    return <ErrorStatusOverlay isError status={404} message={error?.message} />
-    // return <ErrorStatusOverlay isError status={error?.response?.status} message={error?.message} />
+    return <ErrorStatusOverlay isError status={(error as any)?.response?.status ?? 500} message={error?.message} />
   }
 
   return (

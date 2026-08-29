@@ -7,7 +7,7 @@ import { useAuth, getStoredAuth } from "../auth/useAuth";
 
 export const GENERAL_SETTINGS_KEY = ["general-settings"];
 
-export interface generalSettings {
+export interface GeneralSettings {
   data: {
     id: number;
     logo: string;
@@ -47,6 +47,7 @@ export interface generalSettings {
     category_of_institution:string;
     suic_code:string;
     zone:string;
+    state:string;
   };
 }
 
@@ -72,10 +73,10 @@ export const useFetchGeneralSettings = (options?: { enabled?: boolean }) => {
   const { data: authData } = useAuth();
   const isLoggedIn = Boolean(authData || getStoredAuth());
 
-  return useQuery<generalSettings>({
+  return useQuery<GeneralSettings>({
     queryKey: GENERAL_SETTINGS_KEY,
     queryFn: async () => {
-      const res = await axiosInstance.get<generalSettings>(
+      const res = await axiosInstance.get<GeneralSettings>(
         `${generalSettings.generalSettings}`,
       );
 
@@ -107,7 +108,7 @@ export const useUpdateGeneralSettings = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (payload: generalSettings) => {
+    mutationFn: async (payload: GeneralSettings) => {
       const { ...data } = payload;
 
       const res = await axiosInstance.put(`${generalSettings.generalSettings}`,

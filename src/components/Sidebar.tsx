@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { sidebar_menus } from "../utils";
 import { useQueryClient } from "@tanstack/react-query";
-import { GENERAL_SETTINGS_KEY, type generalSettings } from "../hooks/useGeneralSettings";
+import { GENERAL_SETTINGS_KEY, type GeneralSettings } from "../hooks/useGeneralSettings";
 import { useTranslation } from "../i18n/LanguageContext";
 import { useSidebarStore } from "../stores/sidebarStore";
 
@@ -131,7 +131,7 @@ const Sidebar: React.FC = () => {
 
     const queryClient = useQueryClient();
 
-    const data = queryClient.getQueryData<generalSettings>(GENERAL_SETTINGS_KEY);
+    const data = queryClient.getQueryData<GeneralSettings>(GENERAL_SETTINGS_KEY);
 
     return (
         <>

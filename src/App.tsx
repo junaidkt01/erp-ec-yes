@@ -52,7 +52,7 @@ import { Toaster } from 'sonner'
 import AddStaff from './pages/HR/AddStaff/AddStaff'
 import StaffList from './pages/HR/StaffList/StaffList'
 import FeesGroup from './pages/Fees/FeesGroup/FeesGroup'
-import LoadingOverlay, { ErrorStatusOverlay } from './components/Loadingoverlay'
+import { ErrorStatusOverlay } from './components/Loadingoverlay'
 import { useOverlayStore } from './stores/loadingOverlay'
 import StudentProfilePage from './pages/StudentInfo/StudentList/StudentProfilePage'
 import StaffProfilePage from './pages/HR/StaffList/StaffProfilePage'
@@ -66,26 +66,17 @@ function App() {
   const { open, statusCode, message, hide } = useOverlayStore();
   console.log("test: ", open, statusCode, message, hide);
 
-  // temp start
-  const { data, isLoading, error } = useFetchGeneralSettings();
+  // General settings & site config
+  const { data } = useFetchGeneralSettings();
   useSiteSettings(data?.data);
-
-  if (isLoading) {
-    return <LoadingOverlay />
-  }
-
-  if (error) {
-    return <ErrorStatusOverlay isError={true} status={404} message={"error"} />
-  }
-  // temp end
 
   return (
     <div className='app'>
       {open && (
         <ErrorStatusOverlay
           isError={true}
-          status={404}
-          message={"data.message"}
+          status={statusCode ?? 500}
+          message={message}
         />
       )}
 
@@ -188,8 +179,8 @@ function App() {
               <Route path='/settings-section/update-general-settings' element={<UpdateGeneralSettings />} />
 
               {/* Error page */}
-              <Route path='/error-page-404' element={<div>Error 404</div>} />
-              <Route path='/error-page-500' element={<div>Error 500</div>} />
+              <Route path='/error-page-404' element={<ErrorStatusOverlay isError={true} status={404} />} />
+              <Route path='/error-page-500' element={<ErrorStatusOverlay isError={true} status={500} />} />
             </Routes>
           </div>
         </div>

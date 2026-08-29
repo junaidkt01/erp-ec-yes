@@ -58,6 +58,11 @@ export const STAFF_CATEGORY_OPTIONS: SelectOption[] = [
   { label: "Others", value: "Others", id: "Others" },
 ];
 
+export const SCHOOLS_STATES: SelectOption[] = [
+  { label: "Srinagar", value: "Srinagar", id: "Srinagar" },
+  { label: "Poonch", value: "Poonch", id: "Poonch" },
+];
+
 /**
  * Format options array into instruction description string dynamically
  */

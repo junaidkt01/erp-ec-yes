@@ -1,5 +1,22 @@
 .student_content_to_submit_wrapper {
+  display: grid;
+  gap: 20px;
+
   .student_content_to_submit {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+
+    @media (max-width: 768px) {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    @media (max-width: 480px) {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
     div {
       font-weight: 400;
       font-size: 14px;
@@ -11,12 +28,14 @@
         line-height: 120%;
         letter-spacing: 0%;
         color: #212121;
+        font-weight: 500;
       }
 
       .value {
-        line-height: 24px;
+        line-height: 22px;
         letter-spacing: 0px;
         color: #8a8894;
+        word-break: break-word;
       }
     }
   }
@@ -24,8 +43,17 @@
 
 .add_parent_button_wrapper {
   display: flex;
-  justify-content: end;
+  justify-content: flex-end;
 
   margin-top: 24px;
   margin-bottom: 4px;
+
+  @media (max-width: 640px) {
+    justify-content: stretch;
+
+    button {
+      width: 100%;
+      justify-content: center;
+    }
+  }
 }

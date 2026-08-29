@@ -268,8 +268,8 @@ const AddStaff = () => {
                         <>
                             <p className="search_screen_title need_margin" >Staff Information</p>
                             <div className="popup_body" >
-                                <div className="student_content_to_submit_wrapper" style={{ display: "grid", gap: "24px" }} >
-                                    <div className="student_content_to_submit" style={{ display: "flex", justifyContent: "space-between" }} >
+                                <div className="student_content_to_submit_wrapper">
+                                    <div className="student_content_to_submit">
                                         <div>
                                             <p className="title" >Staff ID</p>
                                             <p className="value" >{formData?.staff_code || "N/A"}</p>
@@ -283,7 +283,7 @@ const AddStaff = () => {
                                             <p className="value" >{formData?.staff_no || "N/A"}</p>
                                         </div>
                                     </div>
-                                    <div className="student_content_to_submit" style={{ display: "flex", justifyContent: "space-between" }} >
+                                    <div className="student_content_to_submit">
                                         <div>
                                             <p className="title" >Role</p>
                                             <p className="value" >{formData?.role || "N/A"}</p>
@@ -297,7 +297,7 @@ const AddStaff = () => {
                                             <p className="value" >{formData?.first_name || "N/A"}</p>
                                         </div>
                                     </div>
-                                    <div className="student_content_to_submit" style={{ display: "flex", justifyContent: "space-between" }} >
+                                    <div className="student_content_to_submit">
                                         <div>
                                             <p className="title" >Last Name</p>
                                             <p className="value" >{formData?.last_name || "N/A"}</p>
@@ -308,8 +308,8 @@ const AddStaff = () => {
 
                             <p className="search_screen_title need_margin" >Personal Info</p>
                             <div className="popup_body" >
-                                <div className="student_content_to_submit_wrapper" style={{ display: "grid", gap: "24px" }} >
-                                    <div className="student_content_to_submit" style={{ display: "flex", justifyContent: "space-between" }} >
+                                <div className="student_content_to_submit_wrapper">
+                                    <div className="student_content_to_submit">
                                         <div>
                                             <p className="title" >Father Name</p>
                                             <p className="value" >{formData?.father_name || "N/A"}</p>
@@ -323,7 +323,7 @@ const AddStaff = () => {
                                             <p className="value" >{formData?.gender || "N/A"}</p>
                                         </div>
                                     </div>
-                                    <div className="student_content_to_submit" style={{ display: "flex", justifyContent: "space-between" }} >
+                                    <div className="student_content_to_submit">
                                         <div>
                                             <p className="title" >Date of Birth</p>
                                             <p className="value" >{formData?.dob || "N/A"}</p>

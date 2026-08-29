@@ -660,12 +660,11 @@ const AddStudent = () => {
                         <>
                             <p className="search_screen_title need_margin" >Academic Information</p>
                             <div className="popup_body" >
-                                <div className="student_content_to_submit_wrapper" style={{ display: "grid", gap: "24px" }} >
-                                    <div className="student_content_to_submit" style={{ display: "flex", justifyContent: "space-between" }} >
+                                <div className="student_content_to_submit_wrapper">
+                                    <div className="student_content_to_submit">
                                         <div>
                                             <p className="title" >Academic Year</p>
                                             <p className="value" >{formData?.academic_year_id || "N/A"}</p>
-                                            {/* <p className="value" >{academicYears?.find((item) => String(item.id) === formData.academic_year_id)?.name}</p> */}
                                         </div>
                                         <div>
                                             <p className="title" >Class</p>
@@ -676,7 +675,7 @@ const AddStudent = () => {
                                             <p className="value" >{formData?.section_id || "N/A"}</p>
                                         </div>
                                     </div>
-                                    <div className="student_content_to_submit" style={{ display: "flex", justifyContent: "space-between" }} >
+                                    <div className="student_content_to_submit">
                                         <div>
                                             <p className="title" >Admission Number</p>
                                             <p className="value" >{formData?.admission_no || "N/A"}</p>
@@ -684,7 +683,6 @@ const AddStudent = () => {
                                         <div>
                                             <p className="title" >Admission Date</p>
                                             <p className="value" >{formData?.admission_date ? new Date(formData?.admission_date).toLocaleDateString() : "N/A"}</p>
-                                            {/* <p className="value" >{formData?.admission_date ? formData?.admission_date?.toLocaleDateString() : "N/A"}</p> */}
                                         </div>
                                         <div>
                                             <p className="title" >Roll Number</p>
@@ -696,30 +694,22 @@ const AddStudent = () => {
 
                             <p className="search_screen_title need_margin" >Personal Info</p>
                             <div className="popup_body" >
-                                <div className="student_content_to_submit_wrapper" style={{ display: "grid", gap: "24px" }} >
-                                    <div className="student_content_to_submit" style={{ display: "flex", justifyContent: "space-between" }} >
+                                <div className="student_content_to_submit_wrapper">
+                                    <div className="student_content_to_submit">
                                         <div>
                                             <p className="title" >Full Name</p>
                                             <p className="value" >{formData?.full_name || "N/A"}</p>
                                         </div>
-                                        {/* <div>
-                                            <p className="title" >First Name</p>
-                                            <p className="value" >{formData?.first_name || "N/A"}</p>
-                                        </div>
-                                        <div>
-                                            <p className="title" >Last Name</p>
-                                            <p className="value" >{formData?.last_name || "N/A"}</p>
-                                        </div> */}
                                         <div>
                                             <p className="title" >Gender</p>
                                             <p className="value" >{formData?.gender || "N/A"}</p>
                                         </div>
-                                    </div>
-                                    <div className="student_content_to_submit" style={{ display: "flex", justifyContent: "space-between" }} >
                                         <div>
                                             <p className="title" >Date of Birth</p>
-                                            {/* <p className="value" >{formData?.dob || "N/A"}</p> */}
+                                            <p className="value" >{formData?.dob ? new Date(formData.dob).toLocaleDateString() : "N/A"}</p>
                                         </div>
+                                    </div>
+                                    <div className="student_content_to_submit">
                                         <div>
                                             <p className="title" >Religion</p>
                                             <p className="value" >{formData?.religion || "N/A"}</p>

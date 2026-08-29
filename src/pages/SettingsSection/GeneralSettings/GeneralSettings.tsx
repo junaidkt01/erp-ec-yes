@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { PrimaryButton } from "../../../components/Buttons/Buttons";
 import InputFiles from "../../../components/InputFields/InputFiles";
-import { GENERAL_SETTINGS_KEY, useUploadGeneralSettingsFavicon, useUploadGeneralSettingsLogo, type generalSettings } from "../../../hooks/useGeneralSettings";
+import { GENERAL_SETTINGS_KEY, useUploadGeneralSettingsFavicon, useUploadGeneralSettingsLogo, type GeneralSettings as GeneralSettingsData } from "../../../hooks/useGeneralSettings";
 import "./GeneralSettings.scss";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -15,7 +15,7 @@ const GeneralSettings = () => {
 
     const queryClient = useQueryClient();
 
-    const data = queryClient.getQueryData<generalSettings>(GENERAL_SETTINGS_KEY);
+    const data = queryClient.getQueryData<GeneralSettingsData>(GENERAL_SETTINGS_KEY);
 
     // const { data: academicYears } = useFetchAllAcademicYears();
     // const academicYearData = academicYears?.find(
@@ -150,8 +150,8 @@ const GeneralSettings = () => {
                                     <div className="value">{data?.data?.email}</div>
                                 </div>
                                 <div className="detail-row" >
-                                    <div className="label">School Code</div>
-                                    <div className="value">{data?.data?.school_code}</div>
+                                    <div className="label">State</div>
+                                    <div className="value">{data?.data?.state}</div>
                                 </div>
                                 <div className="detail-row" >
                                     <div className="label">Academic Year</div>

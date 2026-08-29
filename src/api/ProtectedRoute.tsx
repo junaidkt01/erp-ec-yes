@@ -1,17 +1,15 @@
 // src/routes/ProtectedRoute.tsx
 import { Navigate } from "react-router-dom";
-import { useAuth } from "../auth/useAuth";
+import { useAuth, getStoredAuth } from "../auth/useAuth";
 
 export const ProtectedRoute = ({ children }: { children: any }) => {
-  const { data, isLoading, isError, error } = useAuth();
-  console.log("dalfjs", data, isLoading, isError, error)
+  const { data, isLoading, isError } = useAuth();
+  const storedAuth = getStoredAuth();
+  const hasAuth = Boolean(data || storedAuth);
 
-  if (isLoading) return <div>Checking auth...</div>;
+  if (isLoading && !storedAuth) return <div>Checking auth...</div>;
 
-  console.log("checking: ", isError, data)
-
-  // need to improve
-  if (!data || isError) {
+  if (!hasAuth || isError) {
     return <Navigate to="/" replace />;
   }
 

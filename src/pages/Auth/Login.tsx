@@ -6,10 +6,12 @@ import { useNavigate } from "react-router-dom";
 import { useLogin } from "../../auth/useLogin";
 import { loginSchema } from "../../validations/authSchema";
 import { validate } from "../../utils/validate";
+import { useQueryClient } from "@tanstack/react-query";
 
 const Login: React.FC = () => {
 
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
     const [errors, setErrors] = useState<any>({});
     const [form, setForm] = useState({ email: "", password: "" });
     const { mutateAsync: login, isPending, isError, error } = useLogin();
@@ -27,7 +29,10 @@ const Login: React.FC = () => {
         await login(form, {
             onSuccess: async (res: any) => {
                 localStorage.setItem("auth", JSON.stringify(res.data));
-                await navigate("/dashboard");
+                queryClient.setQueryData(["auth"], res.data);
+                queryClient.invalidateQueries({ queryKey: ["auth"] });
+                queryClient.invalidateQueries({ queryKey: ["general-settings"] });
+                navigate("/dashboard", { replace: true });
             },
             onError: (res: any) => console.log("login error: ", res),
         });
