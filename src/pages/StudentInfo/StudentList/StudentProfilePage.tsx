@@ -13,7 +13,7 @@ const StudentProfilePage = () => {
         { label: "Admission Number", value: student?.data?.admission_no || "N/A" },
         { label: "Roll Number", value: student?.data?.roll_no || "N/A" },
         { label: "Class & Section", value: `${student?.data?.class?.name || "N/A"} - ${student?.data?.section?.name || "N/A"}` },
-        { label: "Behaviour Records Point", value: student?.data?.behaviour_points || "N/A" },
+        { label: "Remark Points", value: student?.data?.remark_points || "N/A" },
     ];
 
     const tabs = [
@@ -27,11 +27,45 @@ const StudentProfilePage = () => {
         "Subject Attendance",
     ];
 
+    const dobValue = student?.data?.dob || student?.data?.date_of_birth;
+
+    const formatDateSafe = (dateVal: any): string => {
+        if (!dateVal) return "N/A";
+        if (dateVal instanceof Date) {
+            if (isNaN(dateVal.getTime())) return "N/A";
+            return dateVal.toISOString().split("T")[0];
+        }
+        if (typeof dateVal === "string") {
+            if (dateVal.includes("T")) {
+                return dateVal.split("T")[0];
+            }
+            return dateVal;
+        }
+        return String(dateVal);
+    };
+
+    const calculateAge = (dobInput: any): string => {
+        if (!dobInput) return "N/A";
+        const birthDate = dobInput instanceof Date ? dobInput : new Date(dobInput);
+        if (isNaN(birthDate.getTime())) return "N/A";
+
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+
+        if (age < 0) return "N/A";
+        return `${age} ${age === 1 ? "year" : "years"}`;
+    };
+
     const profileDetails = [
-        { label: "Admission Details", value: student?.data?.admission_date || "N/A" },
-        { label: "Student ID", value: student?.data?.student_code || "N/A" },
-        { label: "Date Of Birth", value: student?.data?.date_of_birth || "N/A" },
-        { label: "Age", value: "17 years" },
+        { label: "Admission Details", value: formatDateSafe(student?.data?.admission_date) },
+        { label: "Student ID", value: student?.data?.student_code || student?.data?.admission_no || "N/A" },
+        { label: "Date Of Birth", value: formatDateSafe(dobValue) },
+        { label: "Age", value: calculateAge(dobValue) },
         { label: "Category", value: student?.data?.category?.name || "N/A" },
         { label: "Religion", value: student?.data?.religion || "N/A" },
         { label: "Phone Number", value: student?.data?.phone || "N/A" },

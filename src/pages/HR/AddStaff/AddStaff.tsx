@@ -151,6 +151,21 @@ const AddStaff = () => {
 
     const [isLoading, setIsLoading] = useState(false)
 
+    const formatDateDisplay = (dateVal: any, fallback = ""): string => {
+        if (!dateVal) return fallback;
+        if (dateVal instanceof Date) {
+            if (isNaN(dateVal.getTime())) return fallback;
+            return dateVal.toISOString().split("T")[0];
+        }
+        if (typeof dateVal === "string") {
+            if (dateVal.includes("T")) {
+                return dateVal.split("T")[0];
+            }
+            return dateVal;
+        }
+        return String(dateVal);
+    };
+
     const handleSubmit = async () => {
         setIsLoading(true);
         const payload = new FormData();
@@ -167,8 +182,8 @@ const AddStaff = () => {
         payload.append("father_name", formData?.father_name);
         payload.append("mother_name", formData?.mother_name);
         payload.append("gender", formData?.gender);
-        payload.append("dob", formData?.dob);
-        payload.append("date_of_joining", formData?.date_of_joining);
+        payload.append("dob", formatDateDisplay(formData?.dob));
+        payload.append("date_of_joining", formatDateDisplay(formData?.date_of_joining));
         payload.append("marital_status", formData?.marital_status);
         payload.append("emergency_mobile", formData?.emergency_mobile);
         payload.append("driving_license", formData?.driving_license);
@@ -212,10 +227,16 @@ const AddStaff = () => {
                 }
             }
             setIsLoading(false);
-        } catch (err) {
+        } catch (err: any) {
             setIsLoading(false);
-            toast.error('Operation failed')
-            console.error("Submit error:", err);
+            console.error("Submit error details:", err?.response?.data || err);
+            const backendErrors = err?.response?.data?.errors;
+            if (backendErrors && typeof backendErrors === "object") {
+                const firstErrorMessage = Object.values(backendErrors).flat()[0] as string;
+                toast.error(firstErrorMessage || err?.response?.data?.message || 'Validation failed');
+            } else {
+                toast.error(err?.response?.data?.message || 'Operation failed');
+            }
         }
     };
 
@@ -326,7 +347,7 @@ const AddStaff = () => {
                                     <div className="student_content_to_submit">
                                         <div>
                                             <p className="title" >Date of Birth</p>
-                                            <p className="value" >{formData?.dob || "N/A"}</p>
+                                            <p className="value" >{formatDateDisplay(formData?.dob, "N/A")}</p>
                                         </div>
                                         <div>
                                             <p className="title" >Email</p>
@@ -334,7 +355,7 @@ const AddStaff = () => {
                                         </div>
                                         <div>
                                             <p className="title" >Date of Joining</p>
-                                            <p className="value" >{formData?.date_of_joining || "N/A"}</p>
+                                            <p className="value" >{formatDateDisplay(formData?.date_of_joining, "N/A")}</p>
                                         </div>
                                     </div>
                                 </div>

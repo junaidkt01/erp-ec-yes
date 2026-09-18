@@ -1,10 +1,48 @@
 import { useNavigate } from "react-router-dom"
+import { BASE_URL } from "../../api/endpoints"
 import "./Profile.scss"
 
 const Profile = ({ type, data, details, tabs, profileDetails, activeTab, setActiveTab }: any) => {
     const navigate = useNavigate();
     console.log("data: ", data);
     console.log("data: 12", profileDetails);
+
+    const getPhotoUrl = (photoPath?: string) => {
+        if (!photoPath) return "/sample/pic.png";
+        if (
+            photoPath.startsWith("http://") ||
+            photoPath.startsWith("https://") ||
+            photoPath.startsWith("blob:") ||
+            photoPath.startsWith("data:")
+        ) {
+            return photoPath;
+        }
+        const cleanPath = photoPath.startsWith("/") ? photoPath.slice(1) : photoPath;
+        if (cleanPath.startsWith("public/")) {
+            return `${BASE_URL}/${cleanPath}`;
+        }
+        return `${BASE_URL}/public/${cleanPath}`;
+    };
+
+    const photoSrc = getPhotoUrl(
+        data?.data?.photo ||
+        data?.data?.student_photo ||
+        data?.data?.avatar ||
+        data?.data?.image ||
+        data?.photo
+    );
+
+    const renderValue = (val: any) => {
+        if (val === null || val === undefined || val === "") return "-";
+        if (val instanceof Date) {
+            if (isNaN(val.getTime())) return "-";
+            return val.toISOString().split("T")[0];
+        }
+        if (typeof val === "object") {
+            return String(val);
+        }
+        return val;
+    };
 
     return (
         <div className="page_wrapper" >
@@ -25,7 +63,14 @@ const Profile = ({ type, data, details, tabs, profileDetails, activeTab, setActi
 
                     <div className="profile-details-header profile-details-section">
                         <div className="profile-header-wrapper" >
-                            <img src="/sample/pic.png" alt="" />
+                            <img
+                                className="profile-photo"
+                                src={photoSrc}
+                                alt={data?.data?.full_name || data?.data?.name || "Profile"}
+                                onError={(e) => {
+                                    (e.target as HTMLImageElement).src = "/sample/pic.png";
+                                }}
+                            />
                             <div className="name-and-details" >
                                 {/* <h1>Laya Sayd <span>(Female)</span></h1> */}
                                 <h1>{`${data?.data?.full_name || "N/A"}`}<span>{(data?.data?.section?.gender)}</span></h1>
@@ -36,7 +81,7 @@ const Profile = ({ type, data, details, tabs, profileDetails, activeTab, setActi
                                         <div className="detail-item" key={item?.label}>
                                             <span className="label">{item?.label}</span>
                                             <span className="separator">:</span>
-                                            <span className="value">{item?.value}</span>
+                                            <span className="value">{renderValue(item?.value)}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -76,7 +121,7 @@ const Profile = ({ type, data, details, tabs, profileDetails, activeTab, setActi
                                         {profileDetails?.map((item: any) => (
                                             <div className="detail-row" key={item.label}>
                                                 <div className="label">{item.label}</div>
-                                                <div className="value">{item.value || "-"}</div>
+                                                <div className="value">{renderValue(item.value)}</div>
                                             </div>
                                         ))}
                                     </div>

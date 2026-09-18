@@ -31,10 +31,44 @@ const StaffProfilePage = () => {
         "Subject Attendance",
     ];
 
+    const dobValue = staff?.data?.dob || staff?.data?.date_of_birth;
+
+    const formatDateSafe = (dateVal: any): string => {
+        if (!dateVal) return "N/A";
+        if (dateVal instanceof Date) {
+            if (isNaN(dateVal.getTime())) return "N/A";
+            return dateVal.toISOString().split("T")[0];
+        }
+        if (typeof dateVal === "string") {
+            if (dateVal.includes("T")) {
+                return dateVal.split("T")[0];
+            }
+            return dateVal;
+        }
+        return String(dateVal);
+    };
+
+    const calculateAge = (dobInput: any): string => {
+        if (!dobInput) return "N/A";
+        const birthDate = dobInput instanceof Date ? dobInput : new Date(dobInput);
+        if (isNaN(birthDate.getTime())) return "N/A";
+
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+
+        if (age < 0) return "N/A";
+        return `${age} ${age === 1 ? "year" : "years"}`;
+    };
+
     const profileDetails = [
-        { label: "Admission Details", value: staff?.data?.admission_date || "N/A" },
-        { label: "Date Of Birth", value: staff?.data?.date_of_birth || "N/A" },
-        { label: "Age", value: "17 years" },
+        { label: "Admission Details", value: formatDateSafe(staff?.data?.admission_date) },
+        { label: "Date Of Birth", value: formatDateSafe(dobValue) },
+        { label: "Age", value: calculateAge(dobValue) },
         { label: "Category", value: staff?.data?.category || "N/A" },
         { label: "Religion", value: staff?.data?.religion || "N/A" },
         { label: "Phone Number", value: staff?.data?.phone || "N/A" },
