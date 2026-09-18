@@ -25,13 +25,13 @@ export const certificateTemplate = {
 
 export const classes = { classes: "/classes" };
 
-export const classRoom = {class_rooms: "/class-rooms"};
+export const classRoom = { class_rooms: "/class-rooms" };
 
 export const classSubject = { class_subject: "/class-subject" };
 
-export const classTeacher = { class_teachers: "/class-teachers"};
+export const classTeacher = { class_teachers: "/class-teachers" };
 
-export const teacher = {teachers: "/teachers"};
+export const teacher = { teachers: "/teachers" };
 
 export const downloadContent = { download_contents: "/download-contents" };
 
@@ -41,13 +41,13 @@ export const downloadContentType = {
 
 export const examShedule = { exam_shedules: "/exam-shedules" };
 
-export const exam = {exams: "/exams"};
+export const exam = { exams: "/exams" };
 
-export const examResult = { exam_results: "/exam-results"}
+export const examResult = { exam_results: "/exam-results" }
 
 export const feeGroup = { fee_groups: "/fee-groups" };
 
-export const feeType = {fee_types: "/fee-types"};
+export const feeType = { fee_types: "/fee-types" };
 
 export const feeStructure = { fee_structures: "/fee-structures" };
 
@@ -93,9 +93,9 @@ export const studentParent = { student_parents: "/student-parents" };
 
 export const studyMaterial = { study_materials: "/study-materials" };
 
-export const studentCategory = {student_Categories: "/student-categories"};
+export const studentCategory = { student_Categories: "/student-categories" };
 
-export const studentMultiClass = {student_multi_classes: "/student-multi-classes"};
+export const studentMultiClass = { student_multi_classes: "/student-multi-classes" };
 
 export const subject = { subjects: "/subjects" };
 
@@ -103,7 +103,7 @@ export const user = { users: "/users" };
 
 export const video = { videos: "/videos" };
 
-export const generalSettings = { generalSettings: "/general-settings", logo:"/logo", favicon:"/favicon" };
+export const generalSettings = { generalSettings: "/general-settings", logo: "/logo", favicon: "/favicon" };
 
 export const twoFactor = {
   confirm: "/2fa/confirm",
@@ -118,10 +118,10 @@ export const frontOffice = {
 
 export const admissionQueries = { admission_queries: "/admission-queries" };
 
-export const timeTable = {time_able: "/timeTables"};
+export const timeTable = { time_able: "/timeTables" };
 
-export const dashboard = {dashboard: "/dashboard"};
+export const dashboard = { dashboard: "/dashboard" };
 
-export const dashboardEvents = {dashboard_events: "/events"};
+export const dashboardEvents = { dashboard_events: "/events" };
 
-export const dashboardTodos = {dashboard_todos: "/todos"};
+export const dashboardTodos = { dashboard_todos: "/todos" };

@@ -105,9 +105,7 @@ export const useAddStaff = () => {
 
   return useMutation({
     mutationFn: async (payload: CreateStaffPayload | FormData) => {
-      const res = await axiosInstance.post(`${staff.staffs}`, payload, {
-        headers: payload instanceof FormData ? { "Content-Type": "multipart/form-data" } : undefined,
-      });
+      const res = await axiosInstance.post(`${staff.staffs}`, payload);
       return res.data;
     },
 
@@ -128,9 +126,7 @@ export const useUpdateStaff = (staff_id: string) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (updatePayload: UpdateStaffPayload | FormData) => {
-      const res = await axiosInstance.put(`${staff.staffs}/${staff_id}`, updatePayload, {
-        headers: updatePayload instanceof FormData ? { "Content-Type": "multipart/form-data" } : undefined,
-      });
+      const res = await axiosInstance.put(`${staff.staffs}/${staff_id}`, updatePayload);
       return res.data;
     },
 

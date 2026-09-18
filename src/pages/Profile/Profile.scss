@@ -69,6 +69,15 @@
       align-items: center;
       gap: 24px;
 
+      .profile-photo {
+        width: 120px;
+        height: 130px;
+        border-radius: 8px;
+        object-fit: cover;
+        flex-shrink: 0;
+        border: 1px solid #bdbcdb;
+      }
+
       .name-and-details {
         display: grid;
         gap: 24px;

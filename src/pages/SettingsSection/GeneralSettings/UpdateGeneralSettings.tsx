@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import TableWrapper from "../../../components/TableWrapper.tsx";
 import InputRadioButtons from "../../../components/InputRadioButtons/InputRadioButtons.tsx";
 import { SCHOOLS_STATES } from "../../../utils/studentOptions.ts";
+import { SCHOOLS_ZONE } from "../../../utils/studentOptions.ts";
 
 const UpdateGeneralSettings = () => {
     const { data, isLoading: generalSettingLoading, error } = useFetchGeneralSettings();
@@ -317,7 +318,7 @@ const UpdateGeneralSettings = () => {
                                     {/* <InputField error={errors.admission_no} type="text" label="SS Page" placeHolder="Enter admission number" name="admission_no" value={formData?.admission_no} onChange={handleChange} /> */}
                                 </div>
                                 <div className="body_section" >
-                                    <InputField error={errors.admission_no} type="text" label="Zone" placeHolder="Enter Zone" name="zone" value={formData?.zone} onChange={handleChange} />
+                                    <CustomSelect error={errors.zone} value={formData?.zone} name="zone" label="zone" placeholder="Select Zone" options={SCHOOLS_ZONE || []} onChange={(value) => setFormData((prev: any) => ({ ...prev, zone: value }))} />
                                     <CustomSelect error={errors.state} value={formData?.state} name="state" label="State" placeholder="Select state" options={SCHOOLS_STATES || []} onChange={(value) => setFormData((prev: any) => ({ ...prev, state: value }))} />
                                     {/* <InputField error={errors.state} type="text" label="State" placeHolder="Enter State" name="state" value={formData?.state} onChange={handleChange} /> */}
                                 </div>

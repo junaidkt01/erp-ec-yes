@@ -59,10 +59,30 @@ export const STAFF_CATEGORY_OPTIONS: SelectOption[] = [
 ];
 
 export const SCHOOLS_STATES: SelectOption[] = [
-  { label: "Srinagar", value: "Srinagar", id: "Srinagar" },
-  { label: "Poonch", value: "Poonch", id: "Poonch" },
+  { label: "Andhra Pradesh", value: "Andhra Pradesh", id: "Andhra Pradesh" },
+  { label: "Bihar", value: "Bihar", id: "Bihar" },
+  { label: "Jammu & Kashmir", value: "Jammu & Kashmir", id: "Jammu & Kashmir" },
+  { label: "Karnataka", value: "Karnataka", id: "Karnataka" },
+  { label: "Kerala", value: "Kerala", id: "Kerala" },
+  { label: "Maharashtra", value: "Maharashtra", id: "Maharashtra" },
+  { label: "Rajasthan", value: "Rajasthan", id: "Rajasthan" },
+  { label: "West Bengal", value: "West Bengal", id: "West Bengal" },
 ];
 
+export const SCHOOLS_ZONE: SelectOption[] = [
+  { label: "Doda", value: "doda", id: "doda" },
+  { label: "Jammu", value: "jammu", id: "jammu" },
+  { label: "Mandi", value: "mandi", id: "mandi" },
+  { label: "Maharashtra", value: "maharashtra", id: "maharashtra" },
+  { label: "Mender", value: "mender", id: "mender" },
+  { label: "Northeast", value: "northeast", id: "northeast" },
+  { label: "Poonch", value: "poonch", id: "poonch" },
+  { label: "Rajouri", value: "rajouri", id: "rajouri" },
+  { label: "Rajasthan", value: "rajasthan", id: "rajasthan" },
+  { label: "South", value: "south", id: "south" },
+  { label: "Srinagar", value: "srinagar", id: "srinagar" },
+  { label: "Surankote", value: "surankote", id: "surankote" },
+];
 /**
  * Format options array into instruction description string dynamically
  */
