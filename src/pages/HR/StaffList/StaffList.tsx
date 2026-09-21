@@ -9,6 +9,7 @@ import LoadingOverlay from "../../../components/Loadingoverlay"
 import { useBlockStaff, useFetchAllStaff, useRemoveStaff } from "../../../hooks/useStaff"
 import { useDebounce } from "../../../hooks/useDebounce"
 import { toast } from "sonner"
+import { BASE_URL } from "../../../api/endpoints"
 
 const StaffList = () => {
     const navigate = useNavigate()
@@ -22,6 +23,7 @@ const StaffList = () => {
 
     const columns: Column[] = [
         { key: "sl", title: "SL" },
+        { key: "photo", title: "Photo" },
         { key: "staff_code", title: "Staff ID" },
         { key: "name", title: "Name" },
         { key: "category", title: "Category" },
@@ -40,6 +42,7 @@ const StaffList = () => {
 
         const mappedData = rawList?.map((staffItem: any, index: number) => ({
             sl: index + 1,
+            photo: staffItem.photo ? `${BASE_URL}/public/${staffItem.photo}` : "/teacher.png",
             staff_code: staffItem.staff_code || staffItem.staff_no || "",
             name: staffItem.full_name || `${staffItem.first_name || ""} ${staffItem.last_name || ""}`.trim() || staffItem.name || "",
             category: staffItem.category || "-",

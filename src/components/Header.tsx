@@ -26,8 +26,8 @@ const Header = () => {
     const navigate = useNavigate();
 
     const handleSearchResultClick = (item: any) => {
-        setSearchTerm("")
-        setMobileSearchOpen(false)
+        setSearchTerm("");
+        setMobileSearchOpen(false);
         if (item.type === "Student") {
             navigate(`/student-info/profile/${item.student_id}`)
         } else if (item.type === "Staff" || item.type === "Teacher") {
@@ -290,7 +290,6 @@ const Profile = () => {
     const [isLangOpen, setIsLangOpen] = useState(false);
 
     const { data } = useAuth();
-    console.log("user: ", data?.user)
 
     const handleLogout = () => {
         localStorage.removeItem("auth")
@@ -307,7 +306,17 @@ const Profile = () => {
                 <div className="profile_pic">
                     <img src="/header_icons/profile_pic.png" alt="user" />
                 </div>
-                <div onClick={() => navigate(`/student-info/profile/${data?.user?.id}`)} style={{ cursor: "pointer" }}>
+                <div onClick={() => {
+                    if (data?.user.roles[0].name === "admin") {
+                        navigate(`/admin-info/profile/${data?.user?.id}`)
+                    } else if (data?.user.roles[0].name === "parent") {
+                        navigate(`/parent-info/profile/${data?.user?.id}`)
+                    } else if (data?.user.roles[0].name === "teacher") {
+                        navigate(`/human-resource/profile/${data?.user?.id}`)
+                    } else if (data?.user.roles[0].name === "student") {
+                        navigate(`/student-info/profile/${data?.user?.id}`)
+                    }
+                }} style={{ cursor: "pointer" }}>
                     <p className="email">{data?.user?.email}</p>
                     <span className="role">{data?.user?.roles[0]?.name}</span>
                 </div>

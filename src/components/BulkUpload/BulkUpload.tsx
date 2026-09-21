@@ -15,7 +15,7 @@ import { BLOOD_GROUP_OPTIONS, formatOptionInstruction, GENDER_OPTIONS, GUARDIAN_
 import { useTranslation } from "../../i18n/LanguageContext";
 
 const systemFields = [
-    "sl",
+    // "sl",
     "student_code",
     "admission_no",
     "admission_date",
@@ -27,8 +27,6 @@ const systemFields = [
     "caste",
     "blood_group",
     "nationality",
-    "class_id",
-    "section_id",
     "category_id",
     "address",
     "current_address",
@@ -174,7 +172,7 @@ const BulkUpload = ({ onClick }: { onClick: () => void }) => {
     const handleDownloadSampleExcel = () => {
         const headers = systemFields;
         const sampleRow: Record<string, string> = {
-            sl: "1",
+            // sl: "1",
             student_code: "STU001",
             admission_no: "ADM2026001",
             admission_date: "2026-06-01",
@@ -280,7 +278,7 @@ const BulkUpload = ({ onClick }: { onClick: () => void }) => {
 
             return {
                 _index: i,
-                sl: i + 1,
+                // sl: i + 1,
 
                 student_code: get("student_code"),
                 admission_no: String(get("admission_no") ?? ""),
@@ -296,8 +294,8 @@ const BulkUpload = ({ onClick }: { onClick: () => void }) => {
 
                 nationality: get("nationality"),
                 category_id: get("category_id"),
-                class_id: classId || get("class_id"),
-                section_id: sectionId || get("section_id"),
+                class_id: classId,
+                section_id: sectionId,
                 academic_year_id: academicYear,
 
                 address: get("address"),

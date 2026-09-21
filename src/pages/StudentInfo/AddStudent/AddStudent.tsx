@@ -7,6 +7,7 @@ import TableWrapper from "../../../components/TableWrapper"
 import { CustomSelect } from "../../../components/InputFields/CustomSelect.tsx"
 import InputFiles from "../../../components/InputFields/InputFiles.tsx"
 import InputRadioButtons from "../../../components/InputRadioButtons/InputRadioButtons.tsx"
+import InputCheckbox from "../../../components/InputCheckbox/InputCheckbox.tsx"
 import { useFetchAllAcademicYears } from "../../../hooks/useAcademicYear.ts"
 import { useFetchAllStudentClasses } from "../../../hooks/useStudentClass.ts"
 import { useFetchAllSections } from "../../../hooks/useSections.ts"
@@ -295,6 +296,29 @@ const AddStudent = () => {
         previous_school_details: "",
     }
     const [formData, setFormData] = useState(studentForm);
+    const [sameAsCurrentAddress, setSameAsCurrentAddress] = useState(false);
+
+    const handleToggleSameAddress = () => {
+        setSameAsCurrentAddress((prev) => {
+            const nextVal = !prev;
+            if (nextVal) {
+                setFormData((fPrev: any) => ({
+                    ...fPrev,
+                    permanent_address: fPrev.current_address,
+                }));
+            }
+            return nextVal;
+        });
+    };
+
+    useEffect(() => {
+        if (sameAsCurrentAddress) {
+            setFormData((prev: any) => ({
+                ...prev,
+                permanent_address: prev.current_address,
+            }));
+        }
+    }, [formData.current_address, sameAsCurrentAddress]);
 
     console.log("formData: ", formData)
 
@@ -303,6 +327,10 @@ const AddStudent = () => {
 
         const data = student.data || {};
         const parents = data.parents || {};
+
+        if (data.current_address && data.current_address === data.permanent_address) {
+            setSameAsCurrentAddress(true);
+        }
 
         setPhotos({
             photo: { file: null, preview: `${BASE_URL}/public/${data.photo}` || null },
@@ -584,7 +612,7 @@ const AddStudent = () => {
     }
     /////////////////////
 
-    const { data: academicYears} = useFetchAllAcademicYears();
+    const { data: academicYears } = useFetchAllAcademicYears();
     const formattedData = academicYears?.map((item) => ({
         label: `${item.name} (${new Date(item.start_date).toLocaleString("default", { month: "short" })} - ${new Date(item.end_date).toLocaleString("default", { month: "short" })})`,
         value: item.id,
@@ -788,7 +816,9 @@ const AddStudent = () => {
                                         <InputFiles
                                             image={photos.photo.preview || data?.data?.photo}
                                             accept="image/*" name="photo"
-                                            title="Student Photo" cropSize={{ width: 350, height: 450 }}
+                                            title="Student Photo"
+                                            displaySize={{ width: 130, height: 130 }}
+                                            cropSize={{ width: 350, height: 450 }}
                                             onChange={handlePhotoUpload("photo")}
                                         />
                                     </div>
@@ -796,14 +826,36 @@ const AddStudent = () => {
                             </div>
 
                             {/* 4 */}
-                            <p className="search_screen_title need_margin" >Student Address</p>
+                            <div className="search_screen_title need_margin" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "12px" }}>
+                                <span>Student Address</span>
+                                <div className="same_as_address_mark" >
+                                    <InputCheckbox
+                                        label="Same as Current Address"
+                                        checked={sameAsCurrentAddress}
+                                        onChange={handleToggleSameAddress}
+                                    />
+                                </div>
+                            </div>
+
                             <div className="popup_body" >
                                 <div className="fields_wrapper" >
                                     <div className="body_section" >
                                         <InputField error={errors.current_address} name="current_address" value={formData?.current_address} onChange={handleChange} type="text" label="Current Address" placeHolder="Enter current address" />
                                     </div>
                                     <div className="body_section" >
-                                        <InputField error={errors.permanent_address} name="permanent_address" value={formData?.permanent_address} onChange={handleChange} type="text" label="Permenant Address" placeHolder="Enter permenant address" />
+                                        <InputField
+                                            error={errors.permanent_address}
+                                            name="permanent_address"
+                                            value={formData?.permanent_address}
+                                            onChange={(e) => {
+                                                if (sameAsCurrentAddress) setSameAsCurrentAddress(false);
+                                                handleChange(e);
+                                            }}
+                                            type="text"
+                                            label="Permanent Address"
+                                            placeHolder="Enter permanent address"
+                                            disabled={sameAsCurrentAddress}
+                                        />
                                     </div>
                                 </div>
                             </div>
@@ -852,7 +904,9 @@ const AddStudent = () => {
                                         <InputField error={errors.father_phone} name="father_phone" type="text" label="Father Phone Number" placeHolder="Enter phone number" value={formData?.father_phone} onChange={handleChange} />
                                     </div>
                                     <div className="body_section" >
-                                        <InputFiles cropSize={{ width: 350, height: 450 }} image={photos.father_photo.preview || data?.data?.father_photo} accept="image/*" name="father_photo" title="Father's Photo" onChange={handlePhotoUpload("father_photo")} />
+                                        <InputFiles cropSize={{ width: 350, height: 450 }}
+                                            displaySize={{ width: 130, height: 130 }}
+                                            image={photos.father_photo.preview || data?.data?.father_photo} accept="image/*" name="father_photo" title="Father's Photo" onChange={handlePhotoUpload("father_photo")} />
                                         {/* <InputFiles image={previewFatherPhoto || data?.data?.father_photo} accept="image/*" name="father_photo" onChange={handleFatherPhotoUpload} title="Father’s Photo" /> */}
                                     </div>
                                 </div>
@@ -867,11 +921,13 @@ const AddStudent = () => {
                                         <InputField error={errors.mother_phone} name="mother_phone" type="text" label="Mother Phone Number" placeHolder="Enter phone number" value={formData?.mother_phone} onChange={handleChange} />
                                     </div>
                                     <div className="body_section" >
-                                        <InputFiles cropSize={{ width: 350, height: 450 }} image={photos.mother_photo.preview || data?.data?.mother_photo} accept="image/*" name="mother_photo" title="Mother's Photo" onChange={handlePhotoUpload("mother_photo")} />
+                                        <InputFiles cropSize={{ width: 350, height: 450 }}
+                                            displaySize={{ width: 130, height: 130 }}
+                                            image={photos.mother_photo.preview || data?.data?.mother_photo} accept="image/*" name="mother_photo" title="Mother's Photo" onChange={handlePhotoUpload("mother_photo")} />
                                         {/* <InputFiles image={previewMotherPhoto || data?.data?.mother_photo} accept="image/*" name="mother_photo" onChange={handleMotherPhotoUpload} title="Mother’s Photo" /> */}
                                     </div>
                                     {/* <div className="body_section" >
-                                        <div className="add_additional_contact" onClick={handleAddAdmissionQuery} >
+                                        <div className="add_additional_contact" >
                                             <p>Add Additional Contact</p>
                                             <img src="/svgs/+.svg" alt="" />
                                         </div>
@@ -904,7 +960,9 @@ const AddStudent = () => {
                                         <InputField error={errors.guardian_address} name="guardian_address" value={formData?.guardian_address} onChange={handleChange} type="text" label="Guardian Address" placeHolder="Enter guardian's address" />
                                     </div>
                                     <div className="body_section" >
-                                        <InputFiles cropSize={{ width: 350, height: 450 }} image={photos.guardian_photo.preview || data?.data?.guardian_photo} accept="image/*" name="guardian_photo" title="Guardian Photo" onChange={handlePhotoUpload("guardian_photo")} />
+                                        <InputFiles cropSize={{ width: 350, height: 450 }}
+                                            displaySize={{ width: 130, height: 130 }}
+                                            image={photos.guardian_photo.preview || data?.data?.guardian_photo} accept="image/*" name="guardian_photo" title="Guardian Photo" onChange={handlePhotoUpload("guardian_photo")} />
                                         {/* <InputFiles image={previewGuardianPhoto || data?.data?.guardian_photo} accept="image/*" name="guardian_photo" onChange={handleGuardianPhotoUpload} title="Guardian Photo" /> */}
                                     </div>
                                 </div>
@@ -990,7 +1048,7 @@ const AddStudent = () => {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="buttons">
+                                <div className="buttons" >
                                     <SecondaryButton title="Save" />
                                     <PrimaryButton title="Next" onClick={() => handleNextInputsTab(4)} />
                                 </div>
@@ -998,21 +1056,20 @@ const AddStudent = () => {
                         </>
                     </div>}
 
-                    {selectedInputTitleTab === "Other Info" && <div className="search_screen">
+                    {/* {selectedInputTitleTab === "Other Info" && <div className="search_screen">
                         <>
-                            {/* 1 */}
+                            1
                             <p className="search_screen_title need_margin" >Transport</p>
                             <div className="popup_body" >
                                 <div className="fields_wrapper" >
                                     <div className="body_section" >
-                                        {/* <CustomSelect label="Route List" placeholder="Select route list" options={[{ label: "Pending", value: "Pending" }, "Solved", "In Progress", "Closed"]} onChange={(val) => console.log("Selected:", val)} /> */}
                                         <CustomSelect label="Route List" placeholder="Select route list" options={[{ label: "Pending", value: "Pending" }, { label: "Solved", value: "Solved" }, { label: "In Progress", value: "In Progress" }, { label: "Closed", value: "Closed" }]} onChange={(val) => console.log("Selected:", val)} />
                                         <CustomSelect label="Vehicle Number" placeholder="Select vehicle number" options={[{ label: "Pending", value: "Pending" }, { label: "Solved", value: "Solved" }, { label: "In Progress", value: "In Progress" }, { label: "Closed", value: "Closed" }]} onChange={(val) => console.log("Selected:", val)} />
                                     </div>
                                 </div>
                             </div>
 
-                            {/* 2 */}
+                            2
                             <p className="search_screen_title need_margin" >Hostel Info</p>
                             <div className="popup_body" >
                                 <div className="fields_wrapper" >
@@ -1028,7 +1085,7 @@ const AddStudent = () => {
                                 </div>
                             </div>
                         </>
-                    </div>}
+                    </div>} */}
 
                     {selectedInputTitleTab === "Custom Field" && <div className="search_screen">
                         <>

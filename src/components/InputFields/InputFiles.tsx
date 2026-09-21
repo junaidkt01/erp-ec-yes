@@ -18,6 +18,7 @@ interface InputFilesProps {
 
     // New
     cropSize?: CropSize;
+    displaySize?: CropSize;
 }
 
 interface PixelCrop {
@@ -34,6 +35,7 @@ const InputFiles: React.FC<InputFilesProps> = ({
     accept,
     image,
     cropSize,
+    displaySize
 }) => {
     const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -238,8 +240,8 @@ const InputFiles: React.FC<InputFilesProps> = ({
                         <div className="content">
                             <div className="icon">
                                 <img
-                                    width={cropSize?.width}
-                                    height={cropSize?.height}
+                                    width={displaySize?.width}
+                                    height={displaySize?.height}
                                     src={image}
                                     alt="Preview"
                                     className="preview-image"

@@ -61,6 +61,7 @@ import UpdateGeneralSettings from './pages/SettingsSection/GeneralSettings/Updat
 import { useFetchGeneralSettings } from './hooks/useGeneralSettings'
 import useSiteSettings from './hooks/useSiteSettings'
 import GeneralSettings from './pages/SettingsSection/GeneralSettings/GeneralSettings'
+import AdminProfile from './pages/Admin/AdminProfile'
 
 function App() {
   const { open, statusCode, message, hide } = useOverlayStore();
@@ -151,7 +152,6 @@ function App() {
               <Route path='/student-info/student-settings' element={<div>student-settings</div>} />
               <Route path='/student-info/profile/:student_id' element={<StudentProfilePage />} />
 
-
               {/* 6. Fees */}
               <Route path='/fees/fees-group' element={<FeesGroup />} />
               <Route path='/fees/fees-type' element={<div>fees-type</div>} />
@@ -178,6 +178,9 @@ function App() {
               <Route path='/settings-section/general-settings' element={<GeneralSettings />} />
               <Route path='/settings-section/update-general-settings' element={<UpdateGeneralSettings />} />
 
+              {/* 9. Admin Section */}
+              <Route path='/admin-info/profile/:admin_id' element={<AdminProfile />} />
+              
               {/* Error page */}
               <Route path='/error-page-404' element={<ErrorStatusOverlay isError={true} status={404} />} />
               <Route path='/error-page-500' element={<ErrorStatusOverlay isError={true} status={500} />} />

@@ -1,9 +1,9 @@
 import { DatePicker } from "./DatePicker";
 
-export const InputField = ({ onChange, value, type, placeHolder, label, name, required, error }: {
+export const InputField = ({ onChange, value, type, placeHolder, label, name, required, error, disabled }: {
     onChange?: (value: any, name?: string) => void;
     value?: any; type: string; placeHolder: string; name?: string;
-    label?: string; required?: boolean; error?: string;
+    label?: string; required?: boolean; error?: string; disabled?: boolean;
 }) => {
 
 
@@ -36,6 +36,7 @@ export const InputField = ({ onChange, value, type, placeHolder, label, name, re
                         name={name}
                         onChange={onChange}
                         value={value}
+                        disabled={disabled}
                     />
                     {error &&
                         <div className="error_text_wrapper" >

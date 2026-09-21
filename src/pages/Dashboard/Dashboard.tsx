@@ -3,6 +3,7 @@ import { PrimaryButton } from "../../components/Buttons/Buttons";
 import LoadingOverlay, { ErrorStatusOverlay } from "../../components/Loadingoverlay";
 import { useDashboard } from "../../hooks/useDashboard";
 import BigCalendar from "../../components/MyCalendar/BigCalendar";
+import Footer from "../../components/Footer/Footer";
 
 // const widgets = [
 //   {
@@ -106,6 +107,7 @@ const Dashboard = () => {
 
 
         <BigCalendar />
+        <Footer />
       </div>
     </div>
   )

@@ -1,0 +1,28 @@
+.dashboard_footer {
+  width: 100%;
+  // padding: 16px 24px;
+  // background-color: #ffffff;
+  // border-top: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .copyright_note {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 400;
+    color: #6b7280;
+    text-align: center;
+    // line-height: 1.5;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard_footer {
+    padding: 12px 16px;
+
+    .copyright_note {
+      font-size: 12px;
+    }
+  }
+}

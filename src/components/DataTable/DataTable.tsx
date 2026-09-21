@@ -69,12 +69,14 @@ const DataTable: React.FC<DataTableProps> = ({ columns, data, currentPage, total
                             {columns.map((c) => {
                                 const value = row[c.key];
                                 const MAX_LETTERS = 30;
+                                console.log(value, " :value")
 
                                 return (
                                     <td key={c.key} title={typeof value === "string" ? value : ""} >
                                         {c.key === "photo" && value !== "N/A" ? (
-                                            <div className="profile_pic">
-                                                <img src={`${BASE_URL}/public/${value}`} alt="Student" />
+                                            <div className="profile_pic" >
+                                                <img src={value} alt="Student" />
+                                                {/* <img src={ `${BASE_URL}/public/${value}`} alt="Student" /> */}
                                             </div>
                                         ) : (
                                             typeof value === "string" && value.length > MAX_LETTERS

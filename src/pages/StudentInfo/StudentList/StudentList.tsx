@@ -13,6 +13,7 @@ import { useFetchAllAcademicYears } from "../../../hooks/useAcademicYear"
 import { useFetchAllStudentClasses } from "../../../hooks/useStudentClass"
 import { useFetchAllSections } from "../../../hooks/useSections"
 import { useDebounce } from "../../../hooks/useDebounce"
+import { BASE_URL } from "../../../api/endpoints"
 
 const StudentList = () => {
     const navigate = useNavigate()
@@ -60,6 +61,7 @@ const StudentList = () => {
 
     const columns: Column[] = [
         { key: "sl", title: "SL" },
+        { key: "photo", title: "Image" },
         { key: "admission_no", title: "Admission No" },
         { key: "name", title: "Name" },
         { key: "father_name", title: "Father Name" },
@@ -78,6 +80,8 @@ const StudentList = () => {
         console.log("mappedDat: ", mappedDat)
         const mappedData = sampleData?.data?.map((student: any, index: number) => ({
             sl: index + 1,
+            // photo: student.photo || "/header_icons/profile_pic.png",
+            photo: student.photo ? `${BASE_URL}/public/${student.photo}` : "/student.png",
             admission_no: student.admission_no || "",
             name: student.full_name.trim(),
             // name: `${student.first_name || ""} ${student.last_name || ""}`.trim(),
@@ -89,9 +93,10 @@ const StudentList = () => {
 
             full_data: student,
         }))
-
+        
         setStudentList(mappedData);
     }, [sampleData]);
+    console.log("studentList: ", studentList)
 
 
 

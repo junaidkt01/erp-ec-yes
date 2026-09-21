@@ -4,8 +4,6 @@ import "./Profile.scss"
 
 const Profile = ({ type, data, details, tabs, profileDetails, activeTab, setActiveTab }: any) => {
     const navigate = useNavigate();
-    console.log("data: ", data);
-    console.log("data: 12", profileDetails);
 
     const getPhotoUrl = (photoPath?: string) => {
         if (!photoPath) return "/sample/pic.png";
@@ -47,7 +45,10 @@ const Profile = ({ type, data, details, tabs, profileDetails, activeTab, setActi
     return (
         <div className="page_wrapper" >
             <div className="profile-page" >
-                <div className="breadcrumbs" onClick={() => {
+                {type === "admin" && <div className="breadcrumbs" >
+                    <span>Profile</span>
+                </div>}
+                {type !== "admin" && <div className="breadcrumbs" onClick={() => {
                     if (type === "student") {
                         navigate("/student-info/student-list")
                     } else if (type === "staff") {
@@ -57,10 +58,9 @@ const Profile = ({ type, data, details, tabs, profileDetails, activeTab, setActi
                     <img src="/svgs/breadcrumbs-left-arrow.svg" alt="" />
                     <p>{type === "student" ? "Student List" : "Staff List"}</p>
                     <span>| {type === "student" ? "Student details" : "Staff details"}</span>
-                </div>
+                </div>}
 
                 <div className="profile-details-wrapper">
-
                     <div className="profile-details-header profile-details-section">
                         <div className="profile-header-wrapper" >
                             <img
@@ -72,9 +72,11 @@ const Profile = ({ type, data, details, tabs, profileDetails, activeTab, setActi
                                 }}
                             />
                             <div className="name-and-details" >
-                                {/* <h1>Laya Sayd <span>(Female)</span></h1> */}
-                                <h1>{`${data?.data?.full_name || "N/A"}`}<span>{(data?.data?.section?.gender)}</span></h1>
-                                {/* <h1>{`${data?.data?.first_name || "N/A"} ${data?.data?.last_name || "N/A"}`}<span>{(data?.data?.section?.gender)}</span></h1> */}
+                                {
+                                    type == "admin" ?
+                                        <h1>{`${data?.full_name || "N/A"}`}</h1> :
+                                        <h1>{`${data?.data?.full_name || "N/A"}`}<span>{(data?.data?.section?.gender)}</span></h1>
+                                }
 
                                 <div className="student-details">
                                     {details?.map((item: any) => (
@@ -94,7 +96,7 @@ const Profile = ({ type, data, details, tabs, profileDetails, activeTab, setActi
                         </div>
                     </div>
 
-                    <div className="profile-details-body profile-details-section">
+                    {type !== "admin" && <div className="profile-details-body profile-details-section">
                         <div className="profile-info-head" >
                             <p>Student Info</p>
                             <button onClick={() => navigate(`/student-info/add-student/${data?.data?.id}`)} >
@@ -157,7 +159,7 @@ const Profile = ({ type, data, details, tabs, profileDetails, activeTab, setActi
 
                             </div>
                         </div>
-                    </div>
+                    </div>}
                 </div>
             </div>
         </div>

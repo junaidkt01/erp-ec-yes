@@ -51,8 +51,13 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .sidebar {
@@ -524,6 +529,7 @@
 .desktop_only {
   display: flex;
 }
+
 .mobile_only {
   display: none;
 }
@@ -532,6 +538,7 @@
   .desktop_only {
     display: none !important;
   }
+
   .mobile_only {
     display: flex !important;
   }
@@ -617,8 +624,13 @@
   }
 
   @keyframes fadeInOverlay {
-    from { opacity: 0; }
-    to   { opacity: 1; }
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
   }
 
   .mobile_search_panel {
@@ -629,7 +641,7 @@
     gap: 0;
     animation: slideDownPanel 0.22s cubic-bezier(0.4, 0, 0.2, 1);
     border-bottom: 1px solid #e5e7eb;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 
     .search_bar_wrapper {
       height: 44px;
@@ -675,8 +687,15 @@
   }
 
   @keyframes slideDownPanel {
-    from { transform: translateY(-20px); opacity: 0; }
-    to   { transform: translateY(0);    opacity: 1; }
+    from {
+      transform: translateY(-20px);
+      opacity: 0;
+    }
+
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
   }
 
   /* ── Mobile year filter bottom-sheet ── */
@@ -740,8 +759,13 @@
   }
 
   @keyframes slideUpSheet {
-    from { transform: translateY(100%); }
-    to   { transform: translateY(0); }
+    from {
+      transform: translateY(100%);
+    }
+
+    to {
+      transform: translateY(0);
+    }
   }
 }
 
@@ -1561,5 +1585,28 @@
         font-size: 13px;
       }
     }
+  }
+}
+
+
+.same_as_address_mark {
+  color: #605dec;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  font-family: Roboto;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 20px;
+  letter-spacing: 0px;
+  text-align: center;
+
+  transition: opacity 0.3s ease;
+
+  &:hover {
+    opacity: 0.9;
   }
 }

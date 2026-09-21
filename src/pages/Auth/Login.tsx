@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { InputField } from "../../components/InputFields/InputFields";
 import { PrimaryButton } from "../../components/Buttons/Buttons";
 import "./Login.scss";
@@ -7,6 +7,7 @@ import { useLogin } from "../../auth/useLogin";
 import { loginSchema } from "../../validations/authSchema";
 import { validate } from "../../utils/validate";
 import { useQueryClient } from "@tanstack/react-query";
+import { Turnstile, type TurnstileRef } from "../../components/Turnstile/Turnstile";
 
 const Login: React.FC = () => {
 
@@ -14,6 +15,9 @@ const Login: React.FC = () => {
     const queryClient = useQueryClient();
     const [errors, setErrors] = useState<any>({});
     const [form, setForm] = useState({ email: "", password: "" });
+    const [turnstileToken, setTurnstileToken] = useState<string>("");
+    const turnstileRef = useRef<TurnstileRef>(null);
+
     const { mutateAsync: login, isPending, isError, error } = useLogin();
 
     const handleChange =
@@ -24,9 +28,11 @@ const Login: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const { success, errors } = validate(loginSchema, form);
+        const payload = { ...form, cf_turnstile_response: turnstileToken };
+        const { success, errors } = validate(loginSchema, payload);
         if (!success) { setErrors(errors); return; }
-        await login(form, {
+
+        await login(payload, {
             onSuccess: async (res: any) => {
                 localStorage.setItem("auth", JSON.stringify(res.data));
                 queryClient.setQueryData(["auth"], res.data);
@@ -34,19 +40,13 @@ const Login: React.FC = () => {
                 queryClient.invalidateQueries({ queryKey: ["general-settings"] });
                 navigate("/dashboard", { replace: true });
             },
-            onError: (res: any) => console.log("login error: ", res),
+            onError: (res: any) => {
+                console.log("login error: ", res);
+                turnstileRef.current?.reset();
+                setTurnstileToken("");
+            },
         });
     };
-
-
-
-    // const { data } = useAuth();
-    // console.log("login data me: ", data)
-    // useEffect(() => {
-    //     if (data) {
-    //         navigate("/dashboard")
-    //     }
-    // }, [data])
 
     return (
         <div className="login_page">
@@ -67,17 +67,6 @@ const Login: React.FC = () => {
             {/* Right panel — form */}
             <div className="login_panel">
                 <div className="login_inner">
-                    {/* Brand mark */}
-                    {/* <div className="brand_mark">
-                        <div className="brand_icon">
-                            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-                                <rect width="28" height="28" rx="8" fill="#7C3AED" />
-                                <path d="M8 14L12.5 18.5L20 9.5" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
-                        </div>
-                        <span className="brand_name">YesIndia</span>
-                    </div> */}
-
                     {/* Heading */}
                     <div className="login_heading">
                         <h1>Welcome back</h1>
@@ -103,13 +92,23 @@ const Login: React.FC = () => {
                             type="password"
                         />
 
-                        {/* <div className="forgot_row">
-                            <a href="/forgot-password" className="forgot_link">Forgot password?</a>
-                        </div> */}
+                        {/* Cloudflare Turnstile Captcha */}
+                        <div className="turnstile_wrapper">
+                            <Turnstile
+                                ref={turnstileRef}
+                                onVerify={(token) => setTurnstileToken(token)}
+                                onExpire={() => setTurnstileToken("")}
+                                onError={() => setTurnstileToken("")}
+                            />
+                            {errors.turnstile && (
+                                <p className="error_text" style={{ fontSize: "12px", marginTop: "4px" }}>
+                                    {errors.turnstile}
+                                </p>
+                            )}
+                        </div>
 
                         <PrimaryButton
                             type="submit"
-                            // disabled={isPending}
                             title={isPending ? "Signing in…" : "Sign in"}
                         />
 
@@ -119,11 +118,6 @@ const Login: React.FC = () => {
                             </p>
                         )}
                     </form>
-
-                    {/* <p className="login_footer">
-                        Don't have an account?{" "}
-                        <a href="/register" className="register_link">Create one</a>
-                    </p> */}
                 </div>
             </div>
         </div>

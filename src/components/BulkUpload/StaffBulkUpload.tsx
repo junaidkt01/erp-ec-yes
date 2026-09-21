@@ -11,7 +11,7 @@ import { formatOptionInstruction, GENDER_OPTIONS, STAFF_CATEGORY_OPTIONS } from 
 import { useTranslation } from "../../i18n/LanguageContext";
 
 const systemFields = [
-    "sl",
+    // "sl",
     "staff_code",
     "full_name",
     "category",
@@ -126,7 +126,7 @@ const StaffBulkUpload = ({ onClick }: { onClick: () => void }) => {
     const handleDownloadSampleExcel = () => {
         const headers = systemFields;
         const sampleRow: Record<string, string> = {
-            sl: "1",
+            // sl: "1",
             staff_code: "STF001",
             full_name: "Jane Smith",
             category: "Teacher",
@@ -230,7 +230,7 @@ const StaffBulkUpload = ({ onClick }: { onClick: () => void }) => {
 
             return {
                 _index: i,
-                sl: i + 1,
+                // sl: i + 1,
 
                 staff_code: String(get("staff_code") ?? `STF${i + 1}`),
                 full_name: get("full_name") || `Staff`,
@@ -273,7 +273,9 @@ const StaffBulkUpload = ({ onClick }: { onClick: () => void }) => {
     const handleSubmit = () => {
         const selected = finalData
             .filter((r) => selectedRows.includes(r._index))
-            .map(({ _index, sl, ...rest }) => rest);
+            .map(({ _index,
+                // sl,
+                ...rest }) => rest);
 
         if (selected.length === 0) {
             toast.error("Please select at least one staff row to import.");

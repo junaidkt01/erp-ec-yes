@@ -34,6 +34,20 @@ $font-body: "DM Sans", "Helvetica Neue", sans-serif;
       align-items: center;
       justify-content: center;
     }
+
+    .turnstile_wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 8px 0;
+      width: 100%;
+
+      .turnstile_container {
+        display: flex;
+        justify-content: center;
+      }
+    }
   }
 
   @media (max-width: 768px) {
