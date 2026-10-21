@@ -5,7 +5,14 @@ export const BASE_URL = "https://dev.cyberduce.com";
 //"https://dev.cyberduce.com/public/uploads/parent_photos/1786446117_father_6a7b0125d8dbd.jpeg";
 export const API_URL = "https://dev.cyberduce.com/api";
 
-export const auth = { login: "/login", logout: "/logout", me: "/me" };
+export const auth = {
+  login: "/login",
+  logout: "/logout",
+  me: "/me",
+  forgotPassword: "/forgot-password",
+  resetPassword: "/reset-password",
+  verifyToken: "/password/verify-token"
+};
 
 export const academicYear = { academic_years: "/academic-years" };
 
@@ -106,8 +113,11 @@ export const video = { videos: "/videos" };
 export const generalSettings = { generalSettings: "/general-settings", logo: "/logo", favicon: "/favicon" };
 
 export const twoFactor = {
+  setup: "/2fa/setup",
   confirm: "/2fa/confirm",
-  verify: "/2fa/verify"
+  verify: "/2fa/verify",
+  disable: "/2fa/disable",
+  code: "/2fa/code",
 };
 
 export const frontOffice = {
@@ -125,3 +135,14 @@ export const dashboard = { dashboard: "/dashboard" };
 export const dashboardEvents = { dashboard_events: "/events" };
 
 export const dashboardTodos = { dashboard_todos: "/todos" };
+
+export const sidebarMenus = {
+  update: "/sidebar-menus",
+  items: "/sidebar-menus/items",
+};
+
+export const incident = {
+  incidents: "/incidents",
+};
+
+export const incidents = incident;

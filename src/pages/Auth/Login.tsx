@@ -3,19 +3,27 @@ import { InputField } from "../../components/InputFields/InputFields";
 import { PrimaryButton } from "../../components/Buttons/Buttons";
 import "./Login.scss";
 import { useNavigate } from "react-router-dom";
-import { useLogin } from "../../auth/useLogin";
+import { useLogin, type LoginResponsePayload } from "../../auth/useLogin";
 import { loginSchema } from "../../validations/authSchema";
 import { validate } from "../../utils/validate";
 import { useQueryClient } from "@tanstack/react-query";
 import { Turnstile, type TurnstileRef } from "../../components/Turnstile/Turnstile";
+import type { AxiosError } from "axios";
+import TwoFactorVerification from "./TwoFactorVerification";
+import type { AuthSessionData } from "../../auth/useTwoFactor";
+
+interface TwoFactorChallengeState {
+    challengeToken: string;
+    email: string;
+}
 
 const Login: React.FC = () => {
-
     const navigate = useNavigate();
     const queryClient = useQueryClient();
-    const [errors, setErrors] = useState<any>({});
+    const [errors, setErrors] = useState<Record<string, string>>({});
     const [form, setForm] = useState({ email: "", password: "" });
     const [turnstileToken, setTurnstileToken] = useState<string>("");
+    const [twoFactorChallenge, setTwoFactorChallenge] = useState<TwoFactorChallengeState | null>(null);
     const turnstileRef = useRef<TurnstileRef>(null);
 
     const { mutateAsync: login, isPending, isError, error } = useLogin();
@@ -33,19 +41,62 @@ const Login: React.FC = () => {
         if (!success) { setErrors(errors); return; }
 
         await login(payload, {
-            onSuccess: async (res: any) => {
-                localStorage.setItem("auth", JSON.stringify(res.data));
-                queryClient.setQueryData(["auth"], res.data);
-                queryClient.invalidateQueries({ queryKey: ["auth"] });
-                queryClient.invalidateQueries({ queryKey: ["general-settings"] });
-                navigate("/dashboard", { replace: true });
+            onSuccess: async (res: LoginResponsePayload) => {
+                // Check if the backend requires 2FA verification
+                const challengeToken =
+                    res?.challenge_token ||
+                    (res as any)?.data?.challenge_token ||
+                    (res as any)?.data?.token_challenge;
+
+                const isTwoFactorRequired = Boolean(
+                    challengeToken ||
+                    res?.two_factor_required ||
+                    (res as any)?.two_factor ||
+                    (res?.data as Record<string, unknown> | undefined)?.two_factor_required
+                );
+
+                if (isTwoFactorRequired && challengeToken) {
+                    setTwoFactorChallenge({
+                        challengeToken,
+                        email: form.email,
+                    });
+                    // Clear password from state for security
+                    setForm((prev) => ({ ...prev, password: "" }));
+                    setErrors({});
+                    return;
+                }
+
+                // Normal login without 2FA
+                if (res?.data) {
+                    localStorage.setItem("auth", JSON.stringify(res.data));
+                    queryClient.setQueryData(["auth"], res.data);
+                    queryClient.invalidateQueries({ queryKey: ["auth"] });
+                    queryClient.invalidateQueries({ queryKey: ["general-settings"] });
+                    navigate("/dashboard", { replace: true });
+                }
             },
-            onError: (res: any) => {
+            onError: (res: unknown) => {
                 console.log("login error: ", res);
                 turnstileRef.current?.reset();
                 setTurnstileToken("");
             },
         });
+    };
+
+    const handleTwoFactorSuccess = (sessionData: AuthSessionData) => {
+        localStorage.setItem("auth", JSON.stringify(sessionData));
+        queryClient.setQueryData(["auth"], sessionData);
+        queryClient.invalidateQueries({ queryKey: ["auth"] });
+        queryClient.invalidateQueries({ queryKey: ["general-settings"] });
+        setTwoFactorChallenge(null);
+        navigate("/dashboard", { replace: true });
+    };
+
+    const handleTwoFactorCancel = () => {
+        setTwoFactorChallenge(null);
+        setErrors({});
+        turnstileRef.current?.reset();
+        setTurnstileToken("");
     };
 
     return (
@@ -67,57 +118,72 @@ const Login: React.FC = () => {
             {/* Right panel — form */}
             <div className="login_panel">
                 <div className="login_inner">
-                    {/* Heading */}
-                    <div className="login_heading">
-                        <h1>Welcome back</h1>
-                        <p>Sign in to continue building an excellent India.</p>
-                    </div>
-
-                    {/* Form */}
-                    <form onSubmit={handleSubmit} className="login_form">
-                        <InputField
-                            error={errors.email}
-                            value={form.email}
-                            onChange={handleChange("email")}
-                            label="Email"
-                            placeHolder="you@example.com"
-                            type="email"
+                    {twoFactorChallenge ? (
+                        <TwoFactorVerification
+                            email={twoFactorChallenge.email}
+                            challengeToken={twoFactorChallenge.challengeToken}
+                            onSuccess={handleTwoFactorSuccess}
+                            onCancel={handleTwoFactorCancel}
                         />
-                        <InputField
-                            error={errors.password}
-                            value={form.password}
-                            onChange={handleChange("password")}
-                            label="Password"
-                            placeHolder="••••••••"
-                            type="password"
-                        />
+                    ) : (
+                        <>
+                            {/* Heading */}
+                            <div className="login_heading">
+                                <h1>Welcome back</h1>
+                                <p>Sign in to continue building an excellent India.</p>
+                            </div>
 
-                        {/* Cloudflare Turnstile Captcha */}
-                        <div className="turnstile_wrapper">
-                            <Turnstile
-                                ref={turnstileRef}
-                                onVerify={(token) => setTurnstileToken(token)}
-                                onExpire={() => setTurnstileToken("")}
-                                onError={() => setTurnstileToken("")}
-                            />
-                            {errors.turnstile && (
-                                <p className="error_text" style={{ fontSize: "12px", marginTop: "4px" }}>
-                                    {errors.turnstile}
-                                </p>
-                            )}
-                        </div>
+                            {/* Form */}
+                            <form onSubmit={handleSubmit} className="login_form">
+                                <InputField
+                                    error={errors.email}
+                                    value={form.email}
+                                    onChange={handleChange("email")}
+                                    label="Email"
+                                    placeHolder="you@example.com"
+                                    type="email"
+                                />
+                                <div>
+                                    <InputField
+                                        error={errors.password}
+                                        value={form.password}
+                                        onChange={handleChange("password")}
+                                        label="Password"
+                                        placeHolder="••••••••"
+                                        type="password"
+                                    />
+                                    <p className="forgot_password" onClick={() => navigate("/forgot-password")}>Forget password?</p>
+                                </div>
 
-                        <PrimaryButton
-                            type="submit"
-                            title={isPending ? "Signing in…" : "Sign in"}
-                        />
+                                {/* Cloudflare Turnstile Captcha */}
+                                <div className="turnstile_wrapper">
+                                    <Turnstile
+                                        ref={turnstileRef}
+                                        onVerify={(token) => setTurnstileToken(token)}
+                                        onExpire={() => setTurnstileToken("")}
+                                        onError={() => setTurnstileToken("")}
+                                    />
+                                    {errors.turnstile && (
+                                        <p className="error_text" style={{ fontSize: "12px", marginTop: "4px" }}>
+                                            {errors.turnstile}
+                                        </p>
+                                    )}
+                                </div>
 
-                        {isError && (
-                            <p className="error_text">
-                                {(error as any)?.response?.data?.message || "Login failed. Please try again."}
-                            </p>
-                        )}
-                    </form>
+                                <PrimaryButton
+                                    type="submit"
+                                    title={isPending ? "Signing in…" : "Sign in"}
+                                    isLoading={isPending}
+                                />
+
+                                {isError && (
+                                    <p className="error_text">
+                                        {(error as AxiosError<{ message?: string }>)?.response?.data?.message || "Login failed. Please try again."}
+                                    </p>
+                                )}
+                            </form>
+                        </>
+                    )}
                 </div>
             </div>
         </div>
@@ -125,6 +191,7 @@ const Login: React.FC = () => {
 };
 
 export default Login;
+
 
 // import { useState } from "react";
 // import { InputField } from "../../components/InputFields/InputFields";

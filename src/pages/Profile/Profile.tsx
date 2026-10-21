@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom"
 import { BASE_URL } from "../../api/endpoints"
 import "./Profile.scss"
+import DynamicQRCode from "../../components/DynamicQRCode/DynamicQRCode"
 
 const Profile = ({ type, data, details, tabs, profileDetails, activeTab, setActiveTab }: any) => {
     const navigate = useNavigate();
@@ -41,6 +42,27 @@ const Profile = ({ type, data, details, tabs, profileDetails, activeTab, setActi
         }
         return val;
     };
+
+    const qrValue =
+        data?.data?.student_code ||
+        data?.data?.staff_code ||
+        data?.data?.admission_no ||
+        data?.data?.email ||
+        data?.email ||
+        data?.data?.id ||
+        data?.id ||
+        (typeof window !== "undefined" ? window.location.href : "USER-PROFILE");
+
+    const qrLabel =
+        type === "student"
+            ? "Student QR Code"
+            : type === "staff" || type === "teacher"
+            ? "Staff QR Code"
+            : type === "admin"
+            ? "Admin QR Code"
+            : `${type ? type.charAt(0).toUpperCase() + type.slice(1) : "User"} QR Code`;
+
+    console.log("profileDetails: ",profileDetails)
 
     return (
         <div className="page_wrapper" >
@@ -91,8 +113,7 @@ const Profile = ({ type, data, details, tabs, profileDetails, activeTab, setActi
                         </div>
 
                         <div className="profile-qr">
-                            <img src="/sample/qr.png" alt="" />
-                            <p>Student QR Code</p>
+                            <DynamicQRCode value={qrValue} label={qrLabel} size={110} />
                         </div>
                     </div>
 

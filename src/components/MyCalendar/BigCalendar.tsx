@@ -118,7 +118,7 @@ const BigCalendar = () => {
                     </div>
                 </div>
             </PopupScreen>}
-            <div className="big-calendar">
+            <div className="big-calendar hvr_zm_in">
 
                 <Calendar
                     localizer={localizer}

@@ -48,6 +48,15 @@ $font-body: "DM Sans", "Helvetica Neue", sans-serif;
         justify-content: center;
       }
     }
+
+    .forgot_password{
+      text-align: end;
+      font-size: 14px;
+      text-decoration: underline;
+      color: #6d28d9;
+      margin-top: 5px;
+      cursor: pointer;
+    }
   }
 
   @media (max-width: 768px) {
@@ -223,6 +232,240 @@ $font-body: "DM Sans", "Helvetica Neue", sans-serif;
     }
   }
 }
+
+// ─── 2FA Verification Step ──────────────────────────────────────────────────
+.two_factor_wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  animation: fadeUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  .two_factor_header {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+
+    .two_factor_icon_box {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, $purple-100 0%, #ddd6fe 100%);
+      border: 1px solid rgba(124, 58, 237, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: $purple-600;
+      box-shadow: 0 4px 12px rgba(124, 58, 237, 0.12);
+    }
+  }
+
+  .two_factor_account_chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #f9fafb;
+    border: 1px solid $border;
+    border-radius: 100px;
+    padding: 6px 14px;
+    font-size: 13px;
+    color: $text-muted;
+    width: fit-content;
+
+    .key_icon {
+      color: $purple-600;
+      flex-shrink: 0;
+    }
+
+    strong {
+      color: $text-primary;
+      font-weight: 600;
+    }
+  }
+
+  .two_factor_expired_box {
+    background: #fff7ed;
+    border: 1px solid #ffedd5;
+    border-radius: $radius-md;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .expired_content {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+
+      .alert_icon {
+        color: #ea580c;
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
+
+      .expired_title {
+        font-weight: 600;
+        font-size: 14px;
+        color: #9a3412;
+        margin: 0 0 4px;
+      }
+
+      .expired_desc {
+        font-size: 13px;
+        color: #c2410c;
+        margin: 0;
+        line-height: 1.45;
+      }
+    }
+
+    button {
+      width: 100%;
+    }
+  }
+
+  .two_factor_form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+
+    .otp_input_container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+
+      .otp_label {
+        font-size: 13px;
+        font-weight: 600;
+        color: $text-primary;
+      }
+
+      .otp_inputs_group {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        width: 100%;
+
+        .otp_digit_input {
+          flex: 1;
+          height: 54px;
+          max-width: 56px;
+          text-align: center;
+          font-size: 22px;
+          font-weight: 700;
+          font-family: monospace;
+          color: $text-primary;
+          background: #fbfbfe;
+          border: 1.5px solid $border;
+          border-radius: $radius-sm;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+          &:focus {
+            outline: none;
+            background: #ffffff;
+            border-color: $purple-600;
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+            transform: translateY(-1px);
+          }
+
+          &.has_value {
+            border-color: $purple-600;
+            background: #ffffff;
+          }
+
+          &.input_error {
+            border-color: $error;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+          }
+
+          &:disabled {
+            background: #f3f4f6;
+            cursor: not-allowed;
+            opacity: 0.7;
+          }
+
+          @media (max-width: 480px) {
+            height: 48px;
+            font-size: 20px;
+          }
+        }
+      }
+    }
+
+    .turnstile_wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 4px 0;
+      width: 100%;
+
+      .turnstile_container {
+        display: flex;
+        justify-content: center;
+      }
+    }
+
+    .two_factor_error_alert {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: $radius-sm;
+      background: #fef2f2;
+      border: 1px solid #fee2e2;
+      color: $error;
+      font-size: 13px;
+      line-height: 1.4;
+      animation: fadeUp 0.25s ease both;
+
+      svg {
+        flex-shrink: 0;
+      }
+    }
+
+    .two_factor_actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+
+      button.primary_button {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .back_to_login_btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        background: transparent;
+        border: none;
+        color: $text-muted;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: $radius-sm;
+        transition: color 0.15s ease;
+
+        &:hover:not(:disabled) {
+          color: $purple-600;
+          text-decoration: underline;
+        }
+
+        &:disabled {
+          cursor: not-allowed;
+          opacity: 0.5;
+        }
+      }
+    }
+  }
+}
+
 
 // .login_page {
 //   height: 100dvh;

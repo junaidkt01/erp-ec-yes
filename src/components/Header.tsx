@@ -9,6 +9,8 @@ import { highlightText } from "../utils/utils"
 import { useTranslation } from "../i18n/LanguageContext"
 import { LANGUAGES } from "../i18n/translations"
 import { useSidebarStore } from "../stores/sidebarStore"
+import { ShieldCheck } from "lucide-react"
+import TwoFactorModal from "./TwoFactorModal/TwoFactorModal"
 
 const Header = () => {
     const [searchTerm, setSearchTerm] = useState("")
@@ -288,6 +290,7 @@ const Profile = () => {
     const navigate = useNavigate();
     const { language, setLanguage, currentLanguage, t } = useTranslation();
     const [isLangOpen, setIsLangOpen] = useState(false);
+    const [isTwoFactorOpen, setIsTwoFactorOpen] = useState(false);
 
     const { data } = useAuth();
 
@@ -299,7 +302,7 @@ const Profile = () => {
     }
 
     return (
-        <div className="profile-dropdown hvr_zm_out">
+        <div className={`profile-dropdown ${!isTwoFactorOpen ? "hvr_zm_out" : ""}`} >
 
             {/* Header */}
             <div className="profile-header hvr_zm_out" >
@@ -332,6 +335,19 @@ const Profile = () => {
                         <img src="/header_icons/change_password.svg" alt="" />
                     </span>
                     <p>{t("header.change_password", "Change Password")}</p>
+                </div>
+
+                <div
+                    className="item hvr_zm_out"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setIsTwoFactorOpen(true);
+                    }}
+                >
+                    <span>
+                        <ShieldCheck size={18} color="#7c3aed" />
+                    </span>
+                    <p>{t("header.two_factor_auth", "Two-Factor Auth (2FA)")}</p>
                 </div>
 
                 <div className="item hvr_zm_out" onClick={(e) => { e.stopPropagation(); setIsLangOpen(!isLangOpen); }}>
@@ -372,6 +388,12 @@ const Profile = () => {
                     <p>{t("header.sidebar_manager", "Sidebar Manager & Style")}</p>
                 </div>
             </div>
+
+            {/* 2FA Settings Modal */}
+            <TwoFactorModal
+                isOpen={isTwoFactorOpen}
+                onClose={() => setIsTwoFactorOpen(false)}
+            />
 
             {/* Logout */}
             <div className="logout hvr_zm_in" onClick={handleLogout} >

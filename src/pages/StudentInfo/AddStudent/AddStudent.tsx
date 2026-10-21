@@ -457,9 +457,13 @@ const AddStudent = () => {
             if (e.target.files) {
                 // file input
                 fieldValue = e.target.files[0]; // or full FileList if needed
+            } else if (fieldName?.includes("email")) {
+                fieldValue = e.target.value.toLowerCase().trim();
+            } else if (fieldName?.includes("phone") || fieldName?.includes("mobile") || e.target.type === "number") {
+                fieldValue = e.target.value;
             } else {
                 // normal input
-                fieldValue = e.target.value.toUpperCase();
+                fieldValue = typeof e.target.value === "string" ? e.target.value.toUpperCase() : e.target.value;
             }
 
             setFormData((prev) => ({
@@ -901,7 +905,7 @@ const AddStudent = () => {
                                 <div className="fields_wrapper" >
                                     <div className="body_section" >
                                         <InputField error={errors.father_name} name="father_name" type="text" label="Father Name" placeHolder="Enter father name" value={formData?.father_name} onChange={handleChange} />
-                                        <InputField error={errors.father_phone} name="father_phone" type="text" label="Father Phone Number" placeHolder="Enter phone number" value={formData?.father_phone} onChange={handleChange} />
+                                        <InputField error={errors.father_phone} name="father_phone" type="number" label="Father Phone Number" placeHolder="Enter phone number" value={formData?.father_phone} onChange={handleChange} />
                                     </div>
                                     <div className="body_section" >
                                         <InputFiles cropSize={{ width: 350, height: 450 }}
@@ -918,7 +922,7 @@ const AddStudent = () => {
                                 <div className="fields_wrapper" >
                                     <div className="body_section" >
                                         <InputField error={errors.mother_name} name="mother_name" type="text" label="Mother Name" placeHolder="Enter Mother name" value={formData?.mother_name} onChange={handleChange} />
-                                        <InputField error={errors.mother_phone} name="mother_phone" type="text" label="Mother Phone Number" placeHolder="Enter phone number" value={formData?.mother_phone} onChange={handleChange} />
+                                        <InputField error={errors.mother_phone} name="mother_phone" type="number" label="Mother Phone Number" placeHolder="Enter phone number" value={formData?.mother_phone} onChange={handleChange} />
                                     </div>
                                     <div className="body_section" >
                                         <InputFiles cropSize={{ width: 350, height: 450 }}
@@ -950,11 +954,11 @@ const AddStudent = () => {
                                     </div>
                                     <div className="body_section" >
                                         <InputField error={errors.guardian_name} name="guardian_name" value={relation === "father" ? formData?.father_name : relation === "mother" ? formData?.mother_name : formData?.guardian_name} onChange={handleChange} type="text" label={`${relation.charAt(0).toUpperCase() + relation.slice(1)} Name`} placeHolder={`Enter ${relation} name`} />
-                                        <InputField error={errors.guardian_phone} name="guardian_phone" value={relation === "father" ? formData?.father_phone : relation === "mother" ? formData?.mother_phone : formData?.guardian_phone} onChange={handleChange} type="text" label="Phone Number" placeHolder="Enter phone number" />
+                                        <InputField error={errors.guardian_phone} name="guardian_phone" value={relation === "father" ? formData?.father_phone : relation === "mother" ? formData?.mother_phone : formData?.guardian_phone} onChange={handleChange} type="number" label="Phone Number" placeHolder="Enter phone number" />
                                     </div>
                                     <div className="body_section" >
                                         <InputField error={errors.guardian_relation} name="guardian_relation" value={relation === "father" ? formData?.father_name : relation === "mother" ? formData?.mother_name : formData?.guardian_relation} onChange={handleChange} type="text" label="Relation With Guardian" placeHolder="Enter relation with guardian" />
-                                        <InputField error={errors.guardian_email} name="guardian_email" value={formData?.guardian_email} onChange={handleChange} type="text" label="Guardian Email" placeHolder="Enter guardian's email address" />
+                                        <InputField error={errors.guardian_email} name="guardian_email" value={formData?.guardian_email} onChange={handleChange} type="email" label="Guardian Email" placeHolder="Enter guardian's email address" />
                                     </div>
                                     <div className="body_section" >
                                         <InputField error={errors.guardian_address} name="guardian_address" value={formData?.guardian_address} onChange={handleChange} type="text" label="Guardian Address" placeHolder="Enter guardian's address" />

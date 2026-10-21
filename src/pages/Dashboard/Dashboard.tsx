@@ -57,7 +57,7 @@ const Dashboard = () => {
   return (
     <div className="page_wrapper">
       <div className="dashboard" >
-        <div className="school_details" >
+        <div className="school_details hvr_zm_in" >
           <p>Welcome</p>
           <h2>{data?.school_info?.school_name} <span className="pipe" >|</span> {data?.school_info?.suic_code} <span className="pipe" >|</span> {data?.school_info?.zone} <span className="pipe" >|</span> {data?.school_info?.category_of_institution}</h2>
           {/* <h2>School name, SUIC Code, Zone, Category of insitution</h2> */}
@@ -66,7 +66,7 @@ const Dashboard = () => {
 
         <div className="widgets">
           {/* {data?.summary?.map((item, i) => <div key={i} className="widget"> */}
-          {Object.entries(data?.summary ?? {})?.map(([key, value]) => <div key={key} className="widget">
+          {Object.entries(data?.summary ?? {})?.map(([key, value]) => <div key={key} className="widget hvr_zm_in">
             <div className="widget_head" >
               <div className="icon" >
                 <img src={`/widget/${key}.png`} alt="student" />
@@ -90,10 +90,10 @@ const Dashboard = () => {
               </div>
             </div>
 
-            <div className="widget_footer">
+            <div className="widget_footer" >
               <div className="status_message" >
-                <div className="status_point"></div>
-                <p>2 <span>pending fee payments</span></p>
+                {/* <div className="status_point"></div>
+                <p>2 <span>pending fee payments</span></p> */}
               </div>
               <PrimaryButton title={"View All"} onClick={() => {
                 if (key === "students") navigate("/student-info/student-list")

@@ -62,6 +62,8 @@ import { useFetchGeneralSettings } from './hooks/useGeneralSettings'
 import useSiteSettings from './hooks/useSiteSettings'
 import GeneralSettings from './pages/SettingsSection/GeneralSettings/GeneralSettings'
 import AdminProfile from './pages/Admin/AdminProfile'
+import ForgotPassword from './pages/Auth/ForgotPassword'
+import SidebarController from './pages/SidebarController/SidebarController'
 
 function App() {
   const { open, statusCode, message, hide } = useOverlayStore();
@@ -87,10 +89,15 @@ function App() {
           status={data.status}
           message={data.message}
         />
-      )} */}
+        )} */}
 
       <Toaster />
-      <Routes><Route path="/" element={<Login />} /></Routes>
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:email/:token" element={<ForgotPassword />} />
+      </Routes>
       <div style={{ display: "flex", position: "sticky", top: "0" }} >
         {/* <ProtectedRoute> */}
         <div><Sidebar /></div>
@@ -180,7 +187,10 @@ function App() {
 
               {/* 9. Admin Section */}
               <Route path='/admin-info/profile/:admin_id' element={<AdminProfile />} />
-              
+
+              {/* 10. Controls Section */}
+              <Route path='/sidebar-controls/sidebar' element={<SidebarController />} />
+
               {/* Error page */}
               <Route path='/error-page-404' element={<ErrorStatusOverlay isError={true} status={404} />} />
               <Route path='/error-page-500' element={<ErrorStatusOverlay isError={true} status={500} />} />

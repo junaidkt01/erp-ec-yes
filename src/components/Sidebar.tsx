@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { sidebar_menus } from "../utils";
+// import { sidebar_menus } from "../utils";
+import { useSidebarMenus, type SidebarMenuGroup } from "../hooks/useSidebarMenus";
 import { useQueryClient } from "@tanstack/react-query";
 import { GENERAL_SETTINGS_KEY, type GeneralSettings } from "../hooks/useGeneralSettings";
 import { useTranslation } from "../i18n/LanguageContext";
@@ -23,6 +24,11 @@ const Sidebar: React.FC = () => {
     const { t } = useTranslation();
     const { isMobileOpen, closeMobile } = useSidebarStore();
 
+    // Call custom hook for sidebar menus
+    const { data: dynamicMenus } = useSidebarMenus();
+    const menus: SidebarMenuGroup[] = dynamicMenus && dynamicMenus.length > 0 ? dynamicMenus : [];
+    console.log("menus: ", menus)
+
     const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
     const [activeSubMenu, setActiveSubMenu] = useState<string | null>(null);
 
@@ -34,20 +40,30 @@ const Sidebar: React.FC = () => {
         { label: string; path: string }[]
     >([]);
 
-    const getAllSearchableItems = () => {
+    const getAllSearchableItems = (currentMenus: SidebarMenuGroup[]) => {
         const items: { label: string; path: string; fullLabel: string }[] = [];
 
-        sidebar_menus.forEach(group => {
-            group.menus.forEach(menu => {
-
+        currentMenus.forEach(group => {
+            group.menus?.forEach(menu => {
                 // Sub menus
-                if (menu.sub_menus) {
+                if (menu.sub_menus && menu.sub_menus.length > 0) {
                     menu.sub_menus.forEach(sub => {
-                        items.push({
-                            label: sub,
-                            path: `${menu.path}/${slugify(sub)}`,
-                            fullLabel: `${menu.title} → ${sub}`
-                        });
+                        const subTitle = typeof sub === "string" ? sub : sub.title;
+                        const isActive = typeof sub === "string" ? true : sub.is_active !== false;
+
+                        if (isActive) {
+                            items.push({
+                                label: subTitle,
+                                path: `${menu.path}/${slugify(subTitle)}`,
+                                fullLabel: `${menu.title} → ${subTitle}`
+                            });
+                        }
+                    });
+                } else if (menu.path) {
+                    items.push({
+                        label: menu.title,
+                        path: menu.path,
+                        fullLabel: menu.title
                     });
                 }
             });
@@ -56,14 +72,13 @@ const Sidebar: React.FC = () => {
         return items;
     };
 
-
     useEffect(() => {
         if (!searchTerm) {
             setFilteredMenus([]);
             return;
         }
 
-        const all = getAllSearchableItems();
+        const all = getAllSearchableItems(menus);
 
         const matched = all.filter(item =>
             item.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -71,7 +86,7 @@ const Sidebar: React.FC = () => {
         );
 
         setFilteredMenus(matched);
-    }, [searchTerm, t]);
+    }, [searchTerm, t, menus]);
     //////////////////////////////////
 
     useEffect(() => {
@@ -82,20 +97,26 @@ const Sidebar: React.FC = () => {
         if (savedActive) setActiveSubMenu(savedActive);
 
         const path = location.pathname;
-        sidebar_menus.forEach(group => {
-            group.menus.forEach(menu => {
-                menu.sub_menus?.forEach((sub: string) => {
-                    const candidate = `${menu.path}/${slugify(sub)}`;
-                    if (candidate === path) {
-                        setActiveSubMenu(candidate);
-                        setExpandedMenu(menu.path);
-                        localStorage.setItem("sidebarSubActive", candidate);
-                        localStorage.setItem("sidebarExpanded", menu.path);
-                    }
-                });
+        menus.forEach(group => {
+            group.menus?.forEach(menu => {
+                if (menu.sub_menus && menu.sub_menus.length > 0) {
+                    menu.sub_menus.forEach((sub) => {
+                        const subTitle = typeof sub === "string" ? sub : sub.title;
+                        const candidate = `${menu.path}/${slugify(subTitle)}`;
+                        if (candidate === path) {
+                            setActiveSubMenu(candidate);
+                            setExpandedMenu(menu.path);
+                            localStorage.setItem("sidebarSubActive", candidate);
+                            localStorage.setItem("sidebarExpanded", menu.path);
+                        }
+                    });
+                } else if (menu.path === path) {
+                    setActiveSubMenu(menu.path);
+                    localStorage.setItem("sidebarSubActive", menu.path);
+                }
             });
         });
-    }, []);
+    }, [menus, location.pathname]);
 
     useEffect(() => {
         if (expandedMenu !== null) {
@@ -183,18 +204,28 @@ const Sidebar: React.FC = () => {
                         </button>
 
                         <div className="sidebar_menus">
-                            {sidebar_menus.map((group, i) => (
+                            {menus.map((group, i) => (
                                 <div key={i}>
                                     <p className="menus_title">{t(getNavKey(group.title), group.title)}</p>
 
-                                    {group.menus.map((menu, mIndex) => {
+                                    {group.menus?.map((menu, mIndex) => {
                                         const isMenuOpen = expandedMenu === menu.path;
                                         const isMenuActive = isSubPathActive(menu.path);
+                                        const activeSubMenus = menu.sub_menus?.filter(
+                                            sub => typeof sub === "string" || sub.is_active !== false
+                                        ) || [];
+                                        const hasSubMenus = activeSubMenus.length > 0;
 
                                         return (
                                             <div key={mIndex}>
                                                 <button
-                                                    onClick={() => toggleMenu(menu.path)}
+                                                    onClick={() => {
+                                                        if (hasSubMenus) {
+                                                            toggleMenu(menu.path);
+                                                        } else {
+                                                            handleSubNavigate(menu.path, "");
+                                                        }
+                                                    }}
                                                     className={`menu_button hvr_zm_out ${isMenuActive ? "active" : ""}`}
                                                 >
                                                     <div className="menu_button_icon_text">
@@ -202,34 +233,39 @@ const Sidebar: React.FC = () => {
                                                         <span>{t(getNavKey(menu.title), menu.title)}</span>
                                                     </div>
 
-                                                    <SvgIcon
-                                                        src="/sidebar_icons/down_arrow.svg"
-                                                        className={`sidebar-ico ${isMenuOpen ? "rotate" : ""}`}
-                                                    />
+                                                    {hasSubMenus && (
+                                                        <SvgIcon
+                                                            src="/sidebar_icons/down_arrow.svg"
+                                                            className={`sidebar-ico ${isMenuOpen ? "rotate" : ""}`}
+                                                        />
+                                                    )}
                                                 </button>
 
-                                                <div
-                                                    className={`submenu_wrapper ${isMenuOpen ? "open" : "closed"}`}
-                                                    aria-hidden={!isMenuOpen}
-                                                >
-                                                    {menu.sub_menus?.map((sub: string, sIndex: number) => {
-                                                        const finalPath = `${menu.path}/${slugify(sub)}`;
-                                                        const isSubActive = location.pathname === finalPath;
+                                                {hasSubMenus && (
+                                                    <div
+                                                        className={`submenu_wrapper ${isMenuOpen ? "open" : "closed"}`}
+                                                        aria-hidden={!isMenuOpen}
+                                                    >
+                                                        {activeSubMenus.map((sub, sIndex) => {
+                                                            const subTitle = typeof sub === "string" ? sub : sub.title;
+                                                            const finalPath = `${menu.path}/${slugify(subTitle)}`;
+                                                            const isSubActive = location.pathname === finalPath;
 
-                                                        return (
-                                                            <button
-                                                                key={sIndex}
-                                                                ref={(el: any) => (submenuRefs.current[finalPath] = el)}
-                                                                className={`sub_menu_button hvr_zm_out ${isSubActive ? "active" : ""}`}
-                                                                onClick={() => handleSubNavigate(menu.path, sub)}
-                                                            >
-                                                                <div className="menu_button_icon_text">
-                                                                    <span>{t(getNavKey(sub), sub)}</span>
-                                                                </div>
-                                                            </button>
-                                                        );
-                                                    })}
-                                                </div>
+                                                            return (
+                                                                <button
+                                                                    key={sIndex}
+                                                                    ref={(el: any) => (submenuRefs.current[finalPath] = el)}
+                                                                    className={`sub_menu_button hvr_zm_out ${isSubActive ? "active" : ""}`}
+                                                                    onClick={() => handleSubNavigate(menu.path, subTitle)}
+                                                                >
+                                                                    <div className="menu_button_icon_text">
+                                                                        <span>{t(getNavKey(subTitle), subTitle)}</span>
+                                                                    </div>
+                                                                </button>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                )}
                                             </div>
                                         );
                                     })}

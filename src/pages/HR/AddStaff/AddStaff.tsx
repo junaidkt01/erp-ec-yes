@@ -14,6 +14,8 @@ import LoadingOverlay from "../../../components/Loadingoverlay.tsx"
 import { toast } from "sonner"
 import StaffBulkUpload from "../../../components/BulkUpload/StaffBulkUpload.tsx"
 import { STAFF_CATEGORY_OPTIONS } from "../../../utils/studentOptions.ts"
+import { validate } from "../../../utils/validate.ts"
+import { staffDetailsSchema } from "../../../validations/staffSchema.ts"
 
 const AddStaff = () => {
     const { staff_id } = useParams();
@@ -21,6 +23,7 @@ const AddStaff = () => {
 
     const [selectedInputTitleTab, setSelectedInputTitleTab] = useState(addStaffsTabs[0]);
     const [readyToSubmit, setReadyToSubmit] = useState(false);
+    const [errors, setErrors] = useState<any>({});
 
     const handleSelecteInputTitleTab = (title: string) => {
         setSelectedInputTitleTab(title);
@@ -186,8 +189,7 @@ const AddStaff = () => {
         payload.append("date_of_joining", formatDateDisplay(formData?.date_of_joining));
         payload.append("marital_status", formData?.marital_status);
         payload.append("emergency_mobile", formData?.emergency_mobile);
-        payload.append("driving_license", formData?.driving_license);
-        payload.append("is_expert_staff", String(formData?.is_expert_staff));
+        payload.append("is_expert_staff", formData?.is_expert_staff ? "1" : "0");
         payload.append("current_address", formData?.current_address);
         payload.append("permanent_address", formData?.permanent_address);
         payload.append("qualifications", formData?.qualifications);
@@ -201,7 +203,9 @@ const AddStaff = () => {
         payload.append("bank_name", formData?.bank_name);
         payload.append("bank_branch_name", formData?.bank_branch_name);
         payload.append("epf_no", formData?.epf_no);
-        payload.append("basic_salary", String(formData?.basic_salary));
+        const salary = formData?.basic_salary as any;
+        const validSalary = salary !== null && salary !== undefined && salary !== "" && !isNaN(Number(salary));
+        payload.append("basic_salary", validSalary ? String(salary) : "0");
         payload.append("contract_type", formData?.contract_type);
         payload.append("location", formData?.location);
 
@@ -244,6 +248,11 @@ const AddStaff = () => {
         if (submit && readyToSubmit) {
             handleSubmit()
         } else if (submit) {
+            const { success, errors } = validate(staffDetailsSchema, formData);
+            if (!success) {
+                setErrors(errors);
+                return;
+            }
             setReadyToSubmit(true)
             setSelectedInputTitleTab(addStaffsTabs[0])
         } else {
@@ -361,6 +370,7 @@ const AddStaff = () => {
                                 </div>
 
                                 <div className="buttons">
+                                    <SecondaryButton title="Edit" onClick={() => setReadyToSubmit(false)} />
                                     <PrimaryButton title={isLoading ? "Submitting" : "Submit"} onClick={() => handleNextInputsTab(0, "submit")} />
                                 </div>
                             </div>
@@ -380,7 +390,7 @@ const AddStaff = () => {
                                     <div className="body_section" >
                                         <InputField type="text" label="Role" placeHolder="Enter role" name="role" value={formData?.role} onChange={handleChange} />
                                         <InputField type="text" label="Designation" placeHolder="Enter designation" name="designation" value={formData?.designation} onChange={handleChange} />
-                                        <InputField name="first_name" value={formData?.first_name} onChange={handleChange} type="text" label="First Name" placeHolder="Enter first name" />
+                                        <InputField error={errors.first_name} name="first_name" value={formData?.first_name} onChange={handleChange} type="text" label="First Name" placeHolder="Enter first name" />
                                     </div>
                                     <div className="body_section" >
                                         <InputField name="last_name" value={formData?.last_name} onChange={handleChange} type="text" label="Last Name" placeHolder="Enter last name" />
@@ -389,7 +399,7 @@ const AddStaff = () => {
                                     </div>
                                     <div className="body_section" >
                                         <InputField name="dob" type="date" label="Date of Birth" value={formData.dob} placeHolder="Select date" onChange={handleChange} />
-                                        <InputField name="email" value={formData?.email} onChange={handleChange} type="text" label="Email" placeHolder="Enter mail address" />
+                                        <InputField error={errors.email} name="email" value={formData?.email} onChange={handleChange} type="email" label="Email" placeHolder="Enter mail address" />
                                         <InputField name="date_of_joining" type="date" label="Date of Joining" value={formData.date_of_joining} placeHolder="Select date" onChange={handleChange} />
                                     </div>
                                 </div>
@@ -402,8 +412,8 @@ const AddStaff = () => {
                                         <InputFiles name="photo" title="Staff's Photo" onChange={handleChange} />
                                     </div>
                                     <div className="body_section" >
-                                        <InputField name="phone" value={formData?.phone} onChange={handleChange} type="text" label="Phone" placeHolder="Enter phone number" />
-                                        <InputField name="emergency_mobile" value={formData?.emergency_mobile} onChange={handleChange} type="text" label="Emergency Mobile" placeHolder="Enter emergency mobile" />
+                                        <InputField error={errors.phone} name="phone" value={formData?.phone} onChange={handleChange} type="number" label="Phone" placeHolder="Enter phone number" />
+                                        <InputField error={errors.emergency_mobile} name="emergency_mobile" value={formData?.emergency_mobile} onChange={handleChange} type="number" label="Emergency Mobile" placeHolder="Enter emergency mobile" />
                                     </div>
                                     <div className="body_section" >
                                         <CustomSelect value={formData?.gender} label="Gender" placeholder="Select gender" options={genderOptions} onChange={(value) => setFormData((prev: any) => ({ ...prev, gender: value }))} />
@@ -420,7 +430,7 @@ const AddStaff = () => {
                                         <InputField name="experience" value={formData?.experience} onChange={handleChange} type="text" label="Experience" placeHolder="Enter experience" />
                                     </div>
                                     <div className="body_section" >
-                                        <CustomSelect value={formData?.is_expert_staff} label="Expert Staff" placeholder="Select" options={expertStaffOptions} onChange={(value) => setFormData((prev: any) => ({ ...prev, is_expert_staff: value }))} />
+                                        <CustomSelect value={formData?.is_expert_staff ? "1" : "0"} label="Expert Staff" placeholder="Select" options={expertStaffOptions} onChange={(value) => setFormData((prev: any) => ({ ...prev, is_expert_staff: value === "1" }))} />
                                         {/* <InputField name="mother_phone" value={formData?.mother_phone} onChange={handleChange} type="text" label="Mother Phone" placeHolder="Enter mother phone" /> */}
                                     </div>
                                 </div>
@@ -440,7 +450,7 @@ const AddStaff = () => {
                                 <div className="fields_wrapper" >
                                     <div className="body_section" >
                                         <InputField name="epf_no" value={formData?.epf_no} onChange={handleChange} type="text" label="EPF No" placeHolder="Enter EPF number" />
-                                        <InputField name="basic_salary" value={formData?.basic_salary} onChange={handleChange} type="text" label="Basic Salary" placeHolder="Enter basic salary" />
+                                        <InputField name="basic_salary" value={formData?.basic_salary ?? ""} onChange={handleChange} type="number" label="Basic Salary" placeHolder="Enter basic salary" />
                                     </div>
                                     <div className="body_section" >
                                         <InputField name="contract_type" value={formData?.contract_type} onChange={handleChange} type="text" label="Contract Type" placeHolder="Enter contract type" />
