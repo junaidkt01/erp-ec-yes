@@ -137,12 +137,15 @@ export const dashboardEvents = { dashboard_events: "/events" };
 export const dashboardTodos = { dashboard_todos: "/todos" };
 
 export const sidebarMenus = {
+  menus: "/sidebar-menus",
   update: "/sidebar-menus",
   items: "/sidebar-menus/items",
+  subMenus: "/sidebar-sub-menus",
 };
 
 export const incident = {
   incidents: "/incidents",
+  studentIncidents: "/student-incidents",
 };
 
 export const incidents = incident;

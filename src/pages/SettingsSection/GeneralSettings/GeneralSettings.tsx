@@ -126,6 +126,10 @@ const GeneralSettings = () => {
                                     <div className="value">{data?.data?.school_name}</div>
                                 </div>
                                 <div className="detail-row" >
+                                    <div className="label">Category of Institution</div>
+                                    <div className="value">{data?.data?.category_of_institution}</div>
+                                </div>
+                                <div className="detail-row" >
                                     <div className="label">Zone</div>
                                     <div className="value">{data?.data?.zone}</div>
                                 </div>

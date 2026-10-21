@@ -33,21 +33,29 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     document.documentElement.dir = currentLanguage.dir;
   }, [currentLanguage]);
 
-  const t = (key: string, fallback?: string): string => {
-    const langDict = translations[language];
-    if (langDict && langDict[key]) {
-      return langDict[key];
-    }
-    // Fallback to English dictionary
-    const enDict = translations.en;
-    if (enDict && enDict[key]) {
-      return enDict[key];
-    }
-    return fallback || key;
-  };
+  const t = React.useCallback(
+    (key: string, fallback?: string): string => {
+      const langDict = translations[language];
+      if (langDict && langDict[key]) {
+        return langDict[key];
+      }
+      // Fallback to English dictionary
+      const enDict = translations.en;
+      if (enDict && enDict[key]) {
+        return enDict[key];
+      }
+      return fallback || key;
+    },
+    [language]
+  );
+
+  const contextValue = React.useMemo(
+    () => ({ language, setLanguage, currentLanguage, t }),
+    [language, currentLanguage, t]
+  );
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, currentLanguage, t }}>
+    <LanguageContext.Provider value={contextValue}>
       {children}
     </LanguageContext.Provider>
   );

@@ -7,6 +7,7 @@ import TableWrapper from "../../components/TableWrapper";
 import {
   useFetchRawSidebarMenus,
   useUpdateSidebarMenus,
+  parseIsActive,
   type RawSidebarMenuItem,
 } from "../../hooks/useSidebarMenus";
 import "./SidebarController.scss";
@@ -32,18 +33,20 @@ const SidebarController: React.FC = () => {
     if (rawMenus && Array.isArray(rawMenus)) {
       const normalized: RawSidebarMenuItem[] = rawMenus.map((item) => ({
         ...item,
-        is_active: item.is_active !== false,
+        id: item.id,
+        is_active: parseIsActive(item.is_active),
         sub_menus: Array.isArray(item.sub_menus)
           ? item.sub_menus.map((sub: any) => ({
+              id: sub.id,
               title: typeof sub === "string" ? sub : (sub.title || ""),
-              is_active: typeof sub === "string" ? true : sub.is_active !== false,
+              is_active: typeof sub === "string" ? true : parseIsActive(sub.is_active),
             }))
           : [],
       }));
 
       // Set state if first time or if not dirty
       setMenus(normalized);
-      setInitialMenus(normalized);
+      setInitialMenus(JSON.parse(JSON.stringify(normalized)));
     }
   }, [rawMenus]);
 
@@ -168,8 +171,16 @@ const SidebarController: React.FC = () => {
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
 
+    if (!isDirty) {
+      toast.info("No changes to save");
+      return;
+    }
+
     try {
-      await updateMutation.mutateAsync(menus);
+      await updateMutation.mutateAsync({
+        menus,
+        initialMenus,
+      });
       setInitialMenus(JSON.parse(JSON.stringify(menus)));
       toast.success("Sidebar settings updated successfully");
     } catch (err: any) {

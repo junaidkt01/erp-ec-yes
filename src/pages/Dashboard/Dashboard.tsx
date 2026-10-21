@@ -44,7 +44,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   const { data, error, isLoading, isError } = useDashboard();
-  console.log("data: ", data, error, isLoading, isError)
+  console.log("data: dash", data, error, isLoading, isError)
 
   if (isLoading) {
     return <LoadingOverlay isLoading />

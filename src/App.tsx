@@ -64,6 +64,7 @@ import GeneralSettings from './pages/SettingsSection/GeneralSettings/GeneralSett
 import AdminProfile from './pages/Admin/AdminProfile'
 import ForgotPassword from './pages/Auth/ForgotPassword'
 import SidebarController from './pages/SidebarController/SidebarController'
+import BehaviourReport from './pages/BehaviourRecords/BehaviourReport/BehaviourReport'
 
 function App() {
   const { open, statusCode, message, hide } = useOverlayStore();
@@ -176,8 +177,8 @@ function App() {
               {/* 7. Behaviour Records */}
               <Route path='/behaviour-records/incidents' element={<Incidents />} />
               <Route path='/behaviour-records/assign-incident' element={<AssignIncident />} />
-              <Route path='/behaviour-records/student-incident-report' element={<div>Student Incident Report</div>} />
-              <Route path='/behaviour-records/behaviour-report' element={<div>Behaviour Report</div>} />
+              <Route path='/behaviour-records/student-incident-report' element={<BehaviourReport />} />
+              <Route path='/behaviour-records/behaviour-report' element={<BehaviourReport />} />
               <Route path='/behaviour-records/incident-wise-report' element={<div>Incident Wise report</div>} />
               <Route path='/behaviour-records/settings' element={<div>Settings</div>} />
 

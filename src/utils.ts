@@ -1,4 +1,5 @@
 export interface SubMenuItem {
+  id?: number;
   title: string;
   is_active: boolean;
 }
@@ -29,6 +30,20 @@ export interface SidebarMenuGroup {
   menus: SidebarMenuItem[];
 }
 
+export const parseIsActive = (val: any): boolean => {
+  if (
+    val === false ||
+    val === 0 ||
+    val === "0" ||
+    val === "false" ||
+    val === null ||
+    val === undefined
+  ) {
+    return false;
+  }
+  return true;
+};
+
 /**
  * Converts flat backend menu items (with `section` field) into grouped SidebarMenuGroup[]
  */
@@ -49,7 +64,7 @@ export const formatSidebarMenus = (
 
   // Filter active and sort by order
   const activeItems = items
-    .filter((item) => item.is_active !== false)
+    .filter((item) => parseIsActive(item.is_active))
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
   const groupMap = new Map<string, SidebarMenuItem[]>();
@@ -68,8 +83,9 @@ export const formatSidebarMenus = (
 
     if (item.sub_menus && Array.isArray(item.sub_menus)) {
       menuItem.sub_menus = item.sub_menus.map((sub_menu: any) => ({
+        id: sub_menu.id,
         title: typeof sub_menu === "string" ? sub_menu : sub_menu.title,
-        is_active: typeof sub_menu === "string" ? true : sub_menu.is_active !== false,
+        is_active: typeof sub_menu === "string" ? true : parseIsActive(sub_menu.is_active),
       }));
     }
 

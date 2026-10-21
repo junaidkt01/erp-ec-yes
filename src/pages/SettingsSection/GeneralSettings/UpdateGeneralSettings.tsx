@@ -318,6 +318,8 @@ const UpdateGeneralSettings = () => {
                                     {/* <InputField error={errors.admission_no} type="text" label="SS Page" placeHolder="Enter admission number" name="admission_no" value={formData?.admission_no} onChange={handleChange} /> */}
                                 </div>
                                 <div className="body_section" >
+                                    <InputField error={errors.category_of_institution} type="text" label="Category of Institution" placeHolder="Enter Category of Institution" name="category_of_institution" value={formData?.category_of_institution} onChange={handleChange} />
+
                                     <CustomSelect error={errors.zone} value={formData?.zone} name="zone" label="zone" placeholder="Select Zone" options={SCHOOLS_ZONE || []} onChange={(value) => setFormData((prev: any) => ({ ...prev, zone: value }))} />
                                     <CustomSelect error={errors.state} value={formData?.state} name="state" label="State" placeholder="Select state" options={SCHOOLS_STATES || []} onChange={(value) => setFormData((prev: any) => ({ ...prev, state: value }))} />
                                     {/* <InputField error={errors.state} type="text" label="State" placeHolder="Enter State" name="state" value={formData?.state} onChange={handleChange} /> */}
@@ -326,7 +328,7 @@ const UpdateGeneralSettings = () => {
                                     <InputRadioButtons selectedValue={promotionWithoutExam || (data?.data?.promotion_without_exam || "")} name="promotion_without_exam" onChange={setPromotionWithoutExam} title="Promotion Without Exam" options={[{ label: "Enable", value: "Enable" }, { label: "Disable", value: "Disable" }]} />
                                 </div>
                                 <div className="body_section" >
-                                    <InputField error={errors.admission_no} type="text" label="School Address" placeHolder="Enter School Address" name="school_address" value={formData?.address} onChange={handleChange} />
+                                    <InputField error={errors.admission_no} type="text" label="School Address" placeHolder="Enter School Address" name="address" value={formData?.address} onChange={handleChange} />
                                 </div>
                                 <div className="body_section" >
                                     <InputField error={errors.admission_no} type="text" label="Copyright Text" placeHolder="Enter Copyright Text" name="copyright_text" value={formData?.copyright_text} onChange={handleChange} />

@@ -4,6 +4,7 @@ import { sidebarMenus } from "../api/endpoints";
 import {
   // sidebar_menus,
   formatSidebarMenus,
+  parseIsActive,
   type SidebarMenuGroup,
   type SidebarMenuItem,
   type SubMenuItem,
@@ -11,7 +12,7 @@ import {
 } from "../utils";
 
 export type { SidebarMenuGroup, SidebarMenuItem, SubMenuItem, RawSidebarMenuItem };
-export { formatSidebarMenus };
+export { formatSidebarMenus, parseIsActive };
 
 export const SIDEBAR_MENUS_KEY = ["sidebar-menus"];
 export const RAW_SIDEBAR_MENUS_KEY = ["raw-sidebar-menus"];
@@ -70,39 +71,157 @@ export const useFetchRawSidebarMenus = () => {
   });
 };
 
+export interface UpdateSidebarMenuPayload {
+  section?: string;
+  title?: string;
+  icon?: string;
+  path?: string;
+  order?: number;
+  is_active?: boolean;
+  sub_menus?: SubMenuItem[];
+}
+
+export interface UpdateSidebarMenusArgs {
+  menus: RawSidebarMenuItem[];
+  initialMenus?: RawSidebarMenuItem[];
+}
+
+export const updateSidebarMenuItem = async (
+  id: number,
+  payload: UpdateSidebarMenuPayload
+) => {
+  const res = await axiosInstance.put(
+    `${sidebarMenus.update}/${id}`,
+    payload
+  );
+  return res.data;
+};
+
+export const updateSubMenuStatus = async (
+  id: number,
+  is_active: boolean
+) => {
+  const res = await axiosInstance.patch(
+    `${sidebarMenus.subMenus}/${id}/status`,
+    { is_active }
+  );
+  return res.data;
+};
+
+export const useUpdateSingleSidebarMenu = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      ...payload
+    }: { id: number } & UpdateSidebarMenuPayload) => {
+      return await updateSidebarMenuItem(id, payload);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: SIDEBAR_MENUS_KEY });
+      queryClient.invalidateQueries({ queryKey: RAW_SIDEBAR_MENUS_KEY });
+    },
+  });
+};
+
 export const useUpdateSidebarMenus = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (payload: RawSidebarMenuItem[] | { items: RawSidebarMenuItem[] } | any) => {
-      try {
-        const res = await axiosInstance.post(sidebarMenus.update, payload);
-        console.log("put res: 01", res, payload, sidebarMenus)
-        return res.data;
-      } catch (err: any) {
-        if (err?.response?.status === 405 || err?.response?.status === 404) {
-          try {
-            const res = await axiosInstance.post(sidebarMenus.update, payload);
-            console.log("post res: 01", res, payload, sidebarMenus)
-            return res.data;
-          } catch (postErr: any) {
-            if (postErr?.response?.status === 422) {
-              const alt = Array.isArray(payload) ? { items: payload } : (payload.items || payload);
-              const altRes = await axiosInstance.post(sidebarMenus.items, alt);
-              return altRes.data;
-            }
-            throw postErr;
+    mutationFn: async (
+      payload: RawSidebarMenuItem | RawSidebarMenuItem[] | UpdateSidebarMenusArgs
+    ) => {
+      let itemsToUpdate: RawSidebarMenuItem[] = [];
+      const initialMap = new Map<number, RawSidebarMenuItem>();
+
+      if (Array.isArray(payload)) {
+        itemsToUpdate = payload;
+      } else if ("menus" in payload && Array.isArray(payload.menus)) {
+        itemsToUpdate = payload.menus;
+        if (payload.initialMenus && Array.isArray(payload.initialMenus)) {
+          payload.initialMenus.forEach((m) => {
+            if (m.id) initialMap.set(m.id, m);
+          });
+        }
+      } else {
+        itemsToUpdate = [payload as RawSidebarMenuItem];
+      }
+
+      // Collect parent menus that changed
+      const changedParents: RawSidebarMenuItem[] = [];
+      // Collect submenus that changed
+      const changedSubmenus: { id: number; is_active: boolean }[] = [];
+
+      for (const item of itemsToUpdate) {
+        if (!item.id) continue;
+        const initial = initialMap.get(item.id);
+
+        const parentChanged =
+          !initial ||
+          parseIsActive(item.is_active) !== parseIsActive(initial.is_active);
+
+        if (parentChanged) {
+          changedParents.push(item);
+        }
+
+        const currentSubs = item.sub_menus || [];
+        const initialSubs = initial?.sub_menus || [];
+
+        for (const sub of currentSubs) {
+          if (!sub.id) continue;
+          const initialSub = initialSubs.find(
+            (s) => s.id === sub.id || s.title === sub.title
+          );
+          const subChanged =
+            !initialSub ||
+            parseIsActive(sub.is_active) !== parseIsActive(initialSub.is_active);
+
+          if (subChanged) {
+            changedSubmenus.push({
+              id: sub.id,
+              is_active: parseIsActive(sub.is_active),
+            });
           }
         }
-        if (err?.response?.status === 422) {
-          const alt = Array.isArray(payload) ? { items: payload } : (payload.items || payload);
-          const altRes = await axiosInstance.post(sidebarMenus.update, alt);
-          console.log("alt: ",alt, altRes)
-          return altRes.data;
-        }
-        console.log("alt: error",err)
-        throw err;
       }
+
+      if (changedParents.length === 0 && changedSubmenus.length === 0) {
+        return [];
+      }
+
+      const results = [];
+
+      // 1. Update changed parent menus via PUT /api/sidebar-menus/{id}
+      for (const item of changedParents) {
+        if (!item.id) continue;
+
+        const updateData: UpdateSidebarMenuPayload = {
+          section: item.section,
+          title: item.title,
+          icon: item.icon,
+          path: item.path,
+          order: item.order,
+          is_active: parseIsActive(item.is_active),
+        };
+
+        const res = await axiosInstance.put(
+          `${sidebarMenus.update}/${item.id}`,
+          updateData
+        );
+        results.push(res.data);
+      }
+
+      // 2. Update changed submenus via PATCH /api/sidebar-sub-menus/{id}/status
+      for (const sub of changedSubmenus) {
+        const res = await axiosInstance.patch(
+          `${sidebarMenus.subMenus}/${sub.id}/status`,
+          { is_active: sub.is_active }
+        );
+        results.push(res.data);
+      }
+
+      return results;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: SIDEBAR_MENUS_KEY });

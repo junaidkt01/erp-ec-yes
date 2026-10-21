@@ -1,7 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 // import { sidebar_menus } from "../utils";
 import { useSidebarMenus, type SidebarMenuGroup } from "../hooks/useSidebarMenus";
+import { parseIsActive } from "../utils";
 import { useQueryClient } from "@tanstack/react-query";
 import { GENERAL_SETTINGS_KEY, type GeneralSettings } from "../hooks/useGeneralSettings";
 import { useTranslation } from "../i18n/LanguageContext";
@@ -24,10 +25,11 @@ const Sidebar: React.FC = () => {
     const { t } = useTranslation();
     const { isMobileOpen, closeMobile } = useSidebarStore();
 
+    const EMPTY_MENUS: SidebarMenuGroup[] = [];
+
     // Call custom hook for sidebar menus
     const { data: dynamicMenus } = useSidebarMenus();
-    const menus: SidebarMenuGroup[] = dynamicMenus && dynamicMenus.length > 0 ? dynamicMenus : [];
-    console.log("menus: ", menus)
+    const menus: SidebarMenuGroup[] = dynamicMenus && dynamicMenus.length > 0 ? dynamicMenus : EMPTY_MENUS;
 
     const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
     const [activeSubMenu, setActiveSubMenu] = useState<string | null>(null);
@@ -36,9 +38,6 @@ const Sidebar: React.FC = () => {
 
     //////////////////////////////////
     const [searchTerm, setSearchTerm] = useState("");
-    const [filteredMenus, setFilteredMenus] = useState<
-        { label: string; path: string }[]
-    >([]);
 
     const getAllSearchableItems = (currentMenus: SidebarMenuGroup[]) => {
         const items: { label: string; path: string; fullLabel: string }[] = [];
@@ -49,7 +48,7 @@ const Sidebar: React.FC = () => {
                 if (menu.sub_menus && menu.sub_menus.length > 0) {
                     menu.sub_menus.forEach(sub => {
                         const subTitle = typeof sub === "string" ? sub : sub.title;
-                        const isActive = typeof sub === "string" ? true : sub.is_active !== false;
+                        const isActive = typeof sub === "string" ? true : parseIsActive(sub.is_active);
 
                         if (isActive) {
                             items.push({
@@ -72,20 +71,18 @@ const Sidebar: React.FC = () => {
         return items;
     };
 
-    useEffect(() => {
-        if (!searchTerm) {
-            setFilteredMenus([]);
-            return;
+    const filteredMenus = useMemo(() => {
+        if (!searchTerm.trim()) {
+            return [];
         }
 
         const all = getAllSearchableItems(menus);
+        const q = searchTerm.toLowerCase();
 
-        const matched = all.filter(item =>
-            item.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            t(getNavKey(item.label), item.label).toLowerCase().includes(searchTerm.toLowerCase())
+        return all.filter(item =>
+            item.label.toLowerCase().includes(q) ||
+            t(getNavKey(item.label), item.label).toLowerCase().includes(q)
         );
-
-        setFilteredMenus(matched);
     }, [searchTerm, t, menus]);
     //////////////////////////////////
 
@@ -212,7 +209,7 @@ const Sidebar: React.FC = () => {
                                         const isMenuOpen = expandedMenu === menu.path;
                                         const isMenuActive = isSubPathActive(menu.path);
                                         const activeSubMenus = menu.sub_menus?.filter(
-                                            sub => typeof sub === "string" || sub.is_active !== false
+                                            sub => typeof sub === "string" || parseIsActive(sub.is_active)
                                         ) || [];
                                         const hasSubMenus = activeSubMenus.length > 0;
 
