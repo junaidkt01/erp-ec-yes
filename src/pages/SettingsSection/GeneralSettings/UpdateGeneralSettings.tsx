@@ -213,6 +213,7 @@ const UpdateGeneralSettings = () => {
         const payload: Record<string, any> = {
             school_name: formData?.school_name,
             site_title: formData?.site_title,
+            category_of_institution: formData?.category_of_institution,
             address: formData?.address,
             phone: formData?.phone,
             email: formData?.email,

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
 import "./BulkUpload.scss";
 import { PrimaryButton, SecondaryButton } from "../Buttons/Buttons";
 import InputFiles from "../InputFields/InputFiles";
@@ -123,8 +123,7 @@ const StaffBulkUpload = ({ onClick }: { onClick: () => void }) => {
 
     const { mutate: bulkAddStaff, isPending } = useBulkAddStaff();
 
-    const handleDownloadSampleExcel = () => {
-        const headers = systemFields;
+    const handleDownloadSampleExcel = async () => {
         const sampleRow: Record<string, string> = {
             // sl: "1",
             staff_code: "STF001",
@@ -149,13 +148,30 @@ const StaffBulkUpload = ({ onClick }: { onClick: () => void }) => {
             location: "Main Campus",
         };
 
-        const worksheet = XLSX.utils.json_to_sheet([sampleRow], { header: headers });
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Staff_Template");
-        XLSX.writeFile(workbook, "Sample_Staff_Import_Template.xlsx");
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet("Staff_Template");
+
+        worksheet.columns = systemFields.map((field) => ({
+            header: field,
+            key: field,
+            width: 20,
+        }));
+
+        worksheet.addRow(sampleRow);
+
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "Sample_Staff_Import_Template.xlsx";
+        a.click();
+        window.URL.revokeObjectURL(url);
     };
 
-    const handleFile = (file: File) => {
+    const handleFile = async (file: File) => {
         if (!file) return;
 
         const allowedTypes = [
@@ -174,39 +190,91 @@ const StaffBulkUpload = ({ onClick }: { onClick: () => void }) => {
         }
 
         setUploadedFileName(file.name);
-        const reader = new FileReader();
 
-        reader.onload = (e: ProgressEvent<FileReader>) => {
-            try {
-                const data = new Uint8Array(e.target?.result as ArrayBuffer);
-                const wb = XLSX.read(data, { type: "array" });
-                const sheet = wb.Sheets[wb.SheetNames[0]];
-                const json: any[] = XLSX.utils.sheet_to_json(sheet);
+        try {
+            const arrayBuffer = await file.arrayBuffer();
+            const workbook = new ExcelJS.Workbook();
+            await workbook.xlsx.load(arrayBuffer);
 
-                if (!json.length) {
-                    toast.error("The uploaded Excel file contains no data.");
-                    return;
-                }
-
-                const hdrs = Object.keys(json[0]);
-
-                setHeaders(hdrs);
-                setRawData(json);
-
-                const auto = smartAutoMap(hdrs, systemFields);
-                setMapping(auto);
-                toast.success(`Loaded ${json.length} records from ${file.name}`);
-            } catch (err) {
-                console.error("Error reading Excel file:", err);
-                toast.error("Failed to parse the Excel file.");
+            const worksheet = workbook.worksheets[0];
+            if (!worksheet) {
+                toast.error("The uploaded Excel file contains no worksheets.");
+                return;
             }
-        };
 
-        reader.readAsArrayBuffer(file);
+            const headerRow = worksheet.getRow(1);
+            const colHeaders: { [colNumber: number]: string } = {};
+            const hdrs: string[] = [];
+
+            headerRow.eachCell((cell, colNumber) => {
+                const val = cell.value ? String(cell.value).trim() : "";
+                if (val) {
+                    colHeaders[colNumber] = val;
+                    hdrs.push(val);
+                }
+            });
+
+            if (!hdrs.length) {
+                toast.error("The uploaded Excel file contains no headers.");
+                return;
+            }
+
+            const json: any[] = [];
+            worksheet.eachRow((row, rowNumber) => {
+                if (rowNumber === 1) return;
+
+                const rowData: Record<string, any> = {};
+                let hasValue = false;
+
+                Object.entries(colHeaders).forEach(([colStr, header]) => {
+                    const colNumber = Number(colStr);
+                    const cell = row.getCell(colNumber);
+                    let val = cell.value;
+
+                    if (val !== null && val !== undefined) {
+                        if (typeof val === "object") {
+                            if (val instanceof Date) {
+                                // keep Date
+                            } else if ("result" in (val as any) && (val as any).result !== undefined) {
+                                val = (val as any).result;
+                            } else if ("text" in (val as any) && (val as any).text !== undefined) {
+                                val = (val as any).text;
+                            } else if ("richText" in (val as any) && Array.isArray((val as any).richText)) {
+                                val = (val as any).richText.map((rt: any) => rt.text).join("");
+                            }
+                        }
+                        rowData[header] = val;
+                        hasValue = true;
+                    }
+                });
+
+                if (hasValue) {
+                    json.push(rowData);
+                }
+            });
+
+            if (!json.length) {
+                toast.error("The uploaded Excel file contains no data.");
+                return;
+            }
+
+            setHeaders(hdrs);
+            setRawData(json);
+
+            const auto = smartAutoMap(hdrs, systemFields);
+            setMapping(auto);
+            toast.success(`Loaded ${json.length} records from ${file.name}`);
+        } catch (err) {
+            console.error("Error reading Excel file:", err);
+            toast.error("Failed to parse the Excel file.");
+        }
     };
 
     const excelDate = (val: any) => {
         if (!val) return "";
+        if (val instanceof Date) {
+            return val.toISOString().split("T")[0];
+        }
         if (typeof val === "string") return val;
         if (typeof val === "number") {
             return new Date((val - 25569) * 86400 * 1000)

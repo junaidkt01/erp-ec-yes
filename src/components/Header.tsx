@@ -330,7 +330,7 @@ const Profile = () => {
 
             {/* Menu */}
             <div className="menu">
-                <div className="item hvr_zm_out">
+                <div className="item hvr_zm_out" >
                     <span>
                         <img src="/header_icons/change_password.svg" alt="" />
                     </span>

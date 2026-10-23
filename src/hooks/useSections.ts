@@ -1,114 +1,138 @@
-//useSections.ts//
+// src/hooks/useSections.ts
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "../api/axiosInstance";
 import type { ClassItem } from "./useStudentClass";
 import { section } from "../api/endpoints";
 
+export const SECTIONS_KEY = ["sections"];
 
-
-const SECTIONS_KEY = ["sections"]; 
-
-
-
-// Fetch All Sections
+// Section Interface
 export interface SectionItem {
   id: number;
-  class_id: string;
+  class_id?: number | string | null;
   name: string;
+  created_at?: string;
+  updated_at?: string;
+  deleted_at?: string | null;
   class?: ClassItem;
+  [key: string]: any;
 }
 
-interface SectionsResponse {
+export interface SectionsResponse {
+  success?: boolean;
   data: SectionItem[];
+  message?: string;
 }
 
-export const useFetchAllSections = () => {
-  return useQuery<SectionItem[]>({
-    queryKey: SECTIONS_KEY,
+// Fetch All Sections
+export const useFetchAllSections = (page?: number, search?: string) => {
+  return useQuery<any>({
+    queryKey: [...SECTIONS_KEY, page, search],
     queryFn: async () => {
-      const res = await axiosInstance.get<SectionsResponse>(
+      const params: any = {};
+      if (page) params.page = page;
+      if (search) params.search = search;
+
+      const res = await axiosInstance.get(
         `${section.sections}`,
+        {
+          params: Object.keys(params).length ? params : undefined,
+        }
       );
-      return res.data.data;
+      // Return res.data.data if present (standard Laravel resource response), else res.data
+      return res.data?.data ?? res.data;
     },
   });
 };
 
-// Add Section  api
-
-interface CreateSectionPayload {
+// Add Section Payload & Hook
+export interface CreateSectionPayload {
   name: string;
-  class_id: number | string;
+  class_id?: number | string | null;
 }
 
 export const useAddSection = () => {
-const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (payload: CreateSectionPayload) => {
       const res = await axiosInstance.post(
         `${section.sections}`,
-        payload,
+        payload
       );
-      res.data;
+      return res.data;
     },
-
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: SECTIONS_KEY,
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["student-classes"],
       });
     },
   });
 };
 
-//update Section api
-
+// Update Section Payload & Hook
 export interface UpdateSectionPayload {
-  id: number;
+  id: number | string;
   name: string;
-class_id: number | string;
+  class_id?: number | string | null;
 }
 
 export const useUpdateSection = () => {
+  const queryClient = useQueryClient();
 
-    const queryClient = useQueryClient(); //for update and add
   return useMutation({
     mutationFn: async (updatePayload: UpdateSectionPayload) => {
       const { id, ...updatedData } = updatePayload;
 
-      const res = await axiosInstance.put(
-        `${section.sections}/${id}`,
-        updatedData,
-      );
-
-      return res.data;
+      try {
+        const res = await axiosInstance.put(
+          `${section.sections}/${id}`,
+          updatedData
+        );
+        return res.data;
+      } catch (err: any) {
+        if (err?.response?.status === 405) {
+          const res = await axiosInstance.post(
+            `${section.sections}/${id}`,
+            updatedData
+          );
+          return res.data;
+        }
+        throw err;
+      }
     },
-
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: SECTIONS_KEY,
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["student-classes"],
       });
     },
   });
 };
 
-//remove class api
+// Remove Section Hook
 export const useRemoveSection = () => {
+  const queryClient = useQueryClient();
 
-    const queryClient = useQueryClient(); 
   return useMutation({
-    mutationFn: async (id: number) => {
+    mutationFn: async (id: number | string) => {
       const res = await axiosInstance.delete(
-        `${section.sections}/${id}`,
+        `${section.sections}/${id}`
       );
-
       return res.data;
     },
-
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: SECTIONS_KEY,
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["student-classes"],
       });
     },
   });

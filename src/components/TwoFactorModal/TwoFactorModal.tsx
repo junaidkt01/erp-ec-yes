@@ -33,6 +33,7 @@ export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
 }) => {
   const queryClient = useQueryClient();
   const { data: authData } = useAuth();
+  console.log("auth data: ", authData.user)
 
   const isEnabled = Boolean(
     authData?.user?.two_factor_confirmed_at || authData?.user?.two_factor_enabled
