@@ -8,8 +8,6 @@ import {
   User,
   AlignLeft,
   ExternalLink,
-  Edit2,
-  Trash2,
 } from "lucide-react";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import "./BigCalendar.scss";
@@ -301,7 +299,7 @@ const BigCalendar: React.FC = () => {
                   value={formData.role}
                   options={roleOptions}
                   onChange={(val) => {
-                    setFormData((prev) => ({ ...prev, role: val }));
+                    setFormData((prev: any) => ({ ...prev, role: val }));
                     if (errors.role) setErrors((prev) => ({ ...prev, role: "" }));
                   }}
                 />
@@ -400,9 +398,9 @@ const BigCalendar: React.FC = () => {
                   editingEvent
                     ? handleCloseFormModal
                     : () => {
-                        setFormData(initialFormState);
-                        setErrors({});
-                      }
+                      setFormData(initialFormState);
+                      setErrors({});
+                    }
                 }
               />
               <PrimaryButton
@@ -580,4 +578,4 @@ const BigCalendar: React.FC = () => {
   );
 };
 
-export default BigCalendar;
+export default BigCalendar;
