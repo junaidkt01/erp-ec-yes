@@ -106,6 +106,8 @@ export const studentMultiClass = { student_multi_classes: "/student-multi-classe
 
 export const subject = { subjects: "/subjects" };
 
+export const role = { roles: "/roles" };
+
 export const user = { users: "/users" };
 
 export const video = { videos: "/videos" };
@@ -133,6 +135,7 @@ export const timeTable = { time_able: "/timeTables" };
 export const dashboard = { dashboard: "/dashboard" };
 
 export const dashboardEvents = { dashboard_events: "/events" };
+export const events = { events: "/events" };
 
 export const dashboardTodos = { dashboard_todos: "/todos" };
 

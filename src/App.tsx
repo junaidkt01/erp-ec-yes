@@ -190,7 +190,7 @@ function App() {
               <Route path='/admin-info/profile/:admin_id' element={<AdminProfile />} />
 
               {/* 10. Controls Section */}
-              <Route path='/sidebar-controls/sidebar' element={<SidebarController />} />
+              <Route path='/sidebar' element={<SidebarController />} />
 
               {/* Error page */}
               <Route path='/error-page-404' element={<ErrorStatusOverlay isError={true} status={404} />} />

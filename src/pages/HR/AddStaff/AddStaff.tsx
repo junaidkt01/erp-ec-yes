@@ -16,10 +16,12 @@ import StaffBulkUpload from "../../../components/BulkUpload/StaffBulkUpload.tsx"
 import { STAFF_CATEGORY_OPTIONS } from "../../../utils/studentOptions.ts"
 import { validate } from "../../../utils/validate.ts"
 import { staffDetailsSchema } from "../../../validations/staffSchema.ts"
+import { useRoleOptions } from "../../../hooks/useRoles.ts"
 
 const AddStaff = () => {
     const { staff_id } = useParams();
     const { data: staff, isLoading: staffLoading } = useFetchOneStaff(staff_id || "")
+    const { options: roleOptions } = useRoleOptions();
 
     const [selectedInputTitleTab, setSelectedInputTitleTab] = useState(addStaffsTabs[0]);
     const [readyToSubmit, setReadyToSubmit] = useState(false);
@@ -388,7 +390,7 @@ const AddStaff = () => {
                                         <CustomSelect value={formData?.category} label="Category" placeholder="Select category" options={STAFF_CATEGORY_OPTIONS} onChange={(val) => setFormData((prev: any) => ({ ...prev, category: val }))} />
                                     </div>
                                     <div className="body_section" >
-                                        <InputField type="text" label="Role" placeHolder="Enter role" name="role" value={formData?.role} onChange={handleChange} />
+                                        <CustomSelect value={formData?.role} label="Role" placeholder="Select role" options={roleOptions} onChange={(val) => setFormData((prev: any) => ({ ...prev, role: val }))} />
                                         <InputField type="text" label="Designation" placeHolder="Enter designation" name="designation" value={formData?.designation} onChange={handleChange} />
                                         <InputField error={errors.first_name} name="first_name" value={formData?.first_name} onChange={handleChange} type="text" label="First Name" placeHolder="Enter first name" />
                                     </div>

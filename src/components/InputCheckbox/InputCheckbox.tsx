@@ -7,18 +7,10 @@ type InputCheckboxProps = {
   label?: string;
 };
 
-const InputCheckbox: React.FC<InputCheckboxProps> = ({
-  checked,
-  onChange,
-  label,
-}) => {
+const InputCheckbox: React.FC<InputCheckboxProps> = ({ checked, onChange, label }) => {
   return (
-    <label className="checkbox_item">
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={onChange}
-      />
+    <label className="checkbox_item" htmlFor={label} >                                                                                                           
+      <input type="checkbox" checked={checked} onChange={onChange} id={label} />
       <span className="custom_checkbox" />
       {label && label}
     </label>

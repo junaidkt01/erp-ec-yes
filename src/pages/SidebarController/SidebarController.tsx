@@ -324,7 +324,7 @@ const SidebarController: React.FC = () => {
                             key={menu.id ?? menu.title}
                           >
                             {/* TITLE NAME BY DYNAMIC */}
-                            <p className="search_screen_title menu_title_item">
+                            <p className="search_screen_title menu_title_item checkbox_group">
                               <InputCheckbox
                                 checked={!!menu.is_active}
                                 onChange={() => handleToggleMenu(originalIndex)}
@@ -334,7 +334,8 @@ const SidebarController: React.FC = () => {
 
                             {/* SUB MENUS NAME BY DYNAMIC */}
                             {menu.sub_menus && menu.sub_menus.length > 0 && (
-                              <div className="body_section submenu_checkbox_group">
+                              // <div className="body_section submenu_checkbox_group">
+                              <div className="body_section submenu_checkbox_group checkbox_group">
                                 {menu.sub_menus.map((sub, subIndex) => (
                                   <div
                                     key={sub.title || subIndex}

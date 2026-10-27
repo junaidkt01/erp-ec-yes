@@ -1,50 +1,56 @@
-//useSubject.ts//
+// src/hooks/useSubject.ts
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "../api/axiosInstance";
 import { subject } from "../api/endpoints";
 
-
-const SUBJECT_KEY  = ["subjects"]; 
+export const SUBJECT_KEY = ["subjects"];
 
 export interface Subject {
   id: number;
   name: string;
   code: string;
   type: string;
-};
+  created_at?: string;
+  updated_at?: string;
+  deleted_at?: string | null;
+}
 
-interface SubjectResponse {
-      data: Subject[];
+export interface SubjectsResponse {
+  success?: boolean;
+  data: Subject[];
+  message?: string;
 }
 
 // Fetch All Subjects
-
-export const useFetchAllSubjects = () => {
-  return useQuery<Subject[]>({
-    queryKey: SUBJECT_KEY,
+export const useFetchAllSubjects = (page?: number, search?: string) => {
+  return useQuery<any>({
+    queryKey: [...SUBJECT_KEY, page, search],
     queryFn: async () => {
-      const res = await axiosInstance.get<SubjectResponse>(`${subject.subjects}`,
+      const params: any = {};
+      if (page) params.page = page;
+      if (search) params.search = search;
+
+      const res = await axiosInstance.get(
+        `${subject.subjects}`,
+        {
+          params: Object.keys(params).length ? params : undefined,
+        }
       );
-      return res.data.data;
+      return res.data?.data ?? res.data;
     },
   });
 };
 
-
-
-
-
 // Add Subject api
-
-interface CreateSubjectPayload {
+export interface CreateSubjectPayload {
   name: string;
-  code: string;
+  code?: string;
   type: string;
 }
 
-export const useAddSubject  = () => {
-const queryClient = useQueryClient();
+export const useAddSubject = () => {
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (payload: CreateSubjectPayload) => {
@@ -52,7 +58,7 @@ const queryClient = useQueryClient();
         `${subject.subjects}`,
         payload,
       );
-      res.data;
+      return res.data;
     },
 
     onSuccess: () => {
@@ -63,18 +69,16 @@ const queryClient = useQueryClient();
   });
 };
 
-//update Subject api
-
-export interface UpdateSubjectPayload  {
+// Update Subject api
+export interface UpdateSubjectPayload {
   id: number;
   name?: string;
   code?: string;
   type?: string;
 }
 
-export const useUpdateSubject  = () => {
-
-    const queryClient = useQueryClient(); //for update and add
+export const useUpdateSubject = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (updatePayload: UpdateSubjectPayload) => {
       const { id, ...updatedData } = updatePayload;
@@ -95,10 +99,9 @@ export const useUpdateSubject  = () => {
   });
 };
 
-//remove Subject api
-export const useRemoveSubject  = () => {
-
-    const queryClient = useQueryClient(); 
+// Remove Subject api
+export const useRemoveSubject = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: number) => {
       const res = await axiosInstance.delete(
@@ -115,5 +118,6 @@ export const useRemoveSubject  = () => {
     },
   });
 };
+
 
 
