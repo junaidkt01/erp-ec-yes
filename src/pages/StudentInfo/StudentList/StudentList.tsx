@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { PrimaryButton, SecondaryButton } from "../../../components/Buttons/Buttons"
 import { InputField } from "../../../components/InputFields/InputFields"
 import PopupScreen from "../../../components/PopupScreen/PopupScreen"
@@ -214,11 +214,17 @@ const StudentList = () => {
     }));
 
     const { data: sections } = useFetchAllSections();
-    const sectionOptions = sections?.map((cls: any) => ({
-        label: cls.name,
-        value: cls.id,
-    }));
-    console.log("sectionOptions: ", sectionOptions)
+    const sectionOptions = useMemo(() => {
+        if (!filterData?.class_id) return [];
+        return (
+            sections
+                ?.filter((sec: any) => String(sec.class_id) === String(filterData.class_id))
+                ?.map((sec: any) => ({
+                    label: sec.name,
+                    value: sec.id,
+                })) || []
+        );
+    }, [sections, filterData?.class_id]);
 
     ///////////////////////////
 
@@ -266,8 +272,8 @@ const StudentList = () => {
                             <div className="fields_wrapper" >
                                 <div className="body_section" >
                                     <CustomSelect value={filterData?.academic_year_id} name="academic_year_id" label="Academic year" placeholder="Select year" options={formattedData || []} onChange={(value) => setFilterData((prev: any) => ({ ...prev, academic_year_id: value }))} />
-                                    <CustomSelect value={filterData?.class_id} label="Class" placeholder="Select class" options={classOptions || []} onChange={(value) => setFilterData((prev: any) => ({ ...prev, class_id: value }))} />
-                                    <CustomSelect value={filterData?.section_id} name="section_id" label="Section" placeholder="Select section" options={sectionOptions || []} onChange={(value) => setFilterData((prev: any) => ({ ...prev, section_id: value }))} />
+                                    <CustomSelect value={filterData?.class_id} label="Class" placeholder="Select class" options={classOptions || []} onChange={(value) => setFilterData((prev: any) => ({ ...prev, class_id: value, section_id: "" }))} />
+                                    <CustomSelect value={filterData?.section_id} name="section_id" label="Section" placeholder={filterData?.class_id ? "Select section" : "Select a class first"} options={sectionOptions || []} onChange={(value) => setFilterData((prev: any) => ({ ...prev, section_id: value }))} />
                                 </div>
                                 <div className="body_section" >
                                     <InputField name="name" value={filterData?.name} onChange={(e) => setFilterData((prev: any) => ({ ...prev, name: e.target.value }))} type="text" label="Search by Name" placeHolder="Enter name" />

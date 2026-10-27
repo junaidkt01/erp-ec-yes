@@ -143,3 +143,91 @@ export const useRemoveSection = () => {
         },
     });
 };
+
+// Monthly Attendance Report (Tab & Matrix Grid)
+export interface MonthlyAttendanceFilterParams {
+    student_id?: number | string;
+    class_id?: number | string;
+    section_id?: number | string;
+    month?: number | string;
+    year?: number | string;
+}
+
+export interface DayHeaderItem {
+    day?: number | string;
+    day_name?: string;
+    weekday?: string;
+    date?: string;
+    is_weekend?: boolean;
+    [key: string]: any;
+}
+
+export interface MonthlyAttendanceStudentRow {
+    id?: number | string;
+    student_id?: number | string;
+    name?: string;
+    full_name?: string;
+    admission_no?: string | number;
+    roll_no?: string | number;
+    P?: number;
+    L?: number;
+    A?: number;
+    F?: number;
+    H?: number;
+    Le?: number;
+    percentage?: string | number;
+    percent?: string | number;
+    attendance?: Record<string, string>;
+    days?: Record<string, string>;
+    [key: string]: any;
+}
+
+export interface MonthlyAttendanceReportResponse {
+    success: boolean;
+    title?: string;
+    summary?: {
+        P?: number;
+        L?: number;
+        A?: number;
+        F?: number;
+        H?: number;
+        Le?: number;
+        [key: string]: any;
+    };
+    legend?: Record<string, string>;
+    days_header?: DayHeaderItem[];
+    data?: MonthlyAttendanceStudentRow[];
+}
+
+export const useFetchMonthlyStudentAttendanceReport = (params?: MonthlyAttendanceFilterParams) => {
+    return useQuery<MonthlyAttendanceReportResponse>({
+        queryKey: ["monthly-student-attendance-report", params],
+        queryFn: async () => {
+            const queryParams: Record<string, any> = {};
+
+            if (params?.student_id !== undefined && params.student_id !== "") {
+                queryParams.student_id = params.student_id;
+            }
+            if (params?.class_id !== undefined && params.class_id !== "") {
+                queryParams.class_id = params.class_id;
+            }
+            if (params?.section_id !== undefined && params.section_id !== "") {
+                queryParams.section_id = params.section_id;
+            }
+            if (params?.month !== undefined && params.month !== "") {
+                queryParams.month = params.month;
+            }
+            if (params?.year !== undefined && params.year !== "") {
+                queryParams.year = params.year;
+            }
+
+            const res = await axiosInstance.get<MonthlyAttendanceReportResponse>(
+                `${studentAttendance.student_attendances}/monthly-report`,
+                { params: queryParams }
+            );
+
+            return res.data;
+        },
+        enabled: Boolean(params?.student_id || params?.class_id),
+    });
+};

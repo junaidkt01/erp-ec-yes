@@ -298,7 +298,7 @@ const StaffBulkUpload = ({ onClick }: { onClick: () => void }) => {
 
             return {
                 _index: i,
-                // sl: i + 1,
+                _isDuplicate: false,
 
                 staff_code: String(get("staff_code") ?? `STF${i + 1}`),
                 full_name: get("full_name") || `Staff`,
@@ -326,8 +326,53 @@ const StaffBulkUpload = ({ onClick }: { onClick: () => void }) => {
             };
         });
 
-        setFinalData(mapped);
-        setSelectedRows(mapped.map((_, i) => i));
+        // ── Duplicate detection within the uploaded Excel ─────────────────
+        const dupFields: { key: keyof typeof mapped[0]; label: string }[] = [
+            { key: "email", label: "Email" },
+            { key: "phone", label: "Phone" },
+            { key: "staff_code", label: "Staff Code" },
+        ];
+
+        const duplicateIndexes = new Set<number>();
+
+        dupFields.forEach(({ key, label }) => {
+            const seen = new Map<string, number>();
+            mapped.forEach((row, idx) => {
+                const val = String(row[key] ?? "").trim();
+                if (!val) return;
+                if (seen.has(val)) {
+                    duplicateIndexes.add(seen.get(val)!);
+                    duplicateIndexes.add(idx);
+
+                    const firstName = mapped[seen.get(val)!].full_name;
+                    const dupName = row.full_name;
+                    toast.warning(
+                        `Duplicate ${label}: "${val}" found for "${firstName}" (row ${seen.get(val)! + 2}) and "${dupName}" (row ${idx + 2}). Duplicate rows are deselected.`,
+                        { duration: 8000 }
+                    );
+                } else {
+                    seen.set(val, idx);
+                }
+            });
+        });
+
+        const finalMapped = mapped.map((row) =>
+            duplicateIndexes.has(row._index) ? { ...row, _isDuplicate: true } : row
+        );
+
+        setFinalData(finalMapped);
+        setSelectedRows(
+            finalMapped
+                .filter((r) => !r._isDuplicate)
+                .map((r) => r._index)
+        );
+
+        if (duplicateIndexes.size > 0) {
+            toast.info(
+                `${duplicateIndexes.size} duplicate row(s) were found and deselected. Review them before importing.`,
+                { duration: 6000 }
+            );
+        }
     };
 
     const handleStep1Next = () => {
@@ -535,6 +580,19 @@ const StaffBulkUpload = ({ onClick }: { onClick: () => void }) => {
                                             return [...prev, row._index];
                                         })}
                                     />
+                                    {row._isDuplicate && (
+                                        <span style={{
+                                            fontSize: "10px",
+                                            background: "#fee2e2",
+                                            color: "#dc2626",
+                                            borderRadius: "4px",
+                                            padding: "2px 6px",
+                                            fontWeight: 600,
+                                            whiteSpace: "nowrap",
+                                        }}>
+                                            DUPLICATE
+                                        </span>
+                                    )}
                                 </div>
                             )}
                         />

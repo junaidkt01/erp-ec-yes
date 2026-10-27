@@ -1,0 +1,295 @@
+.student_attendance_report {
+  width: 100%;
+  padding: 20px 0;
+
+  .table_canvas {
+    background-color: #ffffff;
+    border: 0.5px solid #bdbcdb;
+    border-radius: 12px;
+    overflow: hidden;
+
+    .table_header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding: 20px 24px;
+      border-bottom: 0.5px solid #bdbcdb;
+
+      .table_title {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        flex-wrap: wrap;
+
+        p {
+          font-weight: 600;
+          font-size: 18px;
+          line-height: 120%;
+          color: #222533;
+          margin: 0;
+        }
+
+        .summary_badges {
+          display: inline-flex;
+          align-items: center;
+          gap: 10px;
+          font-size: 14px;
+          font-weight: 600;
+
+          .stat {
+            &.p { color: #16a34a; }
+            &.l { color: #d97706; }
+            &.a { color: #dc2626; }
+            &.f { color: #0284c7; }
+            &.h { color: #64748b; }
+            &.le { color: #6366f1; }
+          }
+        }
+      }
+
+      .month_year_selector {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        .nav_btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 32px;
+          height: 32px;
+          border-radius: 8px;
+          border: 0.5px solid #bdbcdb;
+          background: #f4f2ff;
+          color: #605dec;
+          font-size: 16px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+
+          &:hover:not(:disabled) {
+            background: #605dec;
+            color: #ffffff;
+          }
+
+          &:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+          }
+        }
+
+        .select_input {
+          height: 32px;
+          padding: 0 10px;
+          border-radius: 8px;
+          border: 0.5px solid #bdbcdb;
+          background: #ffffff;
+          font-size: 13px;
+          font-weight: 500;
+          color: #333333;
+          cursor: pointer;
+          outline: none;
+          transition: border-color 0.2s ease;
+
+          &:focus {
+            border-color: #605dec;
+          }
+        }
+      }
+    }
+
+    .report_legend_bar {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding: 12px 24px;
+      background: #fafafa;
+      border-bottom: 0.5px solid #bdbcdb;
+      font-size: 13px;
+      color: #666666;
+
+      .legend_item {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+
+        strong {
+          font-weight: 700;
+
+          &.p { color: #16a34a; }
+          &.l { color: #d97706; }
+          &.a { color: #dc2626; }
+          &.f { color: #0284c7; }
+          &.h { color: #64748b; }
+          &.le { color: #6366f1; }
+        }
+      }
+    }
+
+    .table_section {
+      padding: 20px 24px;
+
+      .table_wrapper.attendance_table_wrapper {
+        width: 100%;
+        border-radius: 10px;
+        border: 0.5px solid #bdbcdb;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        background: #ffffff;
+
+        &::-webkit-scrollbar {
+          height: 6px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+          background: #bdbcdb;
+          border-radius: 4px;
+        }
+
+        &::-webkit-scrollbar-track {
+          background: #f4f2ff;
+        }
+
+        .custom_table.attendance_matrix_table {
+          width: 100%;
+          border-collapse: collapse;
+          white-space: nowrap;
+          text-align: center;
+
+          thead {
+            background: #f5f5f5;
+
+            th {
+              padding: 10px 8px;
+              font-size: 13px;
+              font-weight: 600;
+              color: #333333;
+              border-bottom: 1px solid #bdbcdb;
+              border-right: 0.5px solid #e2e8f0;
+              vertical-align: middle;
+
+              &:last-child {
+                border-right: none;
+              }
+
+              &.col_name {
+                min-width: 140px;
+                text-align: left;
+                padding-left: 14px;
+              }
+
+              &.col_admission {
+                min-width: 100px;
+                text-align: center;
+              }
+
+              &.col_stat {
+                min-width: 28px;
+                padding: 6px 4px;
+              }
+
+              &.col_percent {
+                min-width: 48px;
+              }
+
+              &.col_day_num {
+                min-width: 34px;
+                padding: 6px 4px;
+                font-size: 12px;
+                font-weight: 600;
+                color: #333333;
+              }
+
+              &.col_day_name {
+                min-width: 34px;
+                padding: 4px;
+                font-size: 11px;
+                font-weight: 500;
+                color: #666666;
+              }
+            }
+          }
+
+          tbody {
+            tr {
+              transition: background-color 0.15s ease;
+
+              &:hover {
+                background-color: #f9faff;
+              }
+
+              td {
+                padding: 12px 8px;
+                border-top: 1px solid #bdbcdb;
+                border-bottom: 1px solid #bdbcdb;
+                border-right: 0.5px solid #edf2f7;
+                font-size: 13px;
+                color: #333333;
+
+                &:last-child {
+                  border-right: none;
+                }
+
+                &.cell_name {
+                  text-align: left;
+                  padding-left: 14px;
+                  font-weight: 500;
+                  color: #222533;
+                  text-transform: uppercase;
+                }
+
+                &.cell_admission {
+                  text-align: center;
+                  color: #555555;
+                }
+
+                &.cell_stat {
+                  text-align: center;
+                  font-weight: 500;
+                  color: #333333;
+                }
+
+                &.cell_percent {
+                  text-align: center;
+                  font-weight: 600;
+                  color: #222533;
+                }
+
+                &.cell_day {
+                  text-align: center;
+                  font-weight: 600;
+                  font-size: 12px;
+
+                  &.weekend {
+                    background-color: #fafbfc;
+                    color: #8a8fa3;
+                  }
+
+                  &.stat_p { color: #16a34a; }
+                  &.stat_l { color: #d97706; }
+                  &.stat_a { color: #dc2626; }
+                  &.stat_f { color: #0284c7; }
+                  &.stat_h { color: #64748b; }
+                  &.stat_le { color: #6366f1; }
+                  &.stat_w { color: #8a8fa3; }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .loading_state, .error_state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    color: #666666;
+    font-size: 14px;
+  }
+}

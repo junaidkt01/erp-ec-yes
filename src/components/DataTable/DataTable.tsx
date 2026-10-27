@@ -15,8 +15,8 @@ interface DataTableProps {
     select?: (row: any) => React.ReactNode;
     progress?: (row: any) => React.ReactNode;
     actions?: (row: any) => React.ReactNode;
-    attendance?: (row: any) => React.ReactNode;
-    note?: (row: any) => React.ReactNode;
+    attendance?: (row: any, index: number) => React.ReactNode;
+    note?: (row: any, index: number) => React.ReactNode;
 }
 
 const DataTable: React.FC<DataTableProps> = ({ columns, data, currentPage, totalPages, onPageChange, select, progress, actions, attendance, note }) => {
@@ -88,8 +88,8 @@ const DataTable: React.FC<DataTableProps> = ({ columns, data, currentPage, total
 
                             {progress && <td>{progress(row.progress)}</td>}
                             {actions && <td>{actions(row)}</td>}
-                            {attendance && <td>{attendance(row)}</td>}
-                            {note && <td>{note(row)}</td>}
+                            {attendance && <td>{attendance(row, i)}</td>}
+                            {note && <td>{note(row, i)}</td>}
                         </tr>
                     ))}
                     {/* {data?.map((row: any, i: number) => (

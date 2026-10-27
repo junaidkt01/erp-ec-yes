@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom"
 import { BASE_URL } from "../../api/endpoints"
 import "./Profile.scss"
 import DynamicQRCode from "../../components/DynamicQRCode/DynamicQRCode"
+import StudentAttendanceReport from "./components/StudentAttendanceReport/StudentAttendanceReport"
 
 const Profile = ({ type, data, details, tabs, profileDetails, activeTab, setActiveTab }: any) => {
     const navigate = useNavigate();
@@ -62,7 +63,7 @@ const Profile = ({ type, data, details, tabs, profileDetails, activeTab, setActi
             ? "Admin QR Code"
             : `${type ? type.charAt(0).toUpperCase() + type.slice(1) : "User"} QR Code`;
 
-    console.log("profileDetails: ",profileDetails)
+    // console.log("profileDetails: ",profileDetails)
 
     return (
         <div className="page_wrapper" >
@@ -112,7 +113,7 @@ const Profile = ({ type, data, details, tabs, profileDetails, activeTab, setActi
                             </div>
                         </div>
 
-                        <div className="profile-qr">
+                        <div className="profile-qr" >
                             <DynamicQRCode value={qrValue} label={qrLabel} size={110} />
                         </div>
                     </div>
@@ -171,7 +172,12 @@ const Profile = ({ type, data, details, tabs, profileDetails, activeTab, setActi
                                 )}
 
                                 {activeTab === "Student Attendance" && (
-                                    <div className="empty-page">Student Attendance Content</div>
+                                    <StudentAttendanceReport
+                                        student={data?.data || data}
+                                        studentId={data?.data?.id || data?.id}
+                                        classId={data?.data?.class_id || data?.class_id}
+                                        sectionId={data?.data?.section_id || data?.section_id}
+                                    />
                                 )}
 
                                 {activeTab === "Subject Attendance" && (
