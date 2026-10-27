@@ -92,8 +92,8 @@ const Dashboard = () => {
 
             <div className="widget_footer" >
               <div className="status_message" >
-                {/* <div className="status_point"></div>
-                <p>2 <span>pending fee payments</span></p> */}
+                <div className="status_point"></div>
+                <p>2 <span>pending fee payments</span></p>
               </div>
               <PrimaryButton title={"View All"} onClick={() => {
                 if (key === "students") navigate("/student-info/student-list")

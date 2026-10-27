@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { PrimaryButton, SecondaryButton } from "../../../components/Buttons/Buttons"
 import { InputField } from "../../../components/InputFields/InputFields"
 import PopupScreen from "../../../components/PopupScreen/PopupScreen"
@@ -630,10 +630,17 @@ const AddStudent = () => {
     console.log("studentClasses: ", studentClasses)
 
     const { data: sections } = useFetchAllSections();
-    const sectionOptions = sections?.map((cls: any) => ({
-        label: cls.name,
-        value: cls.id,
-    }));
+    const sectionOptions = useMemo(() => {
+        if (!formData?.class_id) return [];
+        return (
+            sections
+                ?.filter((sec: any) => String(sec.class_id) === String(formData.class_id))
+                ?.map((cls: any) => ({
+                    label: cls.name,
+                    value: cls.id,
+                })) || []
+        );
+    }, [sections, formData?.class_id]);
 
     const genderOptions = GENDER_OPTIONS;
 
@@ -660,7 +667,7 @@ const AddStudent = () => {
                             </div> */}
                             <div className="body_section" >
                                 {siblingStaff === "from_sibling" && <CustomSelect value={filterData?.class_id} label="Class" placeholder="Select class" options={classOptions || []} onChange={(value) => setFilterData((prev: any) => ({ ...prev, class_id: value }))} />}
-                                {siblingStaff === "from_sibling" && <CustomSelect value={filterData?.section_id} name="section_id" label="Section" placeholder="Select section" options={sectionOptions || []} onChange={(value) => setFilterData((prev: any) => ({ ...prev, section_id: value }))} />}
+                                {siblingStaff === "from_sibling" && <CustomSelect value={filterData?.section_id} name="section_id" label="Section" placeholder={formData?.class_id ? "Select section" : "Select a class first"} options={sectionOptions || []} onChange={(value) => setFilterData((prev: any) => ({ ...prev, section_id: value }))} />}
                                 {siblingStaff === "from_staff" && <CustomSelect value={filterData?.section_id} name="staff_id" label="Staff" placeholder="Select section" options={sectionOptions || []} onChange={(value) => setFilterData((prev: any) => ({ ...prev, section_id: value }))} />}
                             </div>
                             {siblingStaff === "from_sibling" && <div className="body_section" >
@@ -777,7 +784,7 @@ const AddStudent = () => {
                                 <div className="fields_wrapper" >
                                     <div className="body_section" >
                                         <CustomSelect error={errors.academic_year_id} value={formData?.academic_year_id} name="academic_year_id" label="Academic year" placeholder="Select year" options={formattedData || []} onChange={(value) => setFormData((prev: any) => ({ ...prev, academic_year_id: value }))} />
-                                        <CustomSelect error={errors.class_id} value={formData?.class_id} label="Class" placeholder="Select class" options={classOptions || []} onChange={(value) => setFormData((prev: any) => ({ ...prev, class_id: value }))} />
+                                        <CustomSelect error={errors.class_id} value={formData?.class_id} label="Class" placeholder="Select class" options={classOptions || []} onChange={(value) => setFormData((prev: any) => ({ ...prev, class_id: value, section_id: "" }))} />
                                         <CustomSelect error={errors.section_id} value={formData?.section_id} name="section_id" label="Section" placeholder="Select section" options={sectionOptions || []} onChange={(value) => setFormData((prev: any) => ({ ...prev, section_id: value }))} />
                                     </div>
                                     <div className="body_section" >

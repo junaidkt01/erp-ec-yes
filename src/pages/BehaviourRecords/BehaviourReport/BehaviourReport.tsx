@@ -52,11 +52,14 @@ const BehaviourReport: React.FC = () => {
 
     const { data: sections } = useFetchAllSections();
     const sectionOptions = useMemo(() => {
-        return (sections || []).map((sec: any) => ({
-            label: sec.name,
-            value: sec.id,
-        }));
-    }, [sections]);
+        if (!filterData.class_id) return [];
+        return (sections || [])
+            .filter((sec: any) => String(sec.class_id) === String(filterData.class_id))
+            .map((sec: any) => ({
+                label: sec.name,
+                value: sec.id,
+            }));
+    }, [sections, filterData.class_id]);
 
     const { data: studentsData } = useFetchAllStudents(1, {
         class_id: filterData.class_id || undefined,
@@ -422,6 +425,7 @@ const BehaviourReport: React.FC = () => {
                                             setFilterData((prev) => ({
                                                 ...prev,
                                                 class_id: val,
+                                                section_id: "",
                                                 student_id: "",
                                             }))
                                         }
@@ -429,7 +433,7 @@ const BehaviourReport: React.FC = () => {
                                     <CustomSelect
                                         value={filterData.section_id}
                                         label="Section"
-                                        placeholder="Select section"
+                                        placeholder={filterData.class_id ? "Select section" : "Select a class first"}
                                         options={sectionOptions}
                                         onChange={(val) =>
                                             setFilterData((prev) => ({

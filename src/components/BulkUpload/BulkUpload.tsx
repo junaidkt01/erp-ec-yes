@@ -164,10 +164,17 @@ const BulkUpload = ({ onClick }: { onClick: () => void }) => {
     }));
 
     const { data: sections } = useFetchAllSections();
-    const sectionOptions = sections?.map((cls: any) => ({
-        label: cls.name,
-        value: cls.id,
-    }));
+    const sectionOptions = useMemo(() => {
+        if (!classId) return [];
+        return (
+            sections
+                ?.filter((sec: any) => String(sec.class_id) === String(classId))
+                ?.map((cls: any) => ({
+                    label: cls.name,
+                    value: cls.id,
+                })) || []
+        );
+    }, [sections, classId]);
 
     const handleDownloadSampleExcel = async () => {
         const sampleRow: Record<string, string> = {
@@ -346,7 +353,7 @@ const BulkUpload = ({ onClick }: { onClick: () => void }) => {
 
             return {
                 _index: i,
-                // sl: i + 1,
+                _isDuplicate: false,
 
                 student_code: get("student_code"),
                 admission_no: String(get("admission_no") ?? ""),
@@ -398,8 +405,57 @@ const BulkUpload = ({ onClick }: { onClick: () => void }) => {
             };
         });
 
-        setFinalData(mapped);
-        setSelectedRows(mapped.map((_, i) => i));
+        // ── Duplicate detection within the uploaded Excel ─────────────────
+        // Check admission_no, roll_no, and student_code for duplicates.
+        const dupFields: { key: keyof typeof mapped[0]; label: string }[] = [
+            { key: "admission_no", label: "Admission No" },
+            { key: "roll_no", label: "Roll No" },
+            { key: "student_code", label: "Student Code" },
+        ];
+
+        const duplicateIndexes = new Set<number>();
+
+        dupFields.forEach(({ key, label }) => {
+            const seen = new Map<string, number>(); // value -> first row index
+            mapped.forEach((row, idx) => {
+                const val = String(row[key] ?? "").trim();
+                if (!val) return; // skip empty values
+                if (seen.has(val)) {
+                    // Mark both the original and the duplicate
+                    duplicateIndexes.add(seen.get(val)!);
+                    duplicateIndexes.add(idx);
+
+                    const firstName = mapped[seen.get(val)!].full_name;
+                    const dupName = row.full_name;
+                    toast.warning(
+                        `Duplicate ${label}: "${val}" found for "${firstName}" (row ${seen.get(val)! + 2}) and "${dupName}" (row ${idx + 2}). Duplicate rows are deselected.`,
+                        { duration: 8000 }
+                    );
+                } else {
+                    seen.set(val, idx);
+                }
+            });
+        });
+
+        // Flag duplicate rows
+        const finalMapped = mapped.map((row) =>
+            duplicateIndexes.has(row._index) ? { ...row, _isDuplicate: true } : row
+        );
+
+        setFinalData(finalMapped);
+        // Pre-select only non-duplicate rows
+        setSelectedRows(
+            finalMapped
+                .filter((r) => !r._isDuplicate)
+                .map((r) => r._index)
+        );
+
+        if (duplicateIndexes.size > 0) {
+            toast.info(
+                `${duplicateIndexes.size} duplicate row(s) were found and deselected. Review them before importing.`,
+                { duration: 6000 }
+            );
+        }
     };
 
     const handleStep1Next = () => {
@@ -529,13 +585,13 @@ const BulkUpload = ({ onClick }: { onClick: () => void }) => {
                             label={t("field.class", "Class")}
                             placeholder="Select class"
                             options={classOptions || []}
-                            onChange={setClassId}
+                            onChange={(val: any) => { setClassId(val); setSectionId(""); }}
                         />
                         <CustomSelect
                             value={sectionId}
                             name="section_id"
                             label={t("field.section", "Section")}
-                            placeholder="Select section"
+                            placeholder={classId ? "Select section" : "Select a class first"}
                             options={sectionOptions || []}
                             onChange={setSectionId}
                         />
@@ -658,6 +714,19 @@ const BulkUpload = ({ onClick }: { onClick: () => void }) => {
                                             return [...prev, row._index];
                                         })}
                                     />
+                                    {row._isDuplicate && (
+                                        <span style={{
+                                            fontSize: "10px",
+                                            background: "#fee2e2",
+                                            color: "#dc2626",
+                                            borderRadius: "4px",
+                                            padding: "2px 6px",
+                                            fontWeight: 600,
+                                            whiteSpace: "nowrap",
+                                        }}>
+                                            DUPLICATE
+                                        </span>
+                                    )}
                                 </div>
                             )}
                         />
