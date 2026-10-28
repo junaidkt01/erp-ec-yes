@@ -1,9 +1,9 @@
 // src/api/endpoints.ts
 
 
-export const BASE_URL = "https://dev.cyberduce.com";
+export const BASE_URL = "https://yesmlr.cyberduce.in";
 //"https://dev.cyberduce.com/public/uploads/parent_photos/1786446117_father_6a7b0125d8dbd.jpeg";
-export const API_URL = "https://dev.cyberduce.com/api";
+export const API_URL = "https://yesmlr.cyberduce.in/api";
 
 export const auth = {
   login: "/login",
