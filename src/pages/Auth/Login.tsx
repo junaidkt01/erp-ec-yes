@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { InputField } from "../../components/InputFields/InputFields";
 import { PrimaryButton } from "../../components/Buttons/Buttons";
 import "./Login.scss";
@@ -25,6 +25,24 @@ const Login: React.FC = () => {
     const [turnstileToken, setTurnstileToken] = useState<string>("");
     const [twoFactorChallenge, setTwoFactorChallenge] = useState<TwoFactorChallengeState | null>(null);
     const turnstileRef = useRef<TurnstileRef>(null);
+
+    const handleTurnstileVerify = useCallback((token: string) => {
+        setTurnstileToken(token);
+        setErrors((prev) => {
+            if (!prev.turnstile) return prev;
+            const updated = { ...prev };
+            delete updated.turnstile;
+            return updated;
+        });
+    }, []);
+
+    const handleTurnstileExpire = useCallback(() => {
+        setTurnstileToken("");
+    }, []);
+
+    const handleTurnstileError = useCallback(() => {
+        setTurnstileToken("");
+    }, []);
 
     const { mutateAsync: login, isPending, isError, error } = useLogin();
 
@@ -159,9 +177,10 @@ const Login: React.FC = () => {
                                 <div className="turnstile_wrapper">
                                     <Turnstile
                                         ref={turnstileRef}
-                                        onVerify={(token) => setTurnstileToken(token)}
-                                        onExpire={() => setTurnstileToken("")}
-                                        onError={() => setTurnstileToken("")}
+                                        theme="light"
+                                        onVerify={handleTurnstileVerify}
+                                        onExpire={handleTurnstileExpire}
+                                        onError={handleTurnstileError}
                                     />
                                     {errors.turnstile && (
                                         <p className="error_text" style={{ fontSize: "12px", marginTop: "4px" }}>

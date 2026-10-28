@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { PrimaryButton, SecondaryButton } from "../../components/Buttons/Buttons";
 import type { AxiosError } from "axios";
 import { Turnstile, type TurnstileRef } from "../../components/Turnstile/Turnstile";
@@ -29,6 +29,18 @@ export const TwoFactorVerification: React.FC<TwoFactorVerificationProps> = ({
 
   const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
   const turnstileRef = useRef<TurnstileRef>(null);
+
+  const handleTurnstileVerify = useCallback((token: string) => {
+    setTurnstileToken(token);
+  }, []);
+
+  const handleTurnstileExpire = useCallback(() => {
+    setTurnstileToken("");
+  }, []);
+
+  const handleTurnstileError = useCallback(() => {
+    setTurnstileToken("");
+  }, []);
 
   const { mutateAsync: verify, isPending } = useVerifyTwoFactor();
 
@@ -275,9 +287,10 @@ export const TwoFactorVerification: React.FC<TwoFactorVerificationProps> = ({
           <div className="turnstile_wrapper">
             <Turnstile
               ref={turnstileRef}
-              onVerify={(token) => setTurnstileToken(token)}
-              onExpire={() => setTurnstileToken("")}
-              onError={() => setTurnstileToken("")}
+              theme="light"
+              onVerify={handleTurnstileVerify}
+              onExpire={handleTurnstileExpire}
+              onError={handleTurnstileError}
             />
           </div>
 
