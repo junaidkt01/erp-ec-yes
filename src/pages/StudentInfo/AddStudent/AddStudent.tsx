@@ -1067,10 +1067,10 @@ const AddStudent = () => {
                         </>
                     </div>}
 
-                    {/* {selectedInputTitleTab === "Other Info" && <div className="search_screen">
+                    {selectedInputTitleTab === "Other Info" && <div className="search_screen">
                         <>
-                            1
-                            <p className="search_screen_title need_margin" >Transport</p>
+                            {/* 1 */}
+                            {/* <p className="search_screen_title need_margin" >Transport</p>
                             <div className="popup_body" >
                                 <div className="fields_wrapper" >
                                     <div className="body_section" >
@@ -1078,17 +1078,17 @@ const AddStudent = () => {
                                         <CustomSelect label="Vehicle Number" placeholder="Select vehicle number" options={[{ label: "Pending", value: "Pending" }, { label: "Solved", value: "Solved" }, { label: "In Progress", value: "In Progress" }, { label: "Closed", value: "Closed" }]} onChange={(val) => console.log("Selected:", val)} />
                                     </div>
                                 </div>
-                            </div>
+                            </div> */}
 
-                            2
-                            <p className="search_screen_title need_margin" >Hostel Info</p>
+                            {/* 2 */}
+                            {/* <p className="search_screen_title need_margin" >Hostel Info</p> */}
                             <div className="popup_body" >
-                                <div className="fields_wrapper" >
+                                {/* <div className="fields_wrapper" >
                                     <div className="body_section" >
                                         <CustomSelect label="Hostel List" placeholder="Select hostel list" options={[{ label: "Pending", value: "Pending" }, { label: "Solved", value: "Solved" }, { label: "In Progress", value: "In Progress" }, { label: "Closed", value: "Closed" }]} onChange={(val) => console.log("Selected:", val)} />
                                         <CustomSelect label="Room Number" placeholder="Select room number" options={[{ label: "Pending", value: "Pending" }, { label: "Solved", value: "Solved" }, { label: "In Progress", value: "In Progress" }, { label: "Closed", value: "Closed" }]} onChange={(val) => console.log("Selected:", val)} />
                                     </div>
-                                </div>
+                                </div> */}
 
                                 <div className="buttons">
                                     <SecondaryButton title="Save" />
@@ -1096,7 +1096,7 @@ const AddStudent = () => {
                                 </div>
                             </div>
                         </>
-                    </div>} */}
+                    </div>}
 
                     {selectedInputTitleTab === "Custom Field" && <div className="search_screen">
                         <>

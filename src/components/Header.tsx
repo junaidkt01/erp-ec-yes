@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useFetchAllAcademicYears } from "../hooks/useAcademicYear"
 import { SvgIcon } from "./Sidebar"
 import { useNavigate } from "react-router-dom"
+import { useQueryClient } from "@tanstack/react-query"
 import { useAuth } from "../auth/useAuth"
 import { useDebounce } from "../hooks/useDebounce"
 import { useSearchUsers } from "../hooks/useSearchUsers"
@@ -292,10 +293,12 @@ const Profile = () => {
     const [isLangOpen, setIsLangOpen] = useState(false);
     const [isTwoFactorOpen, setIsTwoFactorOpen] = useState(false);
 
+    const queryClient = useQueryClient();
     const { data } = useAuth();
 
     const handleLogout = () => {
         localStorage.removeItem("auth")
+        queryClient.clear();
         setTimeout(() => {
             navigate("/")
         }, 100)

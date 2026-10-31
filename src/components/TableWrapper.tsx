@@ -1,7 +1,7 @@
 import { AddButton } from "./Buttons/Buttons"
 import SearchBar from "./SearchBar"
 
-const TableWrapper = ({ isSearchBar, isAddButton, title, children, onClick, searchValue = "", searchOnchange = () => { } }: { isAddButton?: boolean; isSearchBar?: boolean; title: string, children: any; onClick?: any; searchValue?: string; searchOnchange?: (value: string) => void; }) => {
+const TableWrapper = ({ isSearchBar, isAddButton, title, addButtonTitle, children, onClick, searchValue = "", searchOnchange = () => { } }: { isAddButton?: boolean; isSearchBar?: boolean; title: string; addButtonTitle?: string; children: any; onClick?: any; searchValue?: string; searchOnchange?: (value: string) => void; }) => {
     return (
         <div className="table_canvas" >
             <div className="table_header" >
@@ -10,7 +10,7 @@ const TableWrapper = ({ isSearchBar, isAddButton, title, children, onClick, sear
                     {isSearchBar && <SearchBar value={searchValue} onChange={searchOnchange} placeHolder={"Search"} />}
                 </div>
 
-                {isAddButton && <AddButton onClick={onClick} title={title === "ID Card" ? "Create New ID Card" : title === "Certificate" ? "Create Certificate" : title === "Upload Content List" ? "Upload Content" : title === "Content Type List" ? "Add Content Type" : title === "Add Student" ? "Import Student" : title === "Add Staff" ? "Import Staff" : "Add"} />}
+                {isAddButton && <AddButton onClick={onClick} title={addButtonTitle || (title === "ID Card" ? "Create New ID Card" : title === "Certificate" ? "Create Certificate" : title === "Upload Content List" ? "Upload Content" : title === "Content Type List" ? "Add Content Type" : title === "Add Student" ? "Import Student" : title === "Add Staff" ? "Import Staff" : "Add")} />}
             </div>
 
             <div className="table_section" >

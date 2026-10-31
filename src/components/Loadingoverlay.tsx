@@ -17,26 +17,64 @@ import {
 import { useOverlayStore } from "../stores/loadingOverlay";
 import "./components.scss"
 
+const ResponsiveLogoSpinner = () => {
+    return (
+        <div className="min-h-screen min-h-[100dvh] w-full flex flex-col items-center justify-center p-4 select-none gap-2">
+            {/* Dynamic Responsive Spinner Harness */}
+            <div className="relative flex items-center justify-center" style={{ width: 'clamp(48px, 20vw, 96px)', height: 'clamp(48px, 20vw, 96px)', }}>
+                {/* Track Ring */}
+                <div className="absolute inset-0 rounded-full" style={{ borderWidth: '4px', borderStyle: 'solid', borderColor: '#e2e8f0' }} />
+
+                {/* Animated Spin Stroke */}
+                <div className="absolute inset-0 rounded-full animate-spin" style={{
+                    borderWidth: '4px', borderColor: 'transparent', borderTopColor: '#2563eb',
+
+                    animationDuration: '1.5s',
+                    animationTimingFunction: 'cubic-bezier(0.55, 0.15, 0.45, 0.85)'
+                }}/>
+
+                {/* Centered Logo Host */}
+                <div
+                    className="relative z-10 flex items-center justify-center "
+                    style={{
+                        width: '45%',
+                        height: '45%'
+                    }}
+                >
+                    <img src="/favicon.png" alt="Logo" className="w-full h-full object-contain pointer-events-none select-none" />
+                </div>
+            </div>
+
+            {/* Optional Responsive Caption */}
+            <div className="mt-7 text-sm font-semibold text-slate-700 tracking-wide flex items-center">
+                <span>Loading</span>
+                <span className="ml-0.5 font-bold">...</span>
+                {/* <span className="animate-pulse ml-0.5 font-bold">...</span> */}
+            </div>
+        </div>
+    );
+}
+
 // const RingSpinner = () => (
 //     <div className="w-10 h-10 rounded-full border border-white/10 border-t-white/80 animate-spin" />
 // );
 
-const DotSpinner = () => (
-    <div className="flex flex-col items-center gap-3">
-        <div className="flex items-center gap-2">
-            {[0, 1, 2].map((i) => (
-                <div
-                    key={i}
-                    className="w-1.5 h-1.5 rounded-full bg-white/80"
-                    style={{ animation: `dotPulse 1.2s ease-in-out ${i * 0.2}s infinite` }}
-                />
-            ))}
-        </div>
-        <span className="text-[11px] tracking-[0.12em] text-white/35 font-mono uppercase">
-            loading
-        </span>
-    </div>
-);
+// const DotSpinner = () => (
+//     <div className="flex flex-col items-center gap-3">
+//         <div className="flex items-center gap-2">
+//             {[0, 1, 2].map((i) => (
+//                 <div
+//                     key={i}
+//                     className="w-1.5 h-1.5 rounded-full bg-white/80"
+//                     style={{ animation: `dotPulse 1.2s ease-in-out ${i * 0.2}s infinite` }}
+//                 />
+//             ))}
+//         </div>
+//         <span className="text-[11px] tracking-[0.12em] text-white/35 font-mono uppercase">
+//             loading
+//         </span>
+//     </div>
+// );
 
 // const ArcSpinner = () => (
 //     <svg
@@ -392,7 +430,7 @@ export default function LoadingOverlay({ isLoading = false }) {
                 aria-live="polite"
                 aria-label="Loading"
             >
-                <DotSpinner />
+                <ResponsiveLogoSpinner />
             </div>
         </>
     );

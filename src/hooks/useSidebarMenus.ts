@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "../api/axiosInstance";
 import { sidebarMenus } from "../api/endpoints";
+import { useAuth, getStoredAuth } from "../auth/useAuth";
 import {
   // sidebar_menus,
   formatSidebarMenus,
@@ -26,7 +27,10 @@ export type SidebarMenusResponse =
   | SidebarMenusApiResponse
   | (RawSidebarMenuItem | SidebarMenuGroup)[];
 
-export const useSidebarMenus = () => {
+export const useSidebarMenus = (options?: { enabled?: boolean }) => {
+  const { data: authData } = useAuth();
+  const isLoggedIn = Boolean(authData || getStoredAuth());
+
   return useQuery<SidebarMenuGroup[]>({
     queryKey: SIDEBAR_MENUS_KEY,
     queryFn: async () => {
@@ -47,11 +51,15 @@ export const useSidebarMenus = () => {
       // Convert the flat items (with `section`) into SidebarMenuGroup[]
       return formatSidebarMenus(rawData);
     },
+    enabled: options?.enabled !== undefined ? options.enabled && isLoggedIn : isLoggedIn,
     // placeholderData: sidebar_menus,
   });
 };
 
-export const useFetchRawSidebarMenus = () => {
+export const useFetchRawSidebarMenus = (options?: { enabled?: boolean }) => {
+  const { data: authData } = useAuth();
+  const isLoggedIn = Boolean(authData || getStoredAuth());
+
   return useQuery<RawSidebarMenuItem[]>({
     queryKey: RAW_SIDEBAR_MENUS_KEY,
     queryFn: async () => {
@@ -68,6 +76,7 @@ export const useFetchRawSidebarMenus = () => {
 
       return rawData;
     },
+    enabled: options?.enabled !== undefined ? options.enabled && isLoggedIn : isLoggedIn,
   });
 };
 

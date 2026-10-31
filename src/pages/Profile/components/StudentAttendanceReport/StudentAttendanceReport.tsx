@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import {
     useFetchMonthlyStudentAttendanceReport,
     type DayHeaderItem,
@@ -32,6 +32,15 @@ const StudentAttendanceReport: React.FC<StudentAttendanceReportProps> = ({
     const resolvedStudentId = studentId || student?.id || student?.student_id;
     const resolvedClassId = classId || student?.class_id || student?.class?.id;
     const resolvedSectionId = sectionId || student?.section_id || student?.section?.id;
+
+    const tableWrapperRef = useRef<HTMLDivElement>(null);
+
+    const handleTableScroll = (direction: "left" | "right") => {
+        if (tableWrapperRef.current) {
+            const scrollDistance = direction === "left" ? -320 : 320;
+            tableWrapperRef.current.scrollBy({ left: scrollDistance, behavior: "smooth" });
+        }
+    };
 
     const { data: reportData, isLoading, isError } = useFetchMonthlyStudentAttendanceReport({
         student_id: resolvedStudentId,
@@ -239,30 +248,54 @@ const StudentAttendanceReport: React.FC<StudentAttendanceReportProps> = ({
                     </div>
                 </div>
 
-                {/* Legend Row */}
+                {/* Legend Row & Scroll Controls */}
                 <div className="report_legend_bar">
-                    <span className="legend_item">
-                        Present: <strong className="p">P</strong>
-                    </span>
-                    <span className="legend_item">
-                        Late: <strong className="l">L</strong>
-                    </span>
-                    <span className="legend_item">
-                        Absent: <strong className="a">A</strong>
-                    </span>
-                    <span className="legend_item">
-                        Half Day: <strong className="f">F</strong>
-                    </span>
-                    <span className="legend_item">
-                        Holiday: <strong className="h">H</strong>
-                    </span>
-                    <span className="legend_item">
-                        Leave: <strong className="le">Le</strong>
-                    </span>
+                    <div className="legend_items_group">
+                        <span className="legend_item">
+                            Present: <strong className="p">P</strong>
+                        </span>
+                        <span className="legend_item">
+                            Late: <strong className="l">L</strong>
+                        </span>
+                        <span className="legend_item">
+                            Absent: <strong className="a">A</strong>
+                        </span>
+                        <span className="legend_item">
+                            Half Day: <strong className="f">F</strong>
+                        </span>
+                        <span className="legend_item">
+                            Holiday: <strong className="h">H</strong>
+                        </span>
+                        <span className="legend_item">
+                            Leave: <strong className="le">Le</strong>
+                        </span>
+                    </div>
+
+                    <div className="table_scroll_nav">
+                        <span className="scroll_label">Scroll days:</span>
+                        <button
+                            type="button"
+                            className="scroll_btn"
+                            onClick={() => handleTableScroll("left")}
+                            title="Scroll left"
+                            aria-label="Scroll table left"
+                        >
+                            &larr;
+                        </button>
+                        <button
+                            type="button"
+                            className="scroll_btn"
+                            onClick={() => handleTableScroll("right")}
+                            title="Scroll right"
+                            aria-label="Scroll table right"
+                        >
+                            &rarr;
+                        </button>
+                    </div>
                 </div>
 
                 {/* Table Section */}
-                <div className="table_section">
+                <div className="attendance_table_sections">
                     {isLoading ? (
                         <div className="loading_state">
                             <span>Loading attendance report...</span>
@@ -273,7 +306,7 @@ const StudentAttendanceReport: React.FC<StudentAttendanceReportProps> = ({
                         </div>
                     ) : null}
 
-                    <div className="table_wrapper attendance_table_wrapper">
+                    <div className="table_wrapper attendance_table_wrapper" ref={tableWrapperRef}>
                         <table className="custom_table attendance_matrix_table">
                             <thead>
                                 <tr>

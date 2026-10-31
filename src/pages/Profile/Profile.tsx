@@ -6,9 +6,11 @@ import StudentAttendanceReport from "./components/StudentAttendanceReport/Studen
 
 const Profile = ({ type, data, details, tabs, profileDetails, activeTab, setActiveTab }: any) => {
     const navigate = useNavigate();
+    console.log("data: 001", data)
 
     const getPhotoUrl = (photoPath?: string) => {
-        if (!photoPath) return "/sample/pic.png";
+        if (!photoPath) return "/user-square.svg";
+        // if (!photoPath) return "/sample/pic.png";
         if (
             photoPath.startsWith("http://") ||
             photoPath.startsWith("https://") ||
@@ -58,12 +60,12 @@ const Profile = ({ type, data, details, tabs, profileDetails, activeTab, setActi
         type === "student"
             ? "Student QR Code"
             : type === "staff" || type === "teacher"
-            ? "Staff QR Code"
-            : type === "admin"
-            ? "Admin QR Code"
-            : `${type ? type.charAt(0).toUpperCase() + type.slice(1) : "User"} QR Code`;
+                ? "Staff QR Code"
+                : type === "admin"
+                    ? "Admin QR Code"
+                    : `${type ? type.charAt(0).toUpperCase() + type.slice(1) : "User"} QR Code`;
 
-    // console.log("profileDetails: ",profileDetails)
+    console.log("profileDetails: ", profileDetails)
 
     return (
         <div className="page_wrapper" >
@@ -91,7 +93,7 @@ const Profile = ({ type, data, details, tabs, profileDetails, activeTab, setActi
                                 src={photoSrc}
                                 alt={data?.data?.full_name || data?.data?.name || "Profile"}
                                 onError={(e) => {
-                                    (e.target as HTMLImageElement).src = "/sample/pic.png";
+                                    (e.target as HTMLImageElement).src = "/user-square.svg";
                                 }}
                             />
                             <div className="name-and-details" >
@@ -151,6 +153,27 @@ const Profile = ({ type, data, details, tabs, profileDetails, activeTab, setActi
                                     </div>
                                 )}
 
+                                {activeTab === "Parents" && (
+                                    <div className="details-list">
+                                        <div className="detail-row">
+                                            <div className="label">Father Name</div>
+                                            <div className="value">{data?.data?.parents?.father_name}</div>
+                                        </div>
+                                        <div className="detail-row">
+                                            <div className="label">Mother Name</div>
+                                            <div className="value">{data?.data?.parents?.mother_name}</div>
+                                        </div>
+                                    </div>
+                                    // <div className="details-list">
+                                    //     {data?.data?.parents?.map((item: any) => (
+                                    //         <div className="detail-row" key={item.label}>
+                                    //             <div className="label">{item.label}</div>
+                                    //             <div className="value">{renderValue(item.value)}</div>
+                                    //         </div>
+                                    //     ))}
+                                    // </div>
+                                )}
+
                                 {activeTab === "Leave" && (
                                     <div className="empty-page">Leave Content</div>
                                 )}
@@ -182,6 +205,10 @@ const Profile = ({ type, data, details, tabs, profileDetails, activeTab, setActi
 
                                 {activeTab === "Subject Attendance" && (
                                     <div className="empty-page">Subject Attendance Content</div>
+                                )}
+
+                                {activeTab === "Remarks Records" && (
+                                    <div className="empty-page">Remarks Records</div>
                                 )}
 
                             </div>

@@ -17,9 +17,12 @@ interface DataTableProps {
     actions?: (row: any) => React.ReactNode;
     attendance?: (row: any, index: number) => React.ReactNode;
     note?: (row: any, index: number) => React.ReactNode;
+    actionsTitle?: string;
+    emptyMessage?: string;
 }
 
-const DataTable: React.FC<DataTableProps> = ({ columns, data, currentPage, totalPages, onPageChange, select, progress, actions, attendance, note }) => {
+const DataTable: React.FC<DataTableProps> = ({ columns, data, currentPage, totalPages, onPageChange, select, progress, actions, attendance, note, actionsTitle = "Actions", emptyMessage }) => {
+    const columnCount = columns.length + [select, progress, actions, attendance, note].filter(Boolean).length;
 
     const getPagination = () => {
         const pages: (number | string)[] = [];
@@ -54,13 +57,18 @@ const DataTable: React.FC<DataTableProps> = ({ columns, data, currentPage, total
                             <th key={c.key}>{c.title}</th>
                         ))}
                         {progress && <th>Progress</th>}
-                        {actions && <th>Actions</th>}
+                        {actions && <th>{actionsTitle}</th>}
                         {attendance && <th>Attendance</th>}
                         {note && <th>Note</th>}
                     </tr>
                 </thead>
 
                 <tbody>
+                    {emptyMessage && !data?.length && (
+                        <tr>
+                            <td className="table_empty_message" colSpan={columnCount}>{emptyMessage}</td>
+                        </tr>
+                    )}
                     {data?.map((row: any, i: number) => (
                         <tr className="hvr_zm_out_tbl_rw" key={row.id ?? i}>
                             {select && <td>{select(row.progress)}</td>}

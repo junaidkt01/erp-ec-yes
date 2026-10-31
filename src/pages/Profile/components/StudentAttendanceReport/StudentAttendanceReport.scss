@@ -103,59 +103,129 @@
     .report_legend_bar {
       display: flex;
       align-items: center;
+      justify-content: space-between;
       flex-wrap: wrap;
-      gap: 16px;
+      gap: 12px;
       padding: 12px 24px;
       background: #fafafa;
       border-bottom: 0.5px solid #bdbcdb;
       font-size: 13px;
       color: #666666;
 
-      .legend_item {
+      .legend_items_group {
         display: flex;
         align-items: center;
-        gap: 4px;
+        flex-wrap: wrap;
+        gap: 16px;
 
-        strong {
+        .legend_item {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+
+          strong {
+            font-weight: 700;
+
+            &.p { color: #16a34a; }
+            &.l { color: #d97706; }
+            &.a { color: #dc2626; }
+            &.f { color: #0284c7; }
+            &.h { color: #64748b; }
+            &.le { color: #6366f1; }
+          }
+        }
+      }
+
+      .table_scroll_nav {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-left: auto;
+
+        .scroll_label {
+          font-size: 12px;
+          color: #717182;
+          font-weight: 500;
+          margin-right: 2px;
+        }
+
+        .scroll_btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 28px;
+          height: 28px;
+          border-radius: 6px;
+          border: 0.5px solid #bdbcdb;
+          background: #ffffff;
+          color: #504dbb;
+          font-size: 14px;
           font-weight: 700;
+          cursor: pointer;
+          transition: all 0.2s ease;
 
-          &.p { color: #16a34a; }
-          &.l { color: #d97706; }
-          &.a { color: #dc2626; }
-          &.f { color: #0284c7; }
-          &.h { color: #64748b; }
-          &.le { color: #6366f1; }
+          &:hover {
+            background: #f4f2ff;
+            border-color: #605dec;
+            color: #605dec;
+          }
+
+          &:active {
+            transform: scale(0.95);
+          }
         }
       }
     }
 
-    .table_section {
+    .attendance_table_sections {
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
       padding: 20px 24px;
+      overflow: hidden;
 
       .table_wrapper.attendance_table_wrapper {
         width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
         border-radius: 10px;
         border: 0.5px solid #bdbcdb;
         overflow-x: auto;
+        overflow-y: hidden;
         -webkit-overflow-scrolling: touch;
         background: #ffffff;
+        position: relative;
+        scroll-behavior: smooth;
+        scrollbar-width: thin;
+        scrollbar-color: #b3b0ef #f4f2ff;
 
         &::-webkit-scrollbar {
-          height: 6px;
-        }
-
-        &::-webkit-scrollbar-thumb {
-          background: #bdbcdb;
-          border-radius: 4px;
+          height: 9px;
         }
 
         &::-webkit-scrollbar-track {
           background: #f4f2ff;
+          border-radius: 6px;
+          margin: 0 4px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+          background: #b3b0ef;
+          border-radius: 6px;
+          border: 2px solid #f4f2ff;
+          transition: background-color 0.2s ease;
+
+          &:hover {
+            background: #8b88db;
+          }
         }
 
         .custom_table.attendance_matrix_table {
           width: 100%;
-          border-collapse: collapse;
+          border-collapse: separate;
+          border-spacing: 0;
           white-space: nowrap;
           text-align: center;
 
@@ -170,15 +240,22 @@
               border-bottom: 1px solid #bdbcdb;
               border-right: 0.5px solid #e2e8f0;
               vertical-align: middle;
+              background: #f5f5f5;
 
               &:last-child {
                 border-right: none;
               }
 
               &.col_name {
-                min-width: 140px;
+                min-width: 150px;
+                max-width: 180px;
                 text-align: left;
                 padding-left: 14px;
+                position: sticky;
+                left: 0;
+                z-index: 3;
+                background: #f5f5f5;
+                box-shadow: 2px 0 6px -2px rgba(0, 0, 0, 0.12);
               }
 
               &.col_admission {
@@ -187,25 +264,29 @@
               }
 
               &.col_stat {
-                min-width: 28px;
-                padding: 6px 4px;
+                min-width: 30px;
+                width: 30px;
+                padding: 6px 3px;
               }
 
               &.col_percent {
-                min-width: 48px;
+                min-width: 50px;
+                width: 50px;
               }
 
               &.col_day_num {
-                min-width: 34px;
-                padding: 6px 4px;
+                min-width: 32px;
+                width: 32px;
+                padding: 6px 3px;
                 font-size: 12px;
                 font-weight: 600;
                 color: #333333;
               }
 
               &.col_day_name {
-                min-width: 34px;
-                padding: 4px;
+                min-width: 32px;
+                width: 32px;
+                padding: 4px 3px;
                 font-size: 11px;
                 font-weight: 500;
                 color: #666666;
@@ -219,11 +300,14 @@
 
               &:hover {
                 background-color: #f9faff;
+
+                td.cell_name {
+                  background-color: #f9faff;
+                }
               }
 
               td {
                 padding: 12px 8px;
-                border-top: 1px solid #bdbcdb;
                 border-bottom: 1px solid #bdbcdb;
                 border-right: 0.5px solid #edf2f7;
                 font-size: 13px;
@@ -239,6 +323,11 @@
                   font-weight: 500;
                   color: #222533;
                   text-transform: uppercase;
+                  position: sticky;
+                  left: 0;
+                  z-index: 2;
+                  background: #ffffff;
+                  box-shadow: 2px 0 6px -2px rgba(0, 0, 0, 0.12);
                 }
 
                 &.cell_admission {
