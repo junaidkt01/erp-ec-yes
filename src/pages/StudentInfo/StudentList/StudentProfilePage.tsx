@@ -18,6 +18,7 @@ const StudentProfilePage = () => {
 
     const tabs = [
         "Profile",
+        "Parents",
         "Leave",
         "Exam",
         "Document",
@@ -25,6 +26,7 @@ const StudentProfilePage = () => {
         "Timeline",
         "Student Attendance",
         "Subject Attendance",
+        "Remarks Records",
     ];
 
     const dobValue = student?.data?.dob || student?.data?.date_of_birth;

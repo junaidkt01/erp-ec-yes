@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom'
+import { Route, Routes, useLocation } from 'react-router-dom'
 import './App.scss'
 import './components/components.scss'
 import Sidebar from './components/Sidebar'
@@ -65,6 +65,8 @@ import AdminProfile from './pages/Admin/AdminProfile'
 import ForgotPassword from './pages/Auth/ForgotPassword'
 import SidebarController from './pages/SidebarController/SidebarController'
 import BehaviourReport from './pages/BehaviourRecords/BehaviourReport/BehaviourReport'
+import HomeWorkList from './pages/HomeWork/HomeWorkList/HomeWorkList'
+import HomeWorkReport from './pages/HomeWork/HomeWorkReport/HomeWorkReport'
 
 function App() {
   const { open, statusCode, message, hide } = useOverlayStore();
@@ -73,6 +75,33 @@ function App() {
   // General settings & site config
   const { data } = useFetchGeneralSettings();
   useSiteSettings(data?.data);
+
+  const location = useLocation();
+  const isAuthRoute =
+    location.pathname === "/" ||
+    location.pathname === "/forgot-password" ||
+    location.pathname.startsWith("/reset-password");
+
+  if (isAuthRoute) {
+    return (
+      <div className='app'>
+        {open && (
+          <ErrorStatusOverlay
+            isError={true}
+            status={statusCode ?? 500}
+            message={message}
+          />
+        )}
+        <Toaster />
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:email/:token" element={<ForgotPassword />} />
+        </Routes>
+      </div>
+    );
+  }
 
   return (
     <div className='app'>
@@ -84,26 +113,12 @@ function App() {
         />
       )}
 
-      {/* {data?.open && (
-        <ErrorStatusOverlay
-          isError={data.open}
-          status={data.status}
-          message={data.message}
-        />
-        )} */}
-
       <Toaster />
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ForgotPassword />} />
-        <Route path="/reset-password/:email/:token" element={<ForgotPassword />} />
-      </Routes>
       <div style={{ display: "flex", position: "sticky", top: "0" }} >
         {/* <ProtectedRoute> */}
         <div><Sidebar /></div>
         {/* </ProtectedRoute> */}
-        <div style={{ width: "100%" }} >
+        <div style={{ width: "100%", minWidth: 0, maxWidth: "100%" }} >
           {/* <ProtectedRoute> */}
           <Header />
           {/* </ProtectedRoute> */}
@@ -191,6 +206,10 @@ function App() {
 
               {/* 10. Controls Section */}
               <Route path='/sidebar' element={<SidebarController />} />
+
+              {/* 11. Home Work */}
+              <Route path='/home-work/homework-list' element={<HomeWorkList />} />
+              <Route path='/home-work/homework-report' element={<HomeWorkReport />} />
 
               {/* Error page */}
               <Route path='/error-page-404' element={<ErrorStatusOverlay isError={true} status={404} />} />

@@ -11,6 +11,7 @@ import { Turnstile, type TurnstileRef } from "../../components/Turnstile/Turnsti
 import type { AxiosError } from "axios";
 import TwoFactorVerification from "./TwoFactorVerification";
 import type { AuthSessionData } from "../../auth/useTwoFactor";
+import { SIDEBAR_MENUS_KEY, RAW_SIDEBAR_MENUS_KEY } from "../../hooks/useSidebarMenus";
 
 interface TwoFactorChallengeState {
     challengeToken: string;
@@ -90,6 +91,8 @@ const Login: React.FC = () => {
                     queryClient.setQueryData(["auth"], res.data);
                     queryClient.invalidateQueries({ queryKey: ["auth"] });
                     queryClient.invalidateQueries({ queryKey: ["general-settings"] });
+                    queryClient.invalidateQueries({ queryKey: SIDEBAR_MENUS_KEY });
+                    queryClient.invalidateQueries({ queryKey: RAW_SIDEBAR_MENUS_KEY });
                     navigate("/dashboard", { replace: true });
                 }
             },
@@ -106,6 +109,8 @@ const Login: React.FC = () => {
         queryClient.setQueryData(["auth"], sessionData);
         queryClient.invalidateQueries({ queryKey: ["auth"] });
         queryClient.invalidateQueries({ queryKey: ["general-settings"] });
+        queryClient.invalidateQueries({ queryKey: SIDEBAR_MENUS_KEY });
+        queryClient.invalidateQueries({ queryKey: RAW_SIDEBAR_MENUS_KEY });
         setTwoFactorChallenge(null);
         navigate("/dashboard", { replace: true });
     };

@@ -3,8 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 // import { sidebar_menus } from "../utils";
 import { useSidebarMenus, type SidebarMenuGroup } from "../hooks/useSidebarMenus";
 import { parseIsActive } from "../utils";
-import { useQueryClient } from "@tanstack/react-query";
-import { GENERAL_SETTINGS_KEY, type GeneralSettings } from "../hooks/useGeneralSettings";
+import { useFetchGeneralSettings } from "../hooks/useGeneralSettings";
 import { useTranslation } from "../i18n/LanguageContext";
 import { useSidebarStore } from "../stores/sidebarStore";
 
@@ -147,9 +146,7 @@ const Sidebar: React.FC = () => {
         (activeSubMenu !== null && activeSubMenu.startsWith(parentPath));
 
 
-    const queryClient = useQueryClient();
-
-    const data = queryClient.getQueryData<GeneralSettings>(GENERAL_SETTINGS_KEY);
+    const { data: generalSettings } = useFetchGeneralSettings();
 
     return (
         <>
@@ -160,7 +157,7 @@ const Sidebar: React.FC = () => {
                 <div className="sidebar_inner_box">
                     <div className="sidebar_head_wrapper">
                         <div className="sidebar_head">
-                            <img className="logo" width={120} height={48} src={data?.data?.logo} alt="logo" />
+                            <img className="logo" width={120} height={48} src={generalSettings?.data?.logo} alt="logo" />
                             <img className="sidebar_arrow" onClick={closeMobile} src="/sidebar_icons/arrow_icon.svg" alt="arrow icon" />
                         </div>
 

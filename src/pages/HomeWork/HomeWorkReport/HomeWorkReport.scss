@@ -1,0 +1,338 @@
+.home_work_report {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+
+  /* Compact table */
+  .custom_table {
+    thead th {
+      padding: 12px 14px;
+      font-size: 13px;
+    }
+
+    tbody td {
+      padding: 10px 14px;
+      font-size: 13px;
+      border-color: #e6e5f2;
+    }
+  }
+
+  /* Status & Performance Badges */
+  .homework_status_badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: capitalize;
+
+    &.completed,
+    &.evaluated,
+    &.excellent,
+    &.good {
+      background: #e8f8ee;
+      color: #16a34a;
+      border: 0.5px solid #bbf7d0;
+    }
+
+    &.submitted {
+      background: #f4f2ff;
+      color: #605dec;
+      border: 0.5px solid #bdbcdb;
+    }
+
+    &.pending,
+    &.average {
+      background: #fef3c7;
+      color: #d97706;
+      border: 0.5px solid #fde68a;
+    }
+
+    &.poor {
+      background: #fee2e2;
+      color: #dc2626;
+      border: 0.5px solid #fecaca;
+    }
+
+    &.neutral {
+      background: #f1f5f9;
+      color: #64748b;
+      border: 0.5px solid #e2e8f0;
+    }
+  }
+
+  /* Evaluate Student Modal */
+  .details_grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    background: #f8fafc;
+    padding: 16px;
+    border-radius: 10px;
+    border: 0.5px solid #e2e8f0;
+
+    .detail_item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      .label {
+        font-size: 12px;
+        color: #64748b;
+        font-weight: 500;
+        text-transform: uppercase;
+      }
+
+      .value {
+        font-size: 14px;
+        color: #1e293b;
+        font-weight: 600;
+      }
+    }
+  }
+
+  /* Evaluation Summary Modal */
+  .popup_screen.evaluation_summary_popup {
+    width: min(640px, 92%);
+    border-radius: 16px;
+
+    .popup_header {
+      padding: 16px 20px;
+      z-index: 1;
+    }
+  }
+
+  .evaluation_summary {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 16px 20px 20px;
+
+    .eval_state {
+      padding: 10px 12px;
+      font-size: 13px;
+      text-align: center;
+      color: #666680;
+
+      &.error {
+        border-radius: 8px;
+        border: 0.5px solid #fde68a;
+        background: #fef3c7;
+        color: #92400e;
+      }
+    }
+
+    .eval_student {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 14px;
+      color: #444455;
+
+      strong {
+        font-weight: 600;
+        color: #212121;
+      }
+    }
+
+    .eval_label {
+      font-size: 13px;
+      color: #666680;
+    }
+
+    .eval_value {
+      font-size: 13px;
+      font-weight: 500;
+      color: #212121;
+    }
+
+    .eval_summary_strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-radius: 10px;
+      border: 0.5px solid #bdbcdb;
+      background: #fafaff;
+
+      > div {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 0;
+        padding: 10px 12px;
+
+        & + div {
+          border-left: 0.5px solid #bdbcdb;
+        }
+      }
+    }
+
+    .eval_section {
+      border-radius: 10px;
+      border: 0.5px solid #bdbcdb;
+      overflow: hidden;
+    }
+
+    .eval_section_header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 12px;
+      background: #f4f2ff;
+      color: #605dec;
+
+      h4 {
+        margin: 0;
+        font-size: 13px;
+        font-weight: 600;
+        color: #212121;
+      }
+    }
+
+    .eval_row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 9px 12px;
+      border-top: 0.5px solid #e6e5f2;
+
+      .eval_label {
+        flex-shrink: 0;
+      }
+
+      .eval_value {
+        min-width: 0;
+        text-align: right;
+      }
+    }
+
+    .eval_description {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 6px;
+
+      p {
+        margin: 0;
+        font-size: 13px;
+        line-height: 1.5;
+        color: #333333;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+      }
+    }
+
+    .eval_percentage {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .eval_file {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .eval_file_name {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+
+      svg {
+        flex-shrink: 0;
+      }
+
+      span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
+
+    .eval_download {
+      display: inline-flex;
+      align-items: center;
+      flex-shrink: 0;
+      gap: 4px;
+      padding: 5px 10px;
+      border-radius: 6px;
+      background: #605dec;
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 500;
+      text-decoration: none;
+
+      &:hover {
+        opacity: 0.9;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .eval_summary_strip {
+        grid-template-columns: repeat(2, 1fr);
+
+        > div:nth-child(3) {
+          border-left: none;
+        }
+
+        > div:nth-child(n + 3) {
+          border-top: 0.5px solid #bdbcdb;
+        }
+      }
+
+      .eval_file {
+        flex-wrap: wrap;
+      }
+    }
+  }
+
+  /* Action Buttons in Table */
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      border: 0.5px solid #bdbcdb;
+      background: #ffffff;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: #f4f2ff;
+        border-color: #605dec;
+      }
+
+      img {
+        width: 16px;
+        height: 16px;
+      }
+
+      &.eval_btn {
+        display: flex;
+        border-radius: 8px;
+        color: #605dec;
+        font-size: 12px;
+        font-weight: 600;
+        width: auto;
+        padding: 0 10px;
+        gap: 4px;
+      }
+    }
+  }
+}
