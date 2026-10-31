@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import ExcelJS from "exceljs";
 import "./BulkUpload.scss";
 import { PrimaryButton, SecondaryButton } from "../Buttons/Buttons";
 import InputFiles from "../InputFields/InputFiles";
@@ -203,7 +202,9 @@ const BulkUpload = ({ onClick }: { onClick: () => void }) => {
             national_id_no: "123456789012",
         };
 
-        const workbook = new ExcelJS.Workbook();
+        const { Workbook } = (await import("exceljs")).default;
+
+        const workbook = new Workbook();
         const worksheet = workbook.addWorksheet("Students_Template");
 
         worksheet.columns = systemFields.map((field) => ({
@@ -248,7 +249,8 @@ const BulkUpload = ({ onClick }: { onClick: () => void }) => {
 
         try {
             const arrayBuffer = await file.arrayBuffer();
-            const workbook = new ExcelJS.Workbook();
+            const { Workbook } = (await import("exceljs")).default;
+            const workbook = new Workbook();
             await workbook.xlsx.load(arrayBuffer);
 
             const worksheet = workbook.worksheets[0];

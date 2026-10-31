@@ -49,6 +49,7 @@ import Login from './pages/Auth/Login'
 import { ProtectedRoute } from './api/ProtectedRoute'
 import AddStudent from './pages/StudentInfo/AddStudent/AddStudent'
 import { Toaster } from 'sonner'
+import { OfflineGate } from './components/PWA/OfflineGate'
 import AddStaff from './pages/HR/AddStaff/AddStaff'
 import StaffList from './pages/HR/StaffList/StaffList'
 import FeesGroup from './pages/Fees/FeesGroup/FeesGroup'
@@ -93,12 +94,14 @@ function App() {
           />
         )}
         <Toaster />
+        <OfflineGate>
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:email/:token" element={<ForgotPassword />} />
         </Routes>
+        </OfflineGate>
       </div>
     );
   }
@@ -123,6 +126,7 @@ function App() {
           <Header />
           {/* </ProtectedRoute> */}
           <div style={{ height: "calc(100% - 64.5px)", overflowY: "auto" }} >
+            <OfflineGate>
             <Routes>
               <Route path='/dashboard' element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
 
@@ -215,6 +219,7 @@ function App() {
               <Route path='/error-page-404' element={<ErrorStatusOverlay isError={true} status={404} />} />
               <Route path='/error-page-500' element={<ErrorStatusOverlay isError={true} status={500} />} />
             </Routes>
+            </OfflineGate>
           </div>
         </div>
       </div>

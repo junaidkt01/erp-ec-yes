@@ -9,6 +9,7 @@
 
 import axios, { AxiosError } from "axios";
 import { API_URL } from "./endpoints";
+import { notifyIfSessionExpired } from "../auth/sessionExpiry";
 
 const axiosInstance = axios.create({
   baseURL: API_URL,
@@ -34,6 +35,7 @@ axiosInstance.interceptors.response.use(
   },
   (error: AxiosError) => {
     console.log("error: 1", error);
+    notifyIfSessionExpired(error);
 
     // queryClient.setQueryData(["global-error"], {
     //   open: true,

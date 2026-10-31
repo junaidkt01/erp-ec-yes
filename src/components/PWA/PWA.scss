@@ -1,0 +1,123 @@
+.pwa_offline_indicator {
+  position: fixed;
+  left: 50%;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100% - 32px);
+  padding: 8px 14px;
+
+  border-radius: 10px;
+  background-color: #212121;
+  color: #ffffff;
+  font-size: 13px;
+  line-height: 120%;
+
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+.pwa_stack {
+  position: fixed;
+  left: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  z-index: 990;
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: min(340px, calc(100% - 32px));
+}
+
+.pwa_card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  padding: 16px;
+
+  border: 0.5px solid #bdbcdb;
+  border-radius: 12px;
+  background-color: #ffffff;
+  box-shadow: 0px 3px 10px 0px #8e8dd03b;
+  color: #212121;
+
+  > svg {
+    margin-top: 1px;
+    color: #605dec;
+  }
+
+  .pwa_card_text {
+    display: grid;
+    gap: 4px;
+    font-size: 13px;
+    line-height: 140%;
+    color: #444455;
+  }
+
+  .pwa_card_title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #212121;
+  }
+
+  .pwa_inline_icon {
+    display: inline;
+    vertical-align: text-bottom;
+  }
+
+  .pwa_card_actions {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+  }
+}
+
+.pwa_offline_page {
+  display: grid;
+  place-items: center;
+  min-height: 100%;
+  padding: 32px 16px;
+  box-sizing: border-box;
+
+  .pwa_offline_content {
+    display: grid;
+    justify-items: center;
+    gap: 12px;
+    width: min(420px, 100%);
+    padding: 32px 24px;
+    box-sizing: border-box;
+
+    border: 0.5px solid #bdbcdb;
+    border-radius: 12px;
+    background-color: #ffffff;
+    text-align: center;
+
+    svg {
+      color: #605dec;
+    }
+
+    h1 {
+      font-weight: 500;
+      font-size: 18px;
+      line-height: 120%;
+      color: #212121;
+    }
+
+    p {
+      margin-bottom: 8px;
+      font-size: 14px;
+      line-height: 140%;
+      color: #444455;
+    }
+  }
+}
+
+.app > .pwa_offline_page {
+  min-height: 100vh;
+}

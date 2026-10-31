@@ -1,5 +1,4 @@
 import { useState } from "react";
-import ExcelJS from "exceljs";
 import "./BulkUpload.scss";
 import { PrimaryButton, SecondaryButton } from "../Buttons/Buttons";
 import InputFiles from "../InputFields/InputFiles";
@@ -148,7 +147,9 @@ const StaffBulkUpload = ({ onClick }: { onClick: () => void }) => {
             location: "Main Campus",
         };
 
-        const workbook = new ExcelJS.Workbook();
+        const { Workbook } = (await import("exceljs")).default;
+
+        const workbook = new Workbook();
         const worksheet = workbook.addWorksheet("Staff_Template");
 
         worksheet.columns = systemFields.map((field) => ({
@@ -193,7 +194,8 @@ const StaffBulkUpload = ({ onClick }: { onClick: () => void }) => {
 
         try {
             const arrayBuffer = await file.arrayBuffer();
-            const workbook = new ExcelJS.Workbook();
+            const { Workbook } = (await import("exceljs")).default;
+            const workbook = new Workbook();
             await workbook.xlsx.load(arrayBuffer);
 
             const worksheet = workbook.worksheets[0];
