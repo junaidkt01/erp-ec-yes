@@ -39,7 +39,7 @@ const AddStaff = () => {
     const { mutateAsync: addStaff } = useAddStaff();
     const { mutateAsync: updateStaff } = useUpdateStaff(staff_id || "");
 
-    const [formData, setFormData] = useState({
+    const initialStaffState = {
         staff_code: "",
         category: "",
         email: "",
@@ -78,7 +78,8 @@ const AddStaff = () => {
         basic_salary: null as number | null,
         contract_type: "",
         location: "",
-    });
+    };
+    const [formData, setFormData] = useState(initialStaffState);
     console.log("formData: ", formData);
 
     useEffect(() => {

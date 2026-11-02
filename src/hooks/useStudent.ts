@@ -4,7 +4,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "../api/axiosInstance";
 import { student } from "../api/endpoints";
 
-const STUDENTS_KEY = ["students"];
+import { DASHBOARD_KEY } from "./useDashboard";
+
+export const STUDENTS_KEY = ["students"];
 
 export interface Student {
   id: number;
@@ -57,43 +59,13 @@ interface Pagination<T> {
 // }
 
 // Fetch All Students
-// export const useFetchAllStudents = (page: number = 1, academic_year_id:number | string, class_id:number|string,section_id:number|string,search:string) => {
-//   return useQuery<Pagination<Student>>({
-//     queryKey: [...STUDENTS_KEY, page, academic_year_id, class_id, section_id, search],
-//     queryFn: async () => {
-//       const res = await axiosInstance.get<any>(
-//         `${student.students}?page=${page}&academic_year_id=${academic_year_id}&class_id=${class_id}&section_id=${section_id}&search=${search}`,
-//       );
-//       return res.data;
-//     },
-
-//     placeholderData: (previousData) => previousData, //keep previous data, show skeleton data,show partial data
-//   });
-// };
-
-
-interface StudentFilters {
-  academic_year_id?: number | string;
-  class_id?: number | string;
-  section_id?: number | string;
-  search?: string;
-}
-
-export const useFetchAllStudents = (
-  page = 1,
-  filters?: StudentFilters
-) => {
+export const useFetchAllStudents = (page: number = 1, { academic_year_id, class_id, section_id, search }: { academic_year_id: number | string, class_id: number | string, section_id: number | string, search: string }) => {
   return useQuery<Pagination<Student>>({
-    queryKey: [...STUDENTS_KEY, page, filters],
-
+    queryKey: [...STUDENTS_KEY, page, academic_year_id, class_id, section_id, search],
     queryFn: async () => {
-      const res = await axiosInstance.get(student.students, {
-        params: {
-          page,
-          ...filters,
-        },
-      });
-
+      const res = await axiosInstance.get<any>(
+        `${student.students}?page=${page}&academic_year_id=${academic_year_id}&class_id=${class_id}&section_id=${section_id}&search=${search}`,
+      );
       return res.data;
     },
 
@@ -101,16 +73,17 @@ export const useFetchAllStudents = (
   });
 };
 
-// Fetch one Students
-export const useFetchOneStudent = (id?: string) => {
+// Fetch one Students (Scenario 1 fix: dedicated unique key, always fresh, no leaked previous data)
+export const useFetchOneStudent = (id?: string | number) => {
   return useQuery({
-    queryKey: ["student"],
+    queryKey: [...STUDENTS_KEY, "detail", id ? String(id) : ""],
     queryFn: async () => {
       const res = await axiosInstance.get(`${student.students}/${id}`);
       return res.data;
     },
-    enabled: !!id,
-    placeholderData: (prev) => prev,
+    enabled: Boolean(id && String(id).trim() !== ""),
+    staleTime: 0,
+    refetchOnMount: true,
   });
 };
 
@@ -203,6 +176,9 @@ export const useAddStudent = () => {
       queryClient.invalidateQueries({
         queryKey: STUDENTS_KEY,
       });
+      queryClient.invalidateQueries({
+        queryKey: DASHBOARD_KEY,
+      });
     },
     onError: (data) => {
       console.log("eror: data: ", data);
@@ -241,6 +217,13 @@ export const useUpdateStudent = (student_id: string) => {
     onSuccess: (data) => {
       console.log("ssss: success: ", data);
       queryClient.invalidateQueries({ queryKey: [...STUDENTS_KEY] });
+      if (student_id) {
+        queryClient.invalidateQueries({
+          queryKey: [...STUDENTS_KEY, "detail", String(student_id)],
+        });
+        queryClient.invalidateQueries({ queryKey: ["student"] });
+      }
+      queryClient.invalidateQueries({ queryKey: DASHBOARD_KEY });
     },
     onError: (error) => {
       console.log("ssss: error: ", error);
@@ -258,9 +241,18 @@ export const useRemoveStudent = () => {
       return res.data;
     },
 
-    onSuccess: () => {
+    onSuccess: (_data, id) => {
       queryClient.invalidateQueries({
         queryKey: STUDENTS_KEY,
+      });
+      if (id) {
+        queryClient.removeQueries({
+          queryKey: [...STUDENTS_KEY, "detail", String(id)],
+        });
+        queryClient.removeQueries({ queryKey: ["student"] });
+      }
+      queryClient.invalidateQueries({
+        queryKey: DASHBOARD_KEY,
       });
     },
   });
@@ -289,9 +281,17 @@ export const useBlockStudent = () => {
       return res.data;
     },
 
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
         queryKey: STUDENTS_KEY,
+      });
+      if (variables?.studentId) {
+        queryClient.invalidateQueries({
+          queryKey: [...STUDENTS_KEY, "detail", String(variables.studentId)],
+        });
+      }
+      queryClient.invalidateQueries({
+        queryKey: DASHBOARD_KEY,
       });
     },
 
@@ -341,6 +341,9 @@ export const useBulkAddStudents = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: STUDENTS_KEY,
+      });
+      queryClient.invalidateQueries({
+        queryKey: DASHBOARD_KEY,
       });
     },
 

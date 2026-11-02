@@ -18,6 +18,7 @@ const StudentProfilePage = () => {
 
     const tabs = [
         "Profile",
+        "Siblings",
         "Parents",
         "Leave",
         "Exam",

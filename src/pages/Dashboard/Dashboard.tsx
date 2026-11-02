@@ -74,8 +74,8 @@ const Dashboard = () => {
               </div>
               <div onClick={() => {
                 if (key === "students") navigate("/student-info/add-student")
-                else if (key === "teachers") navigate("/teachers")
-                else if (key === "parents") navigate("/parents")
+                else if (key === "teachers") navigate("/human-resource/add-staff")
+                else if (key === "parents") navigate("/student-info/student-parents")
                 else if (key === "staffs") navigate("/human-resource/add-staff")
               }} className="add_icon" >
                 <img src="/widget/widget_plus.svg" alt="" />
@@ -97,8 +97,8 @@ const Dashboard = () => {
               </div>
               <PrimaryButton title={"View All"} onClick={() => {
                 if (key === "students") navigate("/student-info/student-list")
-                else if (key === "teachers") navigate("/teachers")
-                else if (key === "parents") navigate("/parents")
+                else if (key === "teachers") navigate("/human-resource/staff-list")
+                else if (key === "parents") navigate("/student-info/student-parents")
                 else if (key === "staffs") navigate("/human-resource/staff-list")
               }} />
             </div>

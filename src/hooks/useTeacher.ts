@@ -4,7 +4,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "../api/axiosInstance";
 import { teacher } from "../api/endpoints";
 
-const TEACHERS_KEY = ["teachers"];
+import { DASHBOARD_KEY } from "./useDashboard";
+
+export const TEACHERS_KEY = ["teachers"];
 
 export interface Teacher {
   id: number;
@@ -59,12 +61,15 @@ const queryClient = useQueryClient();
         `${teacher.teachers}`,
         payload,
       );
-      res.data;
+      return res.data;
     },
 
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: TEACHERS_KEY,
+      });
+      queryClient.invalidateQueries({
+        queryKey: DASHBOARD_KEY,
       });
     },
   });
@@ -80,8 +85,7 @@ export interface UpdateTeacherPayload {
 }
 
 export const useUpdateSection = () => {
-
-    const queryClient = useQueryClient(); //for update and add
+    const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (updatePayload: UpdateTeacherPayload) => {
       const { id, ...updatedData } = updatePayload;
@@ -94,9 +98,17 @@ export const useUpdateSection = () => {
       return res.data;
     },
 
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
         queryKey: TEACHERS_KEY,
+      });
+      if (variables?.id) {
+        queryClient.invalidateQueries({
+          queryKey: [...TEACHERS_KEY, "detail", String(variables.id)],
+        });
+      }
+      queryClient.invalidateQueries({
+        queryKey: DASHBOARD_KEY,
       });
     },
   });
@@ -104,7 +116,6 @@ export const useUpdateSection = () => {
 
 //remove class api
 export const useRemoveTeacher = () => {
-
     const queryClient = useQueryClient(); 
   return useMutation({
     mutationFn: async (id: number) => {
@@ -115,9 +126,17 @@ export const useRemoveTeacher = () => {
       return res.data;
     },
 
-    onSuccess: () => {
+    onSuccess: (_data, id) => {
       queryClient.invalidateQueries({
         queryKey: TEACHERS_KEY,
+      });
+      if (id) {
+        queryClient.removeQueries({
+          queryKey: [...TEACHERS_KEY, "detail", String(id)],
+        });
+      }
+      queryClient.invalidateQueries({
+        queryKey: DASHBOARD_KEY,
       });
     },
   });

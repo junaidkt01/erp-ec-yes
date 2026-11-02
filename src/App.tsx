@@ -68,6 +68,7 @@ import SidebarController from './pages/SidebarController/SidebarController'
 import BehaviourReport from './pages/BehaviourRecords/BehaviourReport/BehaviourReport'
 import HomeWorkList from './pages/HomeWork/HomeWorkList/HomeWorkList'
 import HomeWorkReport from './pages/HomeWork/HomeWorkReport/HomeWorkReport'
+import StudentParentList from './pages/StudentInfo/StudentParent/StudentParentList'
 
 function App() {
   const { open, statusCode, message, hide } = useOverlayStore();
@@ -95,12 +96,12 @@ function App() {
         )}
         <Toaster />
         <OfflineGate>
-        <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ForgotPassword />} />
-          <Route path="/reset-password/:email/:token" element={<ForgotPassword />} />
-        </Routes>
+          <Routes>
+            <Route path="/" element={<Login />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ForgotPassword />} />
+            <Route path="/reset-password/:email/:token" element={<ForgotPassword />} />
+          </Routes>
         </OfflineGate>
       </div>
     );
@@ -127,98 +128,102 @@ function App() {
           {/* </ProtectedRoute> */}
           <div style={{ height: "calc(100% - 64.5px)", overflowY: "auto" }} >
             <OfflineGate>
-            <Routes>
-              <Route path='/dashboard' element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Routes>
+                <Route path='/dashboard' element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
 
-              {/* 1. Admin Section Routes */}
-              <Route path='/admin-section/complaint' element={<ProtectedRoute><Complaint /></ProtectedRoute>} />
-              <Route path='/admin-section/admission-query' element={<AdmissionQuery />} />
-              <Route path='/admin-section/postal-receive' element={<PostalReceive />} />
-              <Route path='/admin-section/postal-dispatch' element={<PostalDispatch />} />
-              <Route path='/admin-section/phone-call-log' element={<PhoneCallLog />} />
-              <Route path='/admin-section/id-card' element={<IDCard />} />
-              <Route path='/admin-section/certificate' element={<Certificate />} />
-              <Route path='/admin-section/generate-certificate' element={<GenerateCertificate />} />
-              <Route path='/admin-section/generate-id-card' element={<GenerateIDCard />} />
+                {/* 1. Admin Section Routes */}
+                <Route path='/admin-section/complaint' element={<ProtectedRoute><Complaint /></ProtectedRoute>} />
+                <Route path='/admin-section/admission-query' element={<AdmissionQuery />} />
+                <Route path='/admin-section/postal-receive' element={<PostalReceive />} />
+                <Route path='/admin-section/postal-dispatch' element={<PostalDispatch />} />
+                <Route path='/admin-section/phone-call-log' element={<PhoneCallLog />} />
+                <Route path='/admin-section/id-card' element={<IDCard />} />
+                <Route path='/admin-section/certificate' element={<Certificate />} />
+                <Route path='/admin-section/generate-certificate' element={<GenerateCertificate />} />
+                <Route path='/admin-section/generate-id-card' element={<GenerateIDCard />} />
 
-              {/* 2. Academics Routes */}
-              <Route path='/Academics/optional-subject' element={<OptionalSubject />} />
-              <Route path='/Academics/section' element={<Section />} />
-              <Route path='/Academics/class' element={<Class />} />
-              <Route path='/Academics/subjects' element={<Subjects />} />
-              <Route path='/Academics/assign-class-teacher' element={<AssignClassTeacher />} />
-              <Route path='/Academics/class-room' element={<ClassRoom />} />
+                {/* 2. Academics Routes */}
+                <Route path='/Academics/optional-subject' element={<OptionalSubject />} />
+                <Route path='/Academics/section' element={<Section />} />
+                <Route path='/Academics/class' element={<Class />} />
+                <Route path='/Academics/subjects' element={<Subjects />} />
+                <Route path='/Academics/assign-class-teacher' element={<AssignClassTeacher />} />
+                <Route path='/Academics/class-room' element={<ClassRoom />} />
 
-              {/* 3. Study Material Routes */}
-              <Route path='/study-material/upload-content' element={<UploadContent />} />
-              <Route path='/study-material/assignment' element={<Assignment />} />
-              <Route path='/study-material/syllabus' element={<Syllabus />} />
-              <Route path='/study-material/other-downloads' element={<OtherDownloads />} />
+                {/* 3. Study Material Routes */}
+                <Route path='/study-material/upload-content' element={<UploadContent />} />
+                <Route path='/study-material/assignment' element={<Assignment />} />
+                <Route path='/study-material/syllabus' element={<Syllabus />} />
+                <Route path='/study-material/other-downloads' element={<OtherDownloads />} />
 
-              {/* 4. Download Center Routes */}
-              <Route path='/download-center/content-type' element={<ContentType />} />
-              <Route path='/download-center/content-list' element={<ContentList />} />
-              <Route path='/download-center/shared-Content-List' element={<SharedContentList />} />
-              <Route path='/download-center/video-list' element={<VideoList />} />
+                {/* 4. Download Center Routes */}
+                <Route path='/download-center/content-type' element={<ContentType />} />
+                <Route path='/download-center/content-list' element={<ContentList />} />
+                <Route path='/download-center/shared-Content-List' element={<SharedContentList />} />
+                <Route path='/download-center/video-list' element={<VideoList />} />
 
-              {/* 5. Student Info */}
-              <Route path='/student-info/student-category' element={<StudentCategory />} />
-              <Route path='/student-info/add-student' element={<div><AddStudent /></div>} />
-              <Route path='/student-info/add-student/:student_id' element={<div><AddStudent /></div>} />
-              <Route path='/student-info/student-list' element={<StudentList />} />
-              <Route path='/student-info/multi-class-student' element={<MultiClassStudent />} />
-              <Route path='/student-info/delete-student-record' element={<DeleteStudentRecord />} />
-              <Route path='/student-info/unassigned-student' element={<UnassignedStudent />} />
-              <Route path='/student-info/student-attendance' element={<StudentAttendance />} />
-              <Route path='/student-info/student-group' element={<StudentGroup />} />
-              <Route path='/student-info/student-promote' element={<StudentPromote />} />
-              <Route path='/student-info/disabled-students' element={<DisabledStudents />} />
-              <Route path='/student-info/subject-wise-attendance' element={<StudentAttendance />} />
-              <Route path='/student-info/student-export' element={<div>student-export</div>} />
-              <Route path='/student-info/sms-sending-time' element={<div>sms-sending-time</div>} />
-              <Route path='/student-info/student-settings' element={<div>student-settings</div>} />
-              <Route path='/student-info/profile/:student_id' element={<StudentProfilePage />} />
+                {/* 5. Student Info */}
+                <Route path='/student-info/student-category' element={<StudentCategory />} />
 
-              {/* 6. Fees */}
-              <Route path='/fees/fees-group' element={<FeesGroup />} />
-              <Route path='/fees/fees-type' element={<div>fees-type</div>} />
-              <Route path='/fees/fees-invoice' element={<div>fees-invoice</div>} />
-              <Route path='/fees/bank-payment' element={<div>bank-payment</div>} />
-              <Route path='/fees/fees-carry-forward' element={<div>fees-carry-forward</div>} />
+                <Route path='/student-info/student-parents' element={<StudentParentList />} />
+                {/* <Route path='/student-info/student-parent' element={<StudentParentList />} /> */}
 
-              {/* 6. Human Resource */}
-              <Route path='/human-resource/add-staff' element={<AddStaff />} />
-              <Route path='/human-resource/add-staff/:staff_id' element={<AddStaff />} />
-              <Route path='/human-resource/staff-list' element={<StaffList />} />
-              <Route path='/human-resource/profile/:staff_id' element={<StaffProfilePage />} />
+                <Route path='/student-info/add-student' element={<div><AddStudent /></div>} />
+                <Route path='/student-info/add-student/:student_id' element={<div><AddStudent /></div>} />
+                <Route path='/student-info/student-list' element={<StudentList />} />
+                <Route path='/student-info/multi-class-student' element={<MultiClassStudent />} />
+                <Route path='/student-info/delete-student-record' element={<DeleteStudentRecord />} />
+                <Route path='/student-info/unassigned-student' element={<UnassignedStudent />} />
+                <Route path='/student-info/student-attendance' element={<StudentAttendance />} />
+                <Route path='/student-info/student-group' element={<StudentGroup />} />
+                <Route path='/student-info/student-promote' element={<StudentPromote />} />
+                <Route path='/student-info/disabled-students' element={<DisabledStudents />} />
+                <Route path='/student-info/subject-wise-attendance' element={<StudentAttendance />} />
+                <Route path='/student-info/student-export' element={<div>student-export</div>} />
+                <Route path='/student-info/sms-sending-time' element={<div>sms-sending-time</div>} />
+                <Route path='/student-info/student-settings' element={<div>student-settings</div>} />
+                <Route path='/student-info/profile/:student_id' element={<StudentProfilePage />} />
+
+                {/* 6. Fees */}
+                <Route path='/fees/fees-group' element={<FeesGroup />} />
+                <Route path='/fees/fees-type' element={<div>fees-type</div>} />
+                <Route path='/fees/fees-invoice' element={<div>fees-invoice</div>} />
+                <Route path='/fees/bank-payment' element={<div>bank-payment</div>} />
+                <Route path='/fees/fees-carry-forward' element={<div>fees-carry-forward</div>} />
+
+                {/* 6. Human Resource */}
+                <Route path='/human-resource/add-staff' element={<AddStaff />} />
+                <Route path='/human-resource/add-staff/:staff_id' element={<AddStaff />} />
+                <Route path='/human-resource/staff-list' element={<StaffList />} />
+                <Route path='/human-resource/profile/:staff_id' element={<StaffProfilePage />} />
 
 
-              {/* 7. Behaviour Records */}
-              <Route path='/behaviour-records/incidents' element={<Incidents />} />
-              <Route path='/behaviour-records/assign-incident' element={<AssignIncident />} />
-              <Route path='/behaviour-records/student-incident-report' element={<BehaviourReport />} />
-              <Route path='/behaviour-records/behaviour-report' element={<BehaviourReport />} />
-              <Route path='/behaviour-records/incident-wise-report' element={<div>Incident Wise report</div>} />
-              <Route path='/behaviour-records/settings' element={<div>Settings</div>} />
+                {/* 7. Behaviour Records */}
+                <Route path='/behaviour-records/incidents' element={<Incidents />} />
+                <Route path='/behaviour-records/assign-incident' element={<AssignIncident />} />
+                <Route path='/behaviour-records/student-incident-report' element={<BehaviourReport />} />
+                <Route path='/behaviour-records/behaviour-report' element={<BehaviourReport />} />
+                <Route path='/behaviour-records/incident-wise-report' element={<div>Incident Wise report</div>} />
+                <Route path='/behaviour-records/settings' element={<div>Settings</div>} />
 
-              {/* 8. Settings Section */}
-              <Route path='/settings-section/general-settings' element={<GeneralSettings />} />
-              <Route path='/settings-section/update-general-settings' element={<UpdateGeneralSettings />} />
+                {/* 8. Settings Section */}
+                <Route path='/settings-section/general-settings' element={<GeneralSettings />} />
+                <Route path='/settings-section/update-general-settings' element={<UpdateGeneralSettings />} />
 
-              {/* 9. Admin Section */}
-              <Route path='/admin-info/profile/:admin_id' element={<AdminProfile />} />
+                {/* 9. Admin Section */}
+                <Route path='/admin-info/profile/:admin_id' element={<AdminProfile />} />
 
-              {/* 10. Controls Section */}
-              <Route path='/sidebar' element={<SidebarController />} />
+                {/* 10. Controls Section */}
+                <Route path='/sidebar' element={<SidebarController />} />
 
-              {/* 11. Home Work */}
-              <Route path='/home-work/homework-list' element={<HomeWorkList />} />
-              <Route path='/home-work/homework-report' element={<HomeWorkReport />} />
+                {/* 11. Home Work */}
+                <Route path='/home-work/homework-list' element={<HomeWorkList />} />
+                <Route path='/home-work/homework-report' element={<HomeWorkReport />} />
 
-              {/* Error page */}
-              <Route path='/error-page-404' element={<ErrorStatusOverlay isError={true} status={404} />} />
-              <Route path='/error-page-500' element={<ErrorStatusOverlay isError={true} status={500} />} />
-            </Routes>
+                {/* Error page */}
+                <Route path='/error-page-404' element={<ErrorStatusOverlay isError={true} status={404} />} />
+                <Route path='/error-page-500' element={<ErrorStatusOverlay isError={true} status={500} />} />
+              </Routes>
             </OfflineGate>
           </div>
         </div>

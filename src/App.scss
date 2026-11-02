@@ -1,6 +1,6 @@
 .page_wrapper {
   height: calc(100dvh - 114.5px);
-  
+
 }
 
 .overlay_wrapper {
@@ -19,14 +19,15 @@
   &:hover {
     transform: scale(0.97);
   }
-  
+
 }
+
 .hvr_zm_out_tbl_rw {
   transition: transform 0.25s ease;
 
   &:hover {
     transform: scale(0.99);
-  } 
+  }
 }
 
 .hvr_zm_in {
@@ -88,6 +89,8 @@
 
 .home_work_list,
 .home_work_report,
+
+.student_parent,
 
 .dashboard {
   padding: 24px;

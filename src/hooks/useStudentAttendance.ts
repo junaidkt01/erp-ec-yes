@@ -7,7 +7,8 @@ import { studentAttendance } from "../api/endpoints";
 
 
 
-const STUDENT_ATTENDANCE_KEY = "student-attendance";
+export const STUDENT_ATTENDANCE_KEY = ["student-attendance"];
+export const MONTHLY_ATTENDANCE_REPORT_KEY = ["monthly-student-attendance-report"];
 
 export interface StudentAttendanceFilterParams {
     class_id?: string | number;
@@ -29,7 +30,7 @@ interface StudentAttendanceResponse {
 
 export const useFetchStudentAttendance = (params?: StudentAttendanceFilterParams) => {
     return useQuery<StudentAttendanceItem[]>({
-        queryKey: [STUDENT_ATTENDANCE_KEY, params],
+        queryKey: [...STUDENT_ATTENDANCE_KEY, params],
         queryFn: async () => {
             const queryParams: Record<string, string> = {};
 
@@ -86,7 +87,10 @@ export const useAddStudentAttendance = () => {
 
         onSuccess: () => {
             queryClient.invalidateQueries({
-                queryKey: [...STUDENT_ATTENDANCE_KEY],
+                queryKey: STUDENT_ATTENDANCE_KEY,
+            });
+            queryClient.invalidateQueries({
+                queryKey: MONTHLY_ATTENDANCE_REPORT_KEY,
             });
         },
     });
@@ -117,7 +121,10 @@ export const useUpdateSection = () => {
 
         onSuccess: () => {
             queryClient.invalidateQueries({
-                queryKey: [...STUDENT_ATTENDANCE_KEY],
+                queryKey: STUDENT_ATTENDANCE_KEY,
+            });
+            queryClient.invalidateQueries({
+                queryKey: MONTHLY_ATTENDANCE_REPORT_KEY,
             });
         },
     });
@@ -138,7 +145,10 @@ export const useRemoveSection = () => {
 
         onSuccess: () => {
             queryClient.invalidateQueries({
-                queryKey: [...STUDENT_ATTENDANCE_KEY],
+                queryKey: STUDENT_ATTENDANCE_KEY,
+            });
+            queryClient.invalidateQueries({
+                queryKey: MONTHLY_ATTENDANCE_REPORT_KEY,
             });
         },
     });

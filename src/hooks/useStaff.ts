@@ -4,7 +4,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "../api/axiosInstance";
 import { staff } from "../api/endpoints";
 
-const STAFF_KEY = ["staffs"];
+import { DASHBOARD_KEY } from "./useDashboard";
+
+export const STAFF_KEY = ["staffs"];
 
 export interface Staff {
   id: number;
@@ -82,16 +84,17 @@ export const useFetchAllStaff = (page = 1, filters?: StaffFilters) => {
   });
 };
 
-// Fetch one Staff
-export const useFetchOneStaff = (id?: string) => {
+// Fetch one Staff (Scenario 1 fix: dedicated unique key, always fresh, no leaked previous data)
+export const useFetchOneStaff = (id?: string | number) => {
   return useQuery({
-    queryKey: ["staff", id],
+    queryKey: [...STAFF_KEY, "detail", id ? String(id) : ""],
     queryFn: async () => {
       const res = await axiosInstance.get(`${staff.staffs}/${id}`);
       return res.data;
     },
-    enabled: !!id,
-    placeholderData: (prev) => prev,
+    enabled: Boolean(id && String(id).trim() !== ""),
+    staleTime: 0,
+    refetchOnMount: true,
   });
 };
 
@@ -112,6 +115,9 @@ export const useAddStaff = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [...STAFF_KEY],
+      });
+      queryClient.invalidateQueries({
+        queryKey: DASHBOARD_KEY,
       });
     },
   });
@@ -134,6 +140,20 @@ export const useUpdateStaff = (staff_id: string) => {
       queryClient.invalidateQueries({
         queryKey: [...STAFF_KEY],
       });
+      if (staff_id) {
+        queryClient.invalidateQueries({
+          queryKey: [...STAFF_KEY, "detail", String(staff_id)],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["staff", String(staff_id)],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["staff", staff_id],
+        });
+      }
+      queryClient.invalidateQueries({
+        queryKey: DASHBOARD_KEY,
+      });
     },
   });
 };
@@ -147,9 +167,23 @@ export const useRemoveStaff = () => {
       return res.data;
     },
 
-    onSuccess: () => {
+    onSuccess: (_data, id) => {
       queryClient.invalidateQueries({
         queryKey: STAFF_KEY,
+      });
+      if (id) {
+        queryClient.removeQueries({
+          queryKey: [...STAFF_KEY, "detail", String(id)],
+        });
+        queryClient.removeQueries({
+          queryKey: ["staff", String(id)],
+        });
+        queryClient.removeQueries({
+          queryKey: ["staff", id],
+        });
+      }
+      queryClient.invalidateQueries({
+        queryKey: DASHBOARD_KEY,
       });
     },
   });
@@ -173,9 +207,17 @@ export const useBlockStaff = () => {
       return res.data;
     },
 
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
         queryKey: STAFF_KEY,
+      });
+      if (variables?.staffId) {
+        queryClient.invalidateQueries({
+          queryKey: [...STAFF_KEY, "detail", String(variables.staffId)],
+        });
+      }
+      queryClient.invalidateQueries({
+        queryKey: DASHBOARD_KEY,
       });
     },
   });
@@ -222,6 +264,9 @@ export const useBulkAddStaff = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: STAFF_KEY,
+      });
+      queryClient.invalidateQueries({
+        queryKey: DASHBOARD_KEY,
       });
     },
 

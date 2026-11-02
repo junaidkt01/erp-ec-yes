@@ -149,6 +149,8 @@ export const useFetchHomeworkById = (id?: number | string, enabled = true) => {
       return res.data?.data ?? res.data;
     },
     enabled: Boolean(id) && enabled,
+    staleTime: 0,
+    refetchOnMount: true,
   });
 };
 
@@ -230,8 +232,11 @@ export const useDeleteHomework = () => {
       const res = await axiosInstance.delete(`${homework.homeworks}/${id}`);
       return res.data;
     },
-    onSuccess: () => {
+    onSuccess: (_data, id) => {
       queryClient.invalidateQueries({ queryKey: HOMEWORK_KEY });
+      if (id) {
+        queryClient.removeQueries({ queryKey: [...HOMEWORK_KEY, "detail", id] });
+      }
       queryClient.invalidateQueries({ queryKey: HOMEWORK_REPORT_KEY });
     },
   });
@@ -268,6 +273,8 @@ export const useFetchEvaluationSummary = (submissionId?: number | string, enable
       return res.data?.data ?? res.data;
     },
     enabled: Boolean(submissionId) && enabled,
+    staleTime: 0,
+    refetchOnMount: true,
   });
 };
 

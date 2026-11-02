@@ -323,7 +323,13 @@ const AddStudent = () => {
     console.log("formData: ", formData)
 
     useEffect(() => {
-        if (!student || !student_id) return;
+        if (!student_id) {
+            setFormData(studentForm);
+            setPhotos(initialPhotosState);
+            setSameAsCurrentAddress(false);
+            return;
+        }
+        if (!student) return;
 
         const data = student.data || {};
         const parents = data.parents || {};

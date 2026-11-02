@@ -1,8 +1,10 @@
-//useDashboard.ts//
+// src/hooks/useDashboard.ts
 
 import { useQuery } from "@tanstack/react-query";
 import axiosInstance from "../api/axiosInstance";
 import { dashboard } from "../api/endpoints";
+
+export const DASHBOARD_KEY = ["dashboard"];
 
 export interface DashboardSummary {
   students: number;
@@ -43,11 +45,11 @@ export interface DashboardData {
   current_month_year: string;
   current_year: number;
   school_info: {
-    category_of_institution?: string
-    school_name?: string
-    suic_code?: string
-    zone?: string
-  }
+    category_of_institution?: string;
+    school_name?: string;
+    suic_code?: string;
+    zone?: string;
+  };
 }
 
 interface DashboardResponse {
@@ -56,12 +58,13 @@ interface DashboardResponse {
 
 export const useDashboard = () => {
   return useQuery<DashboardData>({
-    queryKey: ["dashboard"],
+    queryKey: DASHBOARD_KEY,
     queryFn: async () => {
       const res = await axiosInstance.get<DashboardResponse>(
-        `${dashboard.dashboard}`,
+        `${dashboard.dashboard}`
       );
       return res.data.data;
     },
+    refetchOnMount: true,
   });
 };

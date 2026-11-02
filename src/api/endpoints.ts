@@ -100,7 +100,10 @@ export const studentDocument = { student_documents: "/student-documents" };
 
 export const studentFee = { student_fees: "/student-fees" };
 
-export const studentParent = { student_parents: "/student-parents" };
+export const studentParent = {
+  student_parents: "/student-parents",
+  children: "/parent/children",
+};
 
 export const studyMaterial = { study_materials: "/study-materials" };
 

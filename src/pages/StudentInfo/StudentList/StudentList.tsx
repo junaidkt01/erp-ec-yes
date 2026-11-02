@@ -60,7 +60,8 @@ const StudentList = () => {
     };
 
     const columns: Column[] = [
-        { key: "sl", title: "SL" },
+        // { key: "sl", title: "SL" },
+        { key: "roll_no", title: "Roll No" },
         { key: "photo", title: "Image" },
         { key: "admission_no", title: "Admission No" },
         { key: "name", title: "Name" },
@@ -78,8 +79,9 @@ const StudentList = () => {
 
         const mappedDat = sampleData?.data?.map((student: any) => student)
         console.log("mappedDat: ", mappedDat)
-        const mappedData = sampleData?.data?.map((student: any, index: number) => ({
-            sl: index + 1,
+        const mappedData = sampleData?.data?.map((student: any) => ({
+            // sl: index + 1,
+            roll_no: student.roll_no,
             // photo: student.photo || "/header_icons/profile_pic.png",
             photo: student.photo ? `${BASE_URL}/public/${student.photo}` : "/student.png",
             admission_no: student.admission_no || "",
@@ -93,7 +95,7 @@ const StudentList = () => {
 
             full_data: student,
         }))
-        
+
         setStudentList(mappedData);
     }, [sampleData]);
     console.log("studentList: ", studentList)

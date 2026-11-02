@@ -153,26 +153,77 @@ const Profile = ({ type, data, details, tabs, profileDetails, activeTab, setActi
                                     </div>
                                 )}
 
-                                {activeTab === "Parents" && (
-                                    <div className="details-list">
-                                        <div className="detail-row">
-                                            <div className="label">Father Name</div>
-                                            <div className="value">{data?.data?.parents?.father_name}</div>
-                                        </div>
-                                        <div className="detail-row">
-                                            <div className="label">Mother Name</div>
-                                            <div className="value">{data?.data?.parents?.mother_name}</div>
-                                        </div>
-                                    </div>
+                                {activeTab === "Siblings" && (
                                     // <div className="details-list">
-                                    //     {data?.data?.parents?.map((item: any) => (
-                                    //         <div className="detail-row" key={item.label}>
-                                    //             <div className="label">{item.label}</div>
-                                    //             <div className="value">{renderValue(item.value)}</div>
-                                    //         </div>
-                                    //     ))}
+                                        <div className="profile-details-wrapper">
+                                            <div className="profile-details-header profile-details-section">
+                                                <div className="profile-header-wrapper" >
+                                                    <img
+                                                        className="profile-photo"
+                                                        src={photoSrc}
+                                                        alt={data?.data?.full_name || data?.data?.name || "Profile"}
+                                                        onError={(e) => {
+                                                            (e.target as HTMLImageElement).src = "/user-square.svg";
+                                                        }}
+                                                    />
+                                                    <div className="name-and-details" >
+                                                        {
+                                                            type == "admin" ?
+                                                                <h1>{`${data?.full_name || "N/A"}`}</h1> :
+                                                                <h1>{`${data?.data?.full_name || "N/A"}`}<span>{(data?.data?.section?.gender)}</span></h1>
+                                                        }
+
+                                                        <div className="student-details">
+                                                            {details?.map((item: any) => (
+                                                                <div className="detail-item" key={item?.label}>
+                                                                    <span className="label">{item?.label}</span>
+                                                                    <span className="separator">:</span>
+                                                                    <span className="value">{renderValue(item?.value)}</span>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="profile-qr" >
+                                                    <DynamicQRCode value={qrValue} label={qrLabel} size={110} />
+                                                </div>
+                                            </div>
+                                        </div>
                                     // </div>
                                 )}
+
+                                {activeTab === "Parents" && (() => {
+                                    const p = data?.data?.parents || data?.parents || {};
+                                    return (
+                                        <div className="details-list">
+                                            <div className="detail-row">
+                                                <div className="label">Father Name</div>
+                                                <div className="value">{renderValue(p.father_name)}</div>
+                                            </div>
+                                            <div className="detail-row">
+                                                <div className="label">Father Phone</div>
+                                                <div className="value">{renderValue(p.father_phone)}</div>
+                                            </div>
+                                            <div className="detail-row">
+                                                <div className="label">Mother Name</div>
+                                                <div className="value">{renderValue(p.mother_name)}</div>
+                                            </div>
+                                            <div className="detail-row">
+                                                <div className="label">Mother Phone</div>
+                                                <div className="value">{renderValue(p.mother_phone)}</div>
+                                            </div>
+                                            <div className="detail-row">
+                                                <div className="label">Guardian Name</div>
+                                                <div className="value">{renderValue(p.guardian_name)}</div>
+                                            </div>
+                                            <div className="detail-row">
+                                                <div className="label">Guardian Phone</div>
+                                                <div className="value">{renderValue(p.guardian_phone)}</div>
+                                            </div>
+                                        </div>
+                                    );
+                                })()}
 
                                 {activeTab === "Leave" && (
                                     <div className="empty-page">Leave Content</div>
@@ -203,10 +254,6 @@ const Profile = ({ type, data, details, tabs, profileDetails, activeTab, setActi
                                     />
                                 )}
 
-                                {activeTab === "Subject Attendance" && (
-                                    <div className="empty-page">Subject Attendance Content</div>
-                                )}
-
                                 {activeTab === "Remarks Records" && (
                                     <div className="empty-page">Remarks Records</div>
                                 )}
@@ -217,7 +264,7 @@ const Profile = ({ type, data, details, tabs, profileDetails, activeTab, setActi
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default Profile
+export default Profile;
