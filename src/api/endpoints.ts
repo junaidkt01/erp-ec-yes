@@ -1,7 +1,7 @@
 // src/api/endpoints.ts
 
 
-export const BASE_URL = "https://dev.cyberduce.com/api";
+export const BASE_URL = "https://dev.cyberduce.com";
 // export const BASE_URL = "https://yesmlr.cyberduce.in";
 
 //"https://dev.cyberduce.com/public/uploads/parent_photos/1786446117_father_6a7b0125d8dbd.jpeg";
@@ -109,11 +109,15 @@ export const studyMaterial = { study_materials: "/study-materials" };
 
 export const studentCategory = { student_Categories: "/student-categories" };
 
+export const academicCategory = { academic_Categories: "/academic-categories" };
+
 export const studentMultiClass = { student_multi_classes: "/student-multi-classes" };
 
 export const subject = { subjects: "/subjects" };
 
 export const role = { roles: "/roles" };
+
+export const permission = { permissions: "/permissions" };
 
 export const user = { users: "/users" };
 

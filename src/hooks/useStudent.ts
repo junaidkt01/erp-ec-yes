@@ -59,7 +59,7 @@ interface Pagination<T> {
 // }
 
 // Fetch All Students
-export const useFetchAllStudents = (page: number = 1, { academic_year_id, class_id, section_id, search }: { academic_year_id: number | string, class_id: number | string, section_id: number | string, search: string }) => {
+export const useFetchAllStudents = (page: number = 1, { academic_year_id, class_id, section_id, search }: { academic_year_id?: number | string, class_id?: number | string, section_id?: number | string, search?: string } = {}) => {
   return useQuery<Pagination<Student>>({
     queryKey: [...STUDENTS_KEY, page, academic_year_id, class_id, section_id, search],
     queryFn: async () => {
@@ -188,34 +188,68 @@ export const useAddStudent = () => {
 
 //update Student api
 
+/**
+ * Student updates always go through `POST /students/{id}` as multipart/form-data
+ * (PHP does not parse multipart bodies on PUT). Plain objects are converted to
+ * FormData so JSON-style callers keep working.
+ *
+ * File contract:
+ *  - send a File under a field (e.g. `photo`) to upload/replace it
+ *  - omit the field to keep the existing file
+ *  - send `remove_<field>=1` (e.g. `remove_photo`) to delete the existing file
+ */
+const appendFormValue = (fd: FormData, key: string, value: unknown) => {
+  if (value === undefined) return;
+  if (value === null) {
+    fd.append(key, "");
+  } else if (value instanceof Blob) {
+    fd.append(key, value);
+  } else if (value instanceof Date) {
+    fd.append(key, value.toISOString());
+  } else if (Array.isArray(value)) {
+    value.forEach((item, i) => appendFormValue(fd, `${key}[${i}]`, item));
+  } else if (typeof value === "object") {
+    Object.entries(value as Record<string, unknown>).forEach(([k, v]) =>
+      appendFormValue(fd, `${key}[${k}]`, v),
+    );
+  } else if (typeof value === "boolean") {
+    fd.append(key, value ? "1" : "0");
+  } else {
+    fd.append(key, String(value));
+  }
+};
+
+export const toStudentFormData = (payload: FormData | Record<string, unknown>): FormData => {
+  if (payload instanceof FormData) return payload;
+  const fd = new FormData();
+  Object.entries(payload).forEach(([key, value]) => appendFormValue(fd, key, value));
+  return fd;
+};
+
+export const updateStudentRequest = async (
+  studentId: string | number,
+  payload: FormData | Record<string, unknown>,
+) => {
+  const res = await axiosInstance.post(`${student.students}/${studentId}`, toStudentFormData(payload));
+  return res.data;
+};
+
 export interface UpdateStudentPayload {
-  id: number;
-  full_name: string;
-  // first_name: string;
-  // last_name: string;
-  phone: string;
-  email: string;
-  class_id: number;
-  section_id: number;
+  full_name?: string;
+  phone?: string;
+  email?: string;
+  class_id?: number;
+  section_id?: number;
+  [key: string]: unknown;
 }
 
 export const useUpdateStudent = (student_id: string) => {
   const queryClient = useQueryClient(); //for update and add
   return useMutation({
-    mutationFn: async (updatePayload: UpdateStudentPayload) => {
-      const { ...updatedData } = updatePayload;
-      console.log("dfff", student_id, updatedData);
+    mutationFn: (updatePayload: UpdateStudentPayload | FormData) =>
+      updateStudentRequest(student_id, updatePayload),
 
-      const res = await axiosInstance.put(
-        `${student.students}/${student_id}`,
-        updatedData,
-      );
-
-      return res.data;
-    },
-
-    onSuccess: (data) => {
-      console.log("ssss: success: ", data);
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [...STUDENTS_KEY] });
       if (student_id) {
         queryClient.invalidateQueries({
@@ -226,7 +260,7 @@ export const useUpdateStudent = (student_id: string) => {
       queryClient.invalidateQueries({ queryKey: DASHBOARD_KEY });
     },
     onError: (error) => {
-      console.log("ssss: error: ", error);
+      console.error("Update student error:", error);
     },
   });
 };
@@ -272,14 +306,8 @@ export const useBlockStudent = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ studentId, data }: BlockStudentParams) => {
-      const res = await axiosInstance.put(
-        `${student.students}/${studentId}`,
-        data,
-      );
-
-      return res.data;
-    },
+    mutationFn: ({ studentId, data }: BlockStudentParams) =>
+      updateStudentRequest(studentId, data),
 
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({

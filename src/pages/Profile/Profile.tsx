@@ -66,6 +66,7 @@ const Profile = ({ type, data, details, tabs, profileDetails, activeTab, setActi
                     : `${type ? type.charAt(0).toUpperCase() + type.slice(1) : "User"} QR Code`;
 
     console.log("profileDetails: ", profileDetails)
+    console.log("data: 003", data?.data?.siblings)
 
     return (
         <div className="page_wrapper" >
@@ -155,46 +156,74 @@ const Profile = ({ type, data, details, tabs, profileDetails, activeTab, setActi
 
                                 {activeTab === "Siblings" && (
                                     // <div className="details-list">
-                                        <div className="profile-details-wrapper">
-                                            <div className="profile-details-header profile-details-section">
-                                                <div className="profile-header-wrapper" >
-                                                    <img
-                                                        className="profile-photo"
-                                                        src={photoSrc}
-                                                        alt={data?.data?.full_name || data?.data?.name || "Profile"}
-                                                        onError={(e) => {
-                                                            (e.target as HTMLImageElement).src = "/user-square.svg";
-                                                        }}
-                                                    />
-                                                    <div className="name-and-details" >
-                                                        {
-                                                            type == "admin" ?
-                                                                <h1>{`${data?.full_name || "N/A"}`}</h1> :
-                                                                <h1>{`${data?.data?.full_name || "N/A"}`}<span>{(data?.data?.section?.gender)}</span></h1>
-                                                        }
+                                    <div className="">
+                                        <>
+                                            <div className="profile-details-wrapper" >
+                                                {
+                                                    data?.data?.siblings?.map((item: any, i: number) => {
+                                                        const siblingQrValue =
+                                                            item?.student_code ||
+                                                            item?.staff_code ||
+                                                            item?.admission_no ||
+                                                            item?.email ||
+                                                            data?.email ||
+                                                            item?.id ||
+                                                            data?.id ||
+                                                            (typeof window !== "undefined" ? window.location.href : "USER-PROFILE");
 
-                                                        <div className="student-details">
-                                                            {details?.map((item: any) => (
-                                                                <div className="detail-item" key={item?.label}>
-                                                                    <span className="label">{item?.label}</span>
-                                                                    <span className="separator">:</span>
-                                                                    <span className="value">{renderValue(item?.value)}</span>
+                                                        const siblingQrLabel =
+                                                            type === "student"
+                                                                ? "Student QR Code"
+                                                                : type === "staff" || type === "teacher"
+                                                                    ? "Staff QR Code"
+                                                                    : type === "admin"
+                                                                        ? "Admin QR Code"
+                                                                        : `${type ? type.charAt(0).toUpperCase() + type.slice(1) : "User"} QR Code`;
+                                                        return (
+                                                            <div key={i} className="profile-details-header profile-details-section">
+                                                                <div className="profile-header-wrapper" >
+                                                                    <img
+                                                                        className="profile-photo"
+                                                                        src={photoSrc}
+                                                                        alt={item?.full_name || item?.name || "Profile"}
+                                                                        onError={(e) => {
+                                                                            (e.target as HTMLImageElement).src = "/user-square.svg";
+                                                                        }}
+                                                                    />
+                                                                    <div className="name-and-details" >
+                                                                        {
+                                                                            type == "admin" ?
+                                                                                <h1>{`${item?.full_name || "N/A"}`}</h1> :
+                                                                                <h1>{`${item?.full_name || "N/A"}`}<span>{(item?.section?.gender)}</span></h1>
+                                                                        }
+
+                                                                        <div className="student-details">
+                                                                            {details?.map((item: any) => (
+                                                                                <div className="detail-item" key={item?.label}>
+                                                                                    <span className="label">{item?.label}</span>
+                                                                                    <span className="separator">:</span>
+                                                                                    <span className="value">{renderValue(item?.value)}</span>
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                </div>
 
-                                                <div className="profile-qr" >
-                                                    <DynamicQRCode value={qrValue} label={qrLabel} size={110} />
-                                                </div>
+                                                                <div className="profile-qr" >
+                                                                    <DynamicQRCode value={siblingQrValue} label={siblingQrLabel} size={110} />
+                                                                </div>
+                                                            </div>
+                                                        )
+                                                    })
+                                                }
                                             </div>
-                                        </div>
-                                    // </div>
+                                        </>
+                                    </div>
                                 )}
 
                                 {activeTab === "Parents" && (() => {
                                     const p = data?.data?.parents || data?.parents || {};
+                                    console.log("p: ",p)
                                     return (
                                         <div className="details-list">
                                             <div className="detail-row">

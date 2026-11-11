@@ -69,6 +69,9 @@ import BehaviourReport from './pages/BehaviourRecords/BehaviourReport/BehaviourR
 import HomeWorkList from './pages/HomeWork/HomeWorkList/HomeWorkList'
 import HomeWorkReport from './pages/HomeWork/HomeWorkReport/HomeWorkReport'
 import StudentParentList from './pages/StudentInfo/StudentParent/StudentParentList'
+import AcademicCategory from './pages/Academics/AcademicCategory/AcademicCategory'
+import UsersAndAccess from './pages/UsersAndAccess/UsersAndAccess'
+import Snowfall from './components/Snowfall'
 
 function App() {
   const { open, statusCode, message, hide } = useOverlayStore();
@@ -109,6 +112,7 @@ function App() {
 
   return (
     <div className='app'>
+      <Snowfall />
       {open && (
         <ErrorStatusOverlay
           isError={true}
@@ -149,6 +153,8 @@ function App() {
                 <Route path='/Academics/subjects' element={<Subjects />} />
                 <Route path='/Academics/assign-class-teacher' element={<AssignClassTeacher />} />
                 <Route path='/Academics/class-room' element={<ClassRoom />} />
+                <Route path='/Academics/academic-categories' element={<AcademicCategory />} />
+
 
                 {/* 3. Study Material Routes */}
                 <Route path='/study-material/upload-content' element={<UploadContent />} />
@@ -214,11 +220,15 @@ function App() {
                 <Route path='/admin-info/profile/:admin_id' element={<AdminProfile />} />
 
                 {/* 10. Controls Section */}
-                <Route path='/sidebar' element={<SidebarController />} />
+                <Route path='/settings-section/sidebar' element={<SidebarController />} />
 
                 {/* 11. Home Work */}
                 <Route path='/home-work/homework-list' element={<HomeWorkList />} />
                 <Route path='/home-work/homework-report' element={<HomeWorkReport />} />
+
+                {/* 12. Users & Access */}
+                {/* <Route path='/users-and-access/users-and-access' element={<UsersAndAccess />} /> */}
+                <Route path='/settings-section/users-access' element={<UsersAndAccess />} />
 
                 {/* Error page */}
                 <Route path='/error-page-404' element={<ErrorStatusOverlay isError={true} status={404} />} />

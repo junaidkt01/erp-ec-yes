@@ -16,6 +16,9 @@ interface InputFilesProps {
     accept?: string;
     image?: string | null;
 
+    // Shows a remove button over the preview when provided
+    onRemove?: () => void;
+
     // New
     cropSize?: CropSize;
     displaySize?: CropSize;
@@ -35,7 +38,8 @@ const InputFiles: React.FC<InputFilesProps> = ({
     accept,
     image,
     cropSize,
-    displaySize
+    displaySize,
+    onRemove
 }) => {
     const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -238,6 +242,22 @@ const InputFiles: React.FC<InputFilesProps> = ({
 
                     {image ? (
                         <div className="content">
+                            {onRemove && (
+                                <button
+                                    type="button"
+                                    className="input-file-remove"
+                                    aria-label="Remove file"
+                                    title="Remove file"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setFileName("");
+                                        if (inputRef.current) inputRef.current.value = "";
+                                        onRemove();
+                                    }}
+                                >
+                                    ×
+                                </button>
+                            )}
                             <div className="icon">
                                 <img
                                     width={displaySize?.width}

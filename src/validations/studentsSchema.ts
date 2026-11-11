@@ -42,6 +42,7 @@ export const studentPersonalDetailsSchema = z.object({
   dob: z.date({ error: "DOB is required" }).min(new Date("1900-01-01"), "DOB is required"),
   religion: z.string().min(1, "Religion is required"),
   caste: z.string().min(1, "Caste is required"),
+  category_id: z.number({ error: "Must be a number" }).min(1, "Student category is required"),
 
   current_address: z.string().min(1, "Current address is required"),
   permanent_address: z.string().min(1, "Permanent address is required"),

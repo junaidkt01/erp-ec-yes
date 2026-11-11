@@ -1,0 +1,408 @@
+// src/pages/UsersAndAccess/UserPermissions/UserPermissions.scss
+
+.user_permissions_container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  animation: fadeIn 0.2s ease-out;
+
+  .user_info_card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+
+    .user_info_left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+
+      .user_avatar {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background-color: #eef2ff;
+        color: #2950da;
+        font-size: 20px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border: 2px solid #ffffff;
+        box-shadow: 0 2px 6px rgba(41, 80, 218, 0.12);
+      }
+
+      .user_details {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+
+        .user_name_row {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+
+          h2 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #212121;
+          }
+
+          .user_id_badge {
+            background-color: #f3f4f6;
+            color: #4b5563;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 2px 8px;
+            border-radius: 6px;
+          }
+        }
+
+        .user_email {
+          margin: 0;
+          font-size: 14px;
+          color: #6b6b80;
+        }
+      }
+    }
+
+    .user_info_roles {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+
+      .roles_label {
+        font-size: 12px;
+        font-weight: 500;
+        color: #6b6b80;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .roles_pills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        justify-content: flex-end;
+
+        .role_pill {
+          background-color: #eef2ff;
+          color: #2950da;
+          font-size: 12px;
+          font-weight: 500;
+          padding: 3px 10px;
+          border-radius: 12px;
+          border: 1px solid #c7d2fe;
+        }
+
+        .no_roles_pill {
+          color: #9ca3af;
+          font-size: 13px;
+          font-style: italic;
+        }
+      }
+    }
+  }
+
+  .permissions_content_card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .section_card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #f1f2f6;
+
+    &:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .section_header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+
+      .section_title_box {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+
+        h3 {
+          margin: 0;
+          font-size: 16px;
+          font-weight: 600;
+          color: #212121;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+
+          .count_badge {
+            background-color: #f3f4f6;
+            color: #4b5563;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 2px 8px;
+            border-radius: 10px;
+          }
+        }
+
+        p {
+          margin: 0;
+          font-size: 13px;
+          color: #6b6b80;
+        }
+      }
+
+      .section_actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+    }
+
+    .toolbar_row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background-color: #f9fafb;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid #f3f4f6;
+
+      .filter_input_box {
+        position: relative;
+        flex: 1;
+        max-width: 320px;
+
+        input {
+          width: 100%;
+          padding: 7px 12px 7px 32px;
+          border: 1px solid #d5d5e2;
+          border-radius: 6px;
+          font-size: 13px;
+          outline: none;
+          background: #ffffff;
+          transition: border-color 0.15s;
+
+          &:focus {
+            border-color: #2950da;
+          }
+        }
+
+        .search_icon {
+          position: absolute;
+          left: 10px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 14px;
+          height: 14px;
+          opacity: 0.5;
+        }
+      }
+
+      .select_all_btn {
+        background: none;
+        border: none;
+        color: #2950da;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 500;
+        padding: 4px 8px;
+        border-radius: 4px;
+        transition: background-color 0.15s;
+
+        &:hover {
+          background-color: #eef2ff;
+        }
+      }
+    }
+
+    .roles_grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px 18px;
+
+      .checkbox_item {
+        font-size: 14px;
+        color: #212121;
+        cursor: pointer;
+        user-select: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+    }
+
+    .permissions_grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 12px 18px;
+      max-height: 380px;
+      overflow-y: auto;
+      padding-right: 6px;
+
+      &::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: #d5d5e2;
+        border-radius: 4px;
+      }
+
+      .checkbox_item {
+        font-size: 14px;
+        color: #212121;
+        cursor: pointer;
+        user-select: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        word-break: break-word;
+      }
+    }
+
+    .effective_permissions_wrapper {
+      max-height: 260px;
+      overflow-y: auto;
+      padding-right: 6px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+
+      .effective_pill {
+        background-color: #f3f4f6;
+        color: #374151;
+        font-size: 13px;
+        font-weight: 400;
+        padding: 5px 12px;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+
+        &.is_direct {
+          background-color: #ecfdf5;
+          color: #065f46;
+          border-color: #a7f3d0;
+          font-weight: 500;
+
+          .badge_dot {
+            background-color: #10b981;
+          }
+        }
+
+        .badge_dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background-color: #9ca3af;
+        }
+      }
+    }
+
+    .empty_state {
+      padding: 24px;
+      text-align: center;
+      color: #6b6b80;
+      font-size: 14px;
+      background-color: #f9fafb;
+      border-radius: 8px;
+      border: 1px dashed #e5e7eb;
+    }
+  }
+
+  .custom_role_empty_state {
+    background: #ffffff;
+    border: 1px dashed #d5d5e2;
+    border-radius: 12px;
+    padding: 60px 24px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+
+    img {
+      width: 48px;
+      height: 48px;
+      opacity: 0.6;
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 600;
+      color: #212121;
+    }
+
+    p {
+      margin: 0;
+      font-size: 14px;
+      color: #6b6b80;
+      max-width: 420px;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .user_permissions_container {
+    .user_info_card {
+      flex-direction: column;
+      align-items: flex-start;
+
+      .user_info_roles {
+        align-items: flex-start;
+
+        .roles_pills {
+          justify-content: flex-start;
+        }
+      }
+    }
+
+    .section_card {
+      .section_header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .toolbar_row {
+        flex-direction: column;
+        align-items: stretch;
+
+        .filter_input_box {
+          max-width: 100%;
+        }
+      }
+
+      .roles_grid,
+      .permissions_grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  }
+}
+

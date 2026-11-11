@@ -457,6 +457,27 @@
     // align-items: center;
     // justify-content: center;
     text-align: center;
+    position: relative;
+
+    .input-file-remove {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 26px;
+      height: 26px;
+      border: none;
+      border-radius: 50%;
+      background: #ff4d4f;
+      color: #ffffff;
+      font-size: 18px;
+      line-height: 26px;
+      cursor: pointer;
+      z-index: 1;
+
+      &:hover {
+        background: #d9363e;
+      }
+    }
 
     // .preview-image{
     //   width: 50%;

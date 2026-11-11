@@ -1,0 +1,71 @@
+// Users & Access Page
+.users_and_access_page {
+  .header_wrapper {
+    margin-bottom: 20px;
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+
+      .search_selection_wrapper {
+        flex: 1;
+        max-width: 420px;
+        position: relative;
+      }
+    }
+  }
+
+  .custom_role_view {
+    width: 100%;
+  }
+}
+
+// Role permissions popup
+.role_permissions_popup {
+  .permissions_empty {
+    padding: 32px 0;
+    text-align: center;
+    color: #6b6b80;
+    font-size: 16px;
+  }
+
+  .permission_list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px 24px;
+
+    li {
+      font-size: 15px;
+      color: #212121;
+      word-break: break-word;
+    }
+  }
+
+  .permission_checkbox_grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px 24px;
+
+    .checkbox_item {
+      font-size: 15px;
+      word-break: break-word;
+
+      .custom_checkbox {
+        flex-shrink: 0;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .role_permissions_popup .permission_list,
+  .role_permissions_popup .permission_checkbox_grid {
+    grid-template-columns: 1fr;
+  }
+}

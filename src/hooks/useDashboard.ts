@@ -34,6 +34,57 @@ export interface Notice {
   created_at: string;
 }
 
+export interface CardStats {
+  students: {
+    messages: {
+      category: string;
+      count: number;
+      text: string;
+      type: string;
+    }[];
+    new_this_month: number;
+    notification_message: string;
+    pending_fee_payments: number;
+    total_count: number;
+  };
+  teachers: {
+    messages: {
+      category: string;
+      count: number;
+      text: string;
+      type: string;
+    }[];
+    new_this_month: number;
+    notification_message: string;
+    pending_fee_payments: number;
+    total_count: number;
+  };
+  parents: {
+    messages: {
+      category: string;
+      count: number;
+      text: string;
+      type: string;
+    }[];
+    new_this_month: number;
+    notification_message: string;
+    pending_fee_payments: number;
+    total_count: number;
+  };
+  staffs: {
+    messages: {
+      category: string;
+      count: number;
+      text: string;
+      type: string;
+    }[];
+    new_this_month: number;
+    notification_message: string;
+    pending_fee_payments: number;
+    total_count: number;
+  };
+}
+
 export interface DashboardData {
   summary: DashboardSummary;
   monthly_stats: MonthlyStats;
@@ -44,6 +95,7 @@ export interface DashboardData {
   roles: string[];
   current_month_year: string;
   current_year: number;
+  card_stats: CardStats;
   school_info: {
     category_of_institution?: string;
     school_name?: string;

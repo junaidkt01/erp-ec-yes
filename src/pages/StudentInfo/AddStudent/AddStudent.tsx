@@ -12,6 +12,7 @@ import { useFetchAllAcademicYears } from "../../../hooks/useAcademicYear.ts"
 import { useFetchAllStudentClasses } from "../../../hooks/useStudentClass.ts"
 import { useFetchAllSections } from "../../../hooks/useSections.ts"
 import { useAddStudent, useFetchAllStudents, useFetchOneStudent, useUpdateStudent } from "../../../hooks/useStudent.ts"
+import { useFetchAllStudentCategories } from "../../../hooks/useStudentCategory.ts"
 
 import "./AddStudent.scss"
 import { useAuth } from "../../../auth/useAuth.ts"
@@ -125,6 +126,16 @@ const AddStudent = () => {
 
     const [photos, setPhotos] = useState<Record<PhotoType, PhotoState>>(initialPhotosState);
 
+    // Existing photos the user explicitly removed (sent as remove_<type>=1 on update)
+    const initialRemovedPhotos: Record<PhotoType, boolean> = { photo: false, father_photo: false, mother_photo: false, guardian_photo: false };
+    const [removedPhotos, setRemovedPhotos] = useState<Record<PhotoType, boolean>>(initialRemovedPhotos);
+
+    const handlePhotoRemove = (type: PhotoType) => () => {
+        setPhotos((prev) => ({ ...prev, [type]: { file: null, preview: null } }));
+        setFormData((prev: any) => ({ ...prev, [type]: null }));
+        setRemovedPhotos((prev) => ({ ...prev, [type]: true }));
+    };
+
     console.log("photos.photo.preview: ", photos.photo.preview)
 
     const handlePhotoUpload = (type: PhotoType) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -143,6 +154,7 @@ const AddStudent = () => {
             ...prev,
             [type]: file
         }));
+        setRemovedPhotos((prev) => ({ ...prev, [type]: false }));
     };
 
     const handleDocumentUpload = (key: string, e: React.ChangeEvent<HTMLInputElement>) => {
@@ -175,9 +187,10 @@ const AddStudent = () => {
 
             currentDocs[targetIndex] = {
                 ...currentDocs[targetIndex],
-                id: targetIndex + 1,
+                id: currentDocs[targetIndex].id ?? targetIndex + 1,
                 file: file as any,
                 preview: URL.createObjectURL(file),
+                remove: false,
             };
 
             return {
@@ -199,7 +212,7 @@ const AddStudent = () => {
 
             currentDocs[targetIndex] = {
                 ...currentDocs[targetIndex],
-                id: targetIndex + 1,
+                id: currentDocs[targetIndex].id ?? targetIndex + 1,
                 title: value,
             };
 
@@ -207,6 +220,14 @@ const AddStudent = () => {
                 ...prev,
                 documents: currentDocs,
             };
+        });
+    };
+    const handleDocumentRemove = (index: number) => () => {
+        setFormData((prev) => {
+            const currentDocs = [...(prev.documents || [])];
+            if (!currentDocs[index]) return prev;
+            currentDocs[index] = { ...currentDocs[index], file: "", preview: "", remove: true };
+            return { ...prev, documents: currentDocs };
         });
     };
     // upload inputs end
@@ -236,6 +257,7 @@ const AddStudent = () => {
         class_id: 0,
         section_id: 0,
         academic_year_id: 0,
+        category_id: 0,
 
         student_code: "",
         apaar_id: "",
@@ -263,7 +285,7 @@ const AddStudent = () => {
             { id: 2, title: "", file: "" as any, preview: "" },
             { id: 3, title: "", file: "" as any, preview: "" },
             { id: 4, title: "", file: "" as any, preview: "" },
-        ] as { id: number; title: string; file: any; preview?: string }[],
+        ] as { id: number; server_id?: number; title: string; file: any; preview?: string; remove?: boolean }[],
 
         caste: "",
         roll_no: "",
@@ -326,6 +348,7 @@ const AddStudent = () => {
         if (!student_id) {
             setFormData(studentForm);
             setPhotos(initialPhotosState);
+            setRemovedPhotos(initialRemovedPhotos);
             setSameAsCurrentAddress(false);
             return;
         }
@@ -338,12 +361,14 @@ const AddStudent = () => {
             setSameAsCurrentAddress(true);
         }
 
+        const toPreview = (path?: string | null) => (path ? `${BASE_URL}/public/${path}` : null);
         setPhotos({
-            photo: { file: null, preview: `${BASE_URL}/public/${data.photo}` || null },
-            father_photo: { file: null, preview: `${BASE_URL}/public/${parents.father_photo}` || null },
-            mother_photo: { file: null, preview: `${BASE_URL}/public/${parents.mother_photo}` || null },
-            guardian_photo: { file: null, preview: `${BASE_URL}/public/${parents.guardian_photo}` || null },
+            photo: { file: null, preview: toPreview(data.photo) },
+            father_photo: { file: null, preview: toPreview(parents.father_photo) },
+            mother_photo: { file: null, preview: toPreview(parents.mother_photo) },
+            guardian_photo: { file: null, preview: toPreview(parents.guardian_photo) },
         });
+        setRemovedPhotos(initialRemovedPhotos);
 
         setFormData((prev) => ({
             ...prev,
@@ -354,6 +379,7 @@ const AddStudent = () => {
             birth_certificate_no: String(data.birth_certificate_no || ""),
             blood_group: String(data.blood_group || ""),
             caste: String(data.caste || ""),
+            category_id: Number(data.category_id ?? data.category?.id ?? 0),
             current_address: String(data.current_address || ""),
             dob: data.dob ? new Date(data.dob) : null,
             email: String(data.email || ""),
@@ -403,7 +429,7 @@ const AddStudent = () => {
             guardian_photo: parents.guardian_photo || null,
 
             // arrays
-            documents: data.documents || [],
+            documents: (data.documents || []).map((doc: any) => ({ ...doc, server_id: doc.id })),
             emergencyContacts: data.emergencyContacts || [],
         }));
 
@@ -516,6 +542,7 @@ const AddStudent = () => {
         payload.append("blood_group", formData?.blood_group);
         payload.append("religion", formData?.religion);
         payload.append("caste", formData?.caste);
+        payload.append("category_id", formData?.category_id ? String(formData.category_id) : "");
 
         payload.append("admission_date", formData.admission_date);
 
@@ -548,46 +575,46 @@ const AddStudent = () => {
         payload.append("previous_qualification", formData?.previous_qualification);
         payload.append("previous_school_details", formData?.previous_school_details);
 
-        // Append photo files if present
-        if (photos.photo.file) {
-            payload.append("photo", photos.photo.file);
-        } else if (formData?.photo instanceof File) {
-            payload.append("photo", formData.photo);
-        }
+        const isEdit = Boolean(student && student_id);
 
-        if (photos.father_photo.file) {
-            payload.append("father_photo", photos.father_photo.file);
-        } else if (formData?.father_photo instanceof File) {
-            payload.append("father_photo", formData.father_photo);
-        }
-
-        if (photos.mother_photo.file) {
-            payload.append("mother_photo", photos.mother_photo.file);
-        } else if (formData?.mother_photo instanceof File) {
-            payload.append("mother_photo", formData.mother_photo);
-        }
-
-        if (photos.guardian_photo.file) {
-            payload.append("guardian_photo", photos.guardian_photo.file);
-        } else if (formData?.guardian_photo instanceof File) {
-            payload.append("guardian_photo", formData.guardian_photo);
-        }
+        // Photos: new file -> upload/replace, removed -> remove_<type>=1, untouched -> omitted (backend keeps existing)
+        (Object.keys(initialPhotosState) as PhotoType[]).forEach((type) => {
+            const file = photos[type].file || (formData?.[type] instanceof File ? formData[type] : null);
+            if (file) {
+                payload.append(type, file);
+            } else if (isEdit && removedPhotos[type]) {
+                payload.append(`remove_${type}`, "1");
+            }
+        });
 
         // Arrays → stringify
         payload.append("emergencyContacts", JSON.stringify(formData?.emergencyContacts));
-        payload.append("documents", JSON.stringify(formData?.documents));
+
+        // Documents as multipart fields (JSON.stringify drops File objects)
+        (formData?.documents || []).forEach((doc, i) => {
+            const newFile = doc.file instanceof File ? doc.file : null;
+            if (!doc.server_id && !newFile && !doc.title?.trim()) return; // empty slot
+            if (doc.server_id) payload.append(`documents[${i}][id]`, String(doc.server_id));
+            payload.append(`documents[${i}][title]`, doc.title || "");
+            if (newFile) {
+                payload.append(`documents[${i}][file]`, newFile);
+            } else if (isEdit && doc.server_id && doc.remove) {
+                payload.append(`documents[${i}][remove]`, "1");
+            }
+        });
 
         const formDataObject = Object.fromEntries(payload.entries());
         console.log("formDataObject: ", formDataObject);
 
         try {
-            if (student && student_id) {
-                const res = await updateStudent(payload as any);
+            if (isEdit) {
+                const res = await updateStudent(payload);
                 console.log("updated: res:", res);
                 if (res.success) {
                     toast('Student updated successfully')
                     setFormData(studentForm);
                     setPhotos(initialPhotosState);
+                    setRemovedPhotos(initialRemovedPhotos);
                     setReadyToSubmit(false);
                 } else {
                     toast('Student updation failed')
@@ -649,6 +676,22 @@ const AddStudent = () => {
     }, [sections, formData?.class_id]);
 
     const genderOptions = GENDER_OPTIONS;
+
+    const { data: studentCategories, isLoading: categoriesLoading, isError: categoriesError } = useFetchAllStudentCategories();
+    const categoryOptions = useMemo(() => {
+        const list = Array.isArray(studentCategories?.data?.data)
+            ? studentCategories.data.data
+            : Array.isArray(studentCategories?.data)
+                ? studentCategories.data
+                : [];
+        return list.map((cat: any) => ({ label: cat.name, value: cat.id }));
+    }, [studentCategories]);
+    const categoryPlaceholder = categoriesLoading
+        ? "Loading categories..."
+        : categoriesError
+            ? "Failed to load categories"
+            : categoryOptions.length ? "Select category" : "No categories found";
+    const selectedCategoryName = categoryOptions.find((opt: any) => opt.value == formData?.category_id)?.label;
 
     /////////////////////
 
@@ -763,6 +806,10 @@ const AddStudent = () => {
                                             <p className="title" >Caste</p>
                                             <p className="value" >{formData?.caste || "N/A"}</p>
                                         </div>
+                                        <div>
+                                            <p className="title" >Student Category</p>
+                                            <p className="value" >{selectedCategoryName || "N/A"}</p>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -819,6 +866,7 @@ const AddStudent = () => {
                                         {/* <InputField error={errors.first_name} type="text" label="First Name" placeHolder="Enter name" name="first_name" value={formData?.first_name} onChange={handleChange} /> */}
                                         {/* <InputField error={errors.last_name} type="text" label="Last Name" placeHolder="Enter name" name="last_name" value={formData?.last_name} onChange={handleChange} /> */}
                                         <CustomSelect value={formData?.gender} name="gender" label="Gender" placeholder="Select gender" options={genderOptions || []} onChange={(value) => setFormData((prev: any) => ({ ...prev, gender: value }))} />
+                                        <CustomSelect error={errors.category_id} value={formData?.category_id} name="category_id" label="Student Category" placeholder={categoryPlaceholder} options={categoryOptions} onChange={(value) => { setErrors((prev: any) => ({ ...prev, category_id: undefined })); setFormData((prev: any) => ({ ...prev, category_id: Number(value) })) }} />
                                     </div>
                                     <div className="body_section" >
                                         <InputField error={errors.dob} name="dob" type="date" label="Date Of Birth" value={formData.dob} placeHolder="Select date" onChange={handleChange} />
@@ -836,7 +884,7 @@ const AddStudent = () => {
                                             title="Student Photo"
                                             displaySize={{ width: 130, height: 130 }}
                                             cropSize={{ width: 350, height: 450 }}
-                                            onChange={handlePhotoUpload("photo")}
+                                            onChange={handlePhotoUpload("photo")} onRemove={handlePhotoRemove("photo")}
                                         />
                                     </div>
                                 </div>
@@ -923,7 +971,7 @@ const AddStudent = () => {
                                     <div className="body_section" >
                                         <InputFiles cropSize={{ width: 350, height: 450 }}
                                             displaySize={{ width: 130, height: 130 }}
-                                            image={photos.father_photo.preview || data?.data?.father_photo} accept="image/*" name="father_photo" title="Father's Photo" onChange={handlePhotoUpload("father_photo")} />
+                                            image={photos.father_photo.preview || data?.data?.father_photo} accept="image/*" name="father_photo" title="Father's Photo" onChange={handlePhotoUpload("father_photo")} onRemove={handlePhotoRemove("father_photo")} />
                                         {/* <InputFiles image={previewFatherPhoto || data?.data?.father_photo} accept="image/*" name="father_photo" onChange={handleFatherPhotoUpload} title="Father’s Photo" /> */}
                                     </div>
                                 </div>
@@ -940,7 +988,7 @@ const AddStudent = () => {
                                     <div className="body_section" >
                                         <InputFiles cropSize={{ width: 350, height: 450 }}
                                             displaySize={{ width: 130, height: 130 }}
-                                            image={photos.mother_photo.preview || data?.data?.mother_photo} accept="image/*" name="mother_photo" title="Mother's Photo" onChange={handlePhotoUpload("mother_photo")} />
+                                            image={photos.mother_photo.preview || data?.data?.mother_photo} accept="image/*" name="mother_photo" title="Mother's Photo" onChange={handlePhotoUpload("mother_photo")} onRemove={handlePhotoRemove("mother_photo")} />
                                         {/* <InputFiles image={previewMotherPhoto || data?.data?.mother_photo} accept="image/*" name="mother_photo" onChange={handleMotherPhotoUpload} title="Mother’s Photo" /> */}
                                     </div>
                                     {/* <div className="body_section" >
@@ -979,7 +1027,7 @@ const AddStudent = () => {
                                     <div className="body_section" >
                                         <InputFiles cropSize={{ width: 350, height: 450 }}
                                             displaySize={{ width: 130, height: 130 }}
-                                            image={photos.guardian_photo.preview || data?.data?.guardian_photo} accept="image/*" name="guardian_photo" title="Guardian Photo" onChange={handlePhotoUpload("guardian_photo")} />
+                                            image={photos.guardian_photo.preview || data?.data?.guardian_photo} accept="image/*" name="guardian_photo" title="Guardian Photo" onChange={handlePhotoUpload("guardian_photo")} onRemove={handlePhotoRemove("guardian_photo")} />
                                         {/* <InputFiles image={previewGuardianPhoto || data?.data?.guardian_photo} accept="image/*" name="guardian_photo" onChange={handleGuardianPhotoUpload} title="Guardian Photo" /> */}
                                     </div>
                                 </div>
@@ -1027,8 +1075,8 @@ const AddStudent = () => {
                                         <InputField type="text" label="Document 2" name="document_title_2" placeHolder="Enter document 2 title" value={formData.documents?.[1]?.title || ""} onChange={(e: any) => handleDocumentTitleChange("document_title_2", e.target ? e.target.value : e)} />
                                     </div>
                                     <div className="body_section" >
-                                        <InputFiles name="document_1" accept="image/*,.pdf" image={formData.documents?.[0]?.preview || (typeof formData.documents?.[0]?.file === "string" ? formData.documents?.[0]?.file : undefined)} onChange={(e) => handleDocumentUpload("document_1", e)} />
-                                        <InputFiles name="document_2" accept="image/*,.pdf" image={formData.documents?.[1]?.preview || (typeof formData.documents?.[1]?.file === "string" ? formData.documents?.[1]?.file : undefined)} onChange={(e) => handleDocumentUpload("document_2", e)} />
+                                        <InputFiles name="document_1" accept="image/*,.pdf" image={formData.documents?.[0]?.preview || (typeof formData.documents?.[0]?.file === "string" ? formData.documents?.[0]?.file : undefined)} onChange={(e) => handleDocumentUpload("document_1", e)} onRemove={handleDocumentRemove(0)} />
+                                        <InputFiles name="document_2" accept="image/*,.pdf" image={formData.documents?.[1]?.preview || (typeof formData.documents?.[1]?.file === "string" ? formData.documents?.[1]?.file : undefined)} onChange={(e) => handleDocumentUpload("document_2", e)} onRemove={handleDocumentRemove(1)} />
                                     </div>
 
                                     <div className="body_section" >
@@ -1036,8 +1084,8 @@ const AddStudent = () => {
                                         <InputField type="text" label="Document 4" name="document_title_4" placeHolder="Enter document 4 title" value={formData.documents?.[3]?.title || ""} onChange={(e: any) => handleDocumentTitleChange("document_title_4", e.target ? e.target.value : e)} />
                                     </div>
                                     <div className="body_section" >
-                                        <InputFiles name="document_3" accept="image/*,.pdf" image={formData.documents?.[2]?.preview || (typeof formData.documents?.[2]?.file === "string" ? formData.documents?.[2]?.file : undefined)} onChange={(e) => handleDocumentUpload("document_3", e)} />
-                                        <InputFiles name="document_4" accept="image/*,.pdf" image={formData.documents?.[3]?.preview || (typeof formData.documents?.[3]?.file === "string" ? formData.documents?.[3]?.file : undefined)} onChange={(e) => handleDocumentUpload("document_4", e)} />
+                                        <InputFiles name="document_3" accept="image/*,.pdf" image={formData.documents?.[2]?.preview || (typeof formData.documents?.[2]?.file === "string" ? formData.documents?.[2]?.file : undefined)} onChange={(e) => handleDocumentUpload("document_3", e)} onRemove={handleDocumentRemove(2)} />
+                                        <InputFiles name="document_4" accept="image/*,.pdf" image={formData.documents?.[3]?.preview || (typeof formData.documents?.[3]?.file === "string" ? formData.documents?.[3]?.file : undefined)} onChange={(e) => handleDocumentUpload("document_4", e)} onRemove={handleDocumentRemove(3)} />
                                     </div>
                                 </div>
 
