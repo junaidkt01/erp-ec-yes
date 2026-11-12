@@ -26,7 +26,7 @@ const StudentProfilePage = () => {
         "Record",
         "Timeline",
         "Student Attendance",
-        "Subject Attendance",
+        // "Subject Attendance",
         "Remarks Records",
     ];
 

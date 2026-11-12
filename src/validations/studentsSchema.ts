@@ -33,7 +33,7 @@ export const studentPersonalDetailsSchema = z.object({
   email: emailValidation,
   academic_year_id: z.number({ error: "Must be a number" }).min(1, "Academic year is required"),
   class_id: z.number({ error: "Must be a number" }).min(1, "Class is required"),
-  section_id: z.number({ error: "Must be a number" }).min(1, "Section is required"),
+  // section_id: z.number({ error: "Must be a number" }).min(1, "Section is required"),
   admission_no: z.string().min(1, "Admission number is required"),
   admission_date: z.date({ error: "Admission date is required" }).min(new Date("1900-01-01"), "Admission date is required"),
   roll_no: z.string().min(1, "Roll number is required"),
@@ -41,7 +41,7 @@ export const studentPersonalDetailsSchema = z.object({
   gender: z.string().min(1, "Gender is required"),
   dob: z.date({ error: "DOB is required" }).min(new Date("1900-01-01"), "DOB is required"),
   religion: z.string().min(1, "Religion is required"),
-  caste: z.string().min(1, "Caste is required"),
+  // caste: z.string().min(1, "Caste is required"),
   category_id: z.number({ error: "Must be a number" }).min(1, "Student category is required"),
 
   current_address: z.string().min(1, "Current address is required"),

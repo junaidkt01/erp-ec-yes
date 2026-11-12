@@ -9,6 +9,11 @@ const FEE_GROUP_KEY = ["fee-groups"];
 export interface FeeGroup {
   id: number;
   name: string;
+  description?: string | null;
+  academic_year_id?: number | null;
+  branch_id?: number | null;
+  is_active?: boolean | number;
+  academic_year?: { id: number; name: string } | null;
 }
 
 // interface FeeGroupResponse {
@@ -31,8 +36,12 @@ export const useFetchAllFeeGroups = (page: number) => {
 
 // Add FeeGroup  api
 
-interface CreateFeeGroupPayload {
+export interface CreateFeeGroupPayload {
   name: string;
+  description?: string;
+  academic_year_id: number | null;
+  branch_id: number | null;
+  is_active: boolean;
 }
 
 export const useAddFeeGroup = () => {
@@ -55,9 +64,8 @@ export const useAddFeeGroup = () => {
 
 //update FeeGroup api
 
-interface UpdateFeeGroupPayload {
+export interface UpdateFeeGroupPayload extends CreateFeeGroupPayload {
   id: number;
-  name: string;
 }
 
 export const useUpdateFeeGroup = () => {

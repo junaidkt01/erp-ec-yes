@@ -50,6 +50,8 @@ const StudentAttendanceReport: React.FC<StudentAttendanceReportProps> = ({
         year: selectedYear,
     });
 
+    console.log("reportData: ", reportData)
+
     // Month Navigation
     const handlePrevMonth = () => {
         if (selectedMonth === 1) {
@@ -146,7 +148,8 @@ const StudentAttendanceReport: React.FC<StudentAttendanceReportProps> = ({
             row[`day_${dayKey}`] ??
             row.attendance?.[dayKey] ??
             row.days?.[dayKey] ??
-            row.attendances?.[dayKey];
+            row.attendances?.[dayKey] ??
+            row.notes?.[dayKey];
 
         if (val) {
             const normalized = String(val).trim();
@@ -164,6 +167,7 @@ const StudentAttendanceReport: React.FC<StudentAttendanceReportProps> = ({
             return {
                 display: normalized.length > 2 ? normalized.charAt(0).toUpperCase() : normalized,
                 className: statusClass,
+                note: row?.notes?.[dayKey] || "",
             };
         }
 
@@ -377,9 +381,14 @@ const StudentAttendanceReport: React.FC<StudentAttendanceReportProps> = ({
                                             <td className="cell_percent">{percent}</td>
 
                                             {computedDays.map((dayItem) => {
-                                                const { display, className } = getDayCellData(row, dayItem);
+                                                console.log("dayItem: ", dayItem)
+                                                console.log("dayItem: row", row)
+                                                const { display, className, note } = getDayCellData(row, dayItem);
+                                                console.log("dayItem: display", display)
+                                                console.log("dayItem: className", className)
+                                                console.log("dayItem: note", note)
                                                 return (
-                                                    <td key={`cell_${dayItem.day}`} className={className}>
+                                                    <td key={`cell_${dayItem.day}`} title={note} className={className}>
                                                         {display}
                                                     </td>
                                                 );

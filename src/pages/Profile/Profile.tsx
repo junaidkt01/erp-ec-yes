@@ -250,6 +250,10 @@ const Profile = ({ type, data, details, tabs, profileDetails, activeTab, setActi
                                                 <div className="label">Guardian Phone</div>
                                                 <div className="value">{renderValue(p.guardian_phone)}</div>
                                             </div>
+                                            <div className="detail-row">
+                                                <div className="label">Guardian Email</div>
+                                                <div className="value">{renderValue(p.guardian_email)}</div>
+                                            </div>
                                         </div>
                                     );
                                 })()}

@@ -9,7 +9,11 @@ const FEE_TYPE_KEY = ["fee-types"];
 export interface FeeType {
   id: number;
   name: string;
-  amount: string;
+  description?: string | null;
+  fee_group_id?: number | null;
+  academic_year_id?: number | null;
+  fee_group?: { id: number; name: string } | null;
+  academic_year?: { id: number; name: string } | null;
 }
 
 interface FeeTypeResponse {
@@ -35,9 +39,11 @@ export const useFetchAllFeeTypes = () => {
 
 // Add FeeType  api
 
-interface CreateFeeTypePayload  {
+export interface CreateFeeTypePayload {
+  fee_group_id: number | null;
   name: string;
-  amount: string;
+  description?: string;
+  academic_year_id: number | null;
 }
 
 
@@ -64,10 +70,8 @@ export const useAddFeeType   = () => {
 
 //update FeeTypes api
 
-interface UpdateFeeTypePayload  {
+export interface UpdateFeeTypePayload extends CreateFeeTypePayload {
   id: number;
-  name?: string;
-  amount?: string;
 }
 
 export const useUpdateFeeType = () => {

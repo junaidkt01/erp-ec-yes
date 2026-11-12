@@ -28,7 +28,7 @@ interface StudentAttendanceResponse {
     data: StudentAttendanceItem[];
 }
 
-export const useFetchStudentAttendance = (params?: StudentAttendanceFilterParams) => {
+export const useFetchStudentAttendance = (params?: StudentAttendanceFilterParams, options?: { enabled?: boolean }) => {
     return useQuery<StudentAttendanceItem[]>({
         queryKey: [...STUDENT_ATTENDANCE_KEY, params],
         queryFn: async () => {
@@ -56,7 +56,7 @@ export const useFetchStudentAttendance = (params?: StudentAttendanceFilterParams
             );
             return res.data.data;
         },
-        enabled: false,
+        enabled: options?.enabled ?? false,
     });
 };
 

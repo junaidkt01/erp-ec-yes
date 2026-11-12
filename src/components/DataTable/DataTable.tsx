@@ -1,5 +1,6 @@
 import React from "react";
 import "./DataTable.scss";
+import { BASE_URL } from "../../api/endpoints";
 
 export interface Column {
     key: string;

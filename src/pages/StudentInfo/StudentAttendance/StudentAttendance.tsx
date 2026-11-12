@@ -11,16 +11,17 @@ import { useFetchAllSections, type SectionItem } from "../../../hooks/useSection
 import { useFetchAllAcademicYears } from "../../../hooks/useAcademicYear"
 import { toast } from "sonner"
 import "./StudentAttendance.scss"
+import { useNavigate } from "react-router-dom"
 
 // ---------------------------------------------------------------------------
 // Constants -- defined outside component to avoid re-creation on every render
 // ---------------------------------------------------------------------------
 const COLUMNS: Column[] = [
-    { key: "sl", title: "SL" },
+    // { key: "sl", title: "SL" },
     { key: "roll_no", title: "Roll No" },
     { key: "photo", title: "Image" },
     { key: "student_name", title: "Student Name" },
-    { key: "student_code", title: "Student ID" },
+    // { key: "student_code", title: "Student ID" },
 ];
 
 const getInitialFilter = () => ({
@@ -60,6 +61,8 @@ const StudentAttendance = () => {
 
     // -- Committed filter (applied only when Search is clicked) -------------
     const [filteredData, setFilteredData] = useState(getInitialFilter);
+    // Query stays disabled until the user searches at least once
+    const [hasSearched, setHasSearched] = useState(false);
 
     // -- Per-row attendance state --------------------------------------------
     const [selectedStatuses, setSelectedStatuses] = useState<Record<string | number, StatusType>>({});
@@ -70,8 +73,7 @@ const StudentAttendance = () => {
     const { data: sections } = useFetchAllSections();
     const { data: academicYears } = useFetchAllAcademicYears();
 
-    const { data: studentAttendance, isFetching, refetch } =
-        useFetchStudentAttendance(filteredData);
+    const { data: studentAttendance, isFetching, refetch } = useFetchStudentAttendance(filteredData, { enabled: hasSearched });
 
     const { mutate: addStudentAttendance, isPending } = useAddStudentAttendance();
 
@@ -91,9 +93,9 @@ const StudentAttendance = () => {
         if (!sections) return [];
         const filtered = filterData.class_id
             ? sections.filter(
-                  (sec: SectionItem) =>
-                      String(sec.class_id) === String(filterData.class_id)
-              )
+                (sec: SectionItem) =>
+                    String(sec.class_id) === String(filterData.class_id)
+            )
             : sections;
         return filtered.map((sec: SectionItem) => ({
             label: sec.name,
@@ -109,11 +111,24 @@ const StudentAttendance = () => {
 
     // -- Filter handlers -----------------------------------------------------
     const handleSearch = () => {
-        setFilteredData({ ...filterData });
         // Reset per-row state whenever a new search is performed
         setSelectedStatuses({});
         setNotes({});
-        refetch();
+
+        const sameFilters =
+            hasSearched &&
+            String(filterData.class_id) === String(filteredData.class_id) &&
+            String(filterData.section_id) === String(filteredData.section_id) &&
+            formatDate(filterData.attendance_date) === formatDate(filteredData.attendance_date);
+
+        if (sameFilters) {
+            // Query key unchanged -> force a fresh fetch
+            refetch();
+        } else {
+            // New query key -> React Query fetches automatically on next render
+            setFilteredData({ ...filterData });
+            setHasSearched(true);
+        }
     };
 
     const handleResetFilterData = () => {
@@ -122,8 +137,10 @@ const StudentAttendance = () => {
         setFilteredData(initial);
         setSelectedStatuses({});
         setNotes({});
-        refetch();
+        setHasSearched(false);
     };
+
+    const navigate = useNavigate();
 
     // -- Submit handler ------------------------------------------------------
     const handleSubmitAttendance = () => {
@@ -190,6 +207,7 @@ const StudentAttendance = () => {
         addStudentAttendance(payload, {
             onSuccess: () => {
                 toast.success("Attendance submitted successfully");
+                navigate(-1);
             },
             onError: () => {
                 toast.error("Failed to submit attendance. Please try again.");
@@ -280,8 +298,7 @@ const StudentAttendance = () => {
                             // row.id may be undefined if the API response shape
                             // doesn't match the interface, causing key collisions
                             // where all students share the same selectedStatuses entry.
-                            const rowKey =
-                                row.id ??
+                            const rowKey = row.id ??
                                 row.student_id ??
                                 row.student?.id ??
                                 row.student_code ??
@@ -333,6 +350,7 @@ const StudentAttendance = () => {
                                     <AttendanceButton
                                         status="leave"
                                         title="Leave"
+                                        shortTitle="Le"
                                         active={activeStatus === "leave"}
                                         onClick={handleStatusClick("leave")}
                                     />
@@ -349,18 +367,20 @@ const StudentAttendance = () => {
                                 row.admission_no ??
                                 index;
                             return (
-                                <InputField
-                                    value={notes[rowKey] ?? row.note ?? ""}
-                                    type="text"
-                                    placeHolder="Enter note"
-                                    onChange={(val) => {
-                                        const text =
-                                            typeof val === "object" && val?.target
-                                                ? val.target.value
-                                                : val;
-                                        setNotes((prev) => ({ ...prev, [rowKey]: text as string }));
-                                    }}
-                                />
+                                <div style={{ width: "400px" }} >
+                                    <InputField
+                                        value={notes[rowKey] ?? row.note ?? ""}
+                                        type="text"
+                                        placeHolder="Enter note"
+                                        onChange={(val) => {
+                                            const text =
+                                                typeof val === "object" && val?.target
+                                                    ? val.target.value
+                                                    : val;
+                                            setNotes((prev) => ({ ...prev, [rowKey]: text as string }));
+                                        }}
+                                    />
+                                </div>
                             );
                         }}
                     />

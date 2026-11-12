@@ -23,6 +23,7 @@ import BulkUpload from "../../../components/BulkUpload/BulkUpload.tsx"
 import { validate } from "../../../utils/validate.ts"
 import { studentFamilyDetailsSchema, studentPersonalDetailsSchema } from "../../../validations/studentsSchema.ts"
 import { useDebounce } from "../../../hooks/useDebounce.ts"
+import { useFormDraft } from "../../../hooks/useFormDraft.ts"
 import { BASE_URL } from "../../../api/endpoints.ts"
 import {
     GENDER_OPTIONS,
@@ -37,7 +38,7 @@ import {
 const AddStudent = () => {
     const { student_id } = useParams();
     const { data: student, isLoading: studentLoading } = useFetchOneStudent(student_id || "")
-    console.log("student: ", student)
+    console.log("student: ", student);
 
     // find students starts
     const [searchTerm] = useState("");
@@ -135,8 +136,6 @@ const AddStudent = () => {
         setFormData((prev: any) => ({ ...prev, [type]: null }));
         setRemovedPhotos((prev) => ({ ...prev, [type]: true }));
     };
-
-    console.log("photos.photo.preview: ", photos.photo.preview)
 
     const handlePhotoUpload = (type: PhotoType) => (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -318,6 +317,30 @@ const AddStudent = () => {
         previous_school_details: "",
     }
     const [formData, setFormData] = useState(studentForm);
+
+    // Draft (localStorage) start
+    const draft = useFormDraft<typeof studentForm>(`add_student_draft_${student_id || "new"}`);
+    const [draftResetKey, setDraftResetKey] = useState(0);
+    const restoreDraft = (saved: Partial<typeof studentForm>) => ({
+        ...studentForm,
+        ...saved,
+        dob: saved.dob ? new Date(saved.dob) : null,
+        admission_date: (saved.admission_date ? new Date(saved.admission_date) : "") as any,
+    });
+    const handleSaveDraft = () => toast(draft.save(formData) ? "Draft saved" : "Could not save draft");
+    const handleClearDraft = () => {
+        if (!window.confirm("Clear the saved draft?")) return;
+        draft.clear();
+        setDraftResetKey((k) => k + 1); // re-runs the load effect -> empty form / server data
+        toast("Draft cleared");
+    };
+    const draftButtons = (
+        <>
+            <SecondaryButton title="Clear" onClick={handleClearDraft} />
+            <SecondaryButton title="Save" onClick={handleSaveDraft} />
+        </>
+    );
+    // Draft (localStorage) end
     const [sameAsCurrentAddress, setSameAsCurrentAddress] = useState(false);
 
     const handleToggleSameAddress = () => {
@@ -342,11 +365,12 @@ const AddStudent = () => {
         }
     }, [formData.current_address, sameAsCurrentAddress]);
 
-    console.log("formData: ", formData)
+    console.log("formData: 0", formData)
 
     useEffect(() => {
+        const saved = draft.load();
         if (!student_id) {
-            setFormData(studentForm);
+            setFormData(saved ? restoreDraft(saved) : studentForm);
             setPhotos(initialPhotosState);
             setRemovedPhotos(initialRemovedPhotos);
             setSameAsCurrentAddress(false);
@@ -370,7 +394,7 @@ const AddStudent = () => {
         });
         setRemovedPhotos(initialRemovedPhotos);
 
-        setFormData((prev) => ({
+        setFormData((prev) => saved ? restoreDraft(saved) : ({
             ...prev,
 
             academic_year_id: Number(data.academic_year_id || ""),
@@ -400,8 +424,8 @@ const AddStudent = () => {
 
             photo: data.photo || null,
 
-            class_id: Number(data.class_id || ""),
-            section_id: Number(data.section_id || ""),
+            class_id: Number(data.class_id || 0),
+            section_id: Number(data.section_id || 0),
 
             religion: String(data.religion || ""),
             roll_no: String(data.roll_no || ""),
@@ -433,7 +457,7 @@ const AddStudent = () => {
             emergencyContacts: data.emergencyContacts || [],
         }));
 
-    }, [student, student_id]);
+    }, [student, student_id, draftResetKey]);
 
     // Find guardian start
     useEffect(() => {
@@ -612,6 +636,7 @@ const AddStudent = () => {
                 console.log("updated: res:", res);
                 if (res.success) {
                     toast('Student updated successfully')
+                    draft.clear();
                     setFormData(studentForm);
                     setPhotos(initialPhotosState);
                     setRemovedPhotos(initialRemovedPhotos);
@@ -623,6 +648,7 @@ const AddStudent = () => {
                 const res = await addStudent(payload as any);
                 console.log("aa: res:", res);
                 toast('Student added successfully')
+                draft.clear();
                 setFormData(studentForm);
                 setPhotos(initialPhotosState);
                 setReadyToSubmit(false);
@@ -837,7 +863,7 @@ const AddStudent = () => {
                                 <div className="fields_wrapper" >
                                     <div className="body_section" >
                                         <CustomSelect error={errors.academic_year_id} value={formData?.academic_year_id} name="academic_year_id" label="Academic year" placeholder="Select year" options={formattedData || []} onChange={(value) => setFormData((prev: any) => ({ ...prev, academic_year_id: value }))} />
-                                        <CustomSelect error={errors.class_id} value={formData?.class_id} label="Class" placeholder="Select class" options={classOptions || []} onChange={(value) => setFormData((prev: any) => ({ ...prev, class_id: value, section_id: "" }))} />
+                                        <CustomSelect error={errors.class_id} value={formData?.class_id} label="Class" placeholder="Select class" options={classOptions || []} onChange={(value) => setFormData((prev: any) => ({ ...prev, class_id: value, section_id: 0 }))} />
                                         <CustomSelect error={errors.section_id} value={formData?.section_id} name="section_id" label="Section" placeholder="Select section" options={sectionOptions || []} onChange={(value) => setFormData((prev: any) => ({ ...prev, section_id: value }))} />
                                     </div>
                                     <div className="body_section" >
@@ -937,7 +963,7 @@ const AddStudent = () => {
                                 </div>
 
                                 <div className="buttons">
-                                    {/* <SecondaryButton title="Save" /> */}
+                                    {draftButtons}
                                     <PrimaryButton title="Next"
                                         onClick={() => {
                                             const { success, errors } = validate(studentPersonalDetailsSchema, formData);
@@ -1018,7 +1044,8 @@ const AddStudent = () => {
                                         <InputField error={errors.guardian_phone} name="guardian_phone" value={relation === "father" ? formData?.father_phone : relation === "mother" ? formData?.mother_phone : formData?.guardian_phone} onChange={handleChange} type="number" label="Phone Number" placeHolder="Enter phone number" />
                                     </div>
                                     <div className="body_section" >
-                                        <InputField error={errors.guardian_relation} name="guardian_relation" value={relation === "father" ? formData?.father_name : relation === "mother" ? formData?.mother_name : formData?.guardian_relation} onChange={handleChange} type="text" label="Relation With Guardian" placeHolder="Enter relation with guardian" />
+                                        <InputField error={errors.guardian_relation} name="guardian_relation" value={relation === "father" ? "father" : relation === "mother" ? "mother" : "guardian"} onChange={handleChange} type="text" label="Relation With Guardian" placeHolder="Enter relation with guardian" />
+                                        {/* <InputField error={errors.guardian_relation} name="guardian_relation" value={relation === "father" ? formData?.father_name : relation === "mother" ? formData?.mother_name : formData?.guardian_relation} onChange={handleChange} type="text" label="Relation With Guardian" placeHolder="Enter relation with guardian" /> */}
                                         <InputField error={errors.guardian_email} name="guardian_email" value={formData?.guardian_email} onChange={handleChange} type="email" label="Guardian Email" placeHolder="Enter guardian's email address" />
                                     </div>
                                     <div className="body_section" >
@@ -1033,7 +1060,7 @@ const AddStudent = () => {
                                 </div>
 
                                 <div className="buttons">
-                                    <SecondaryButton title="Save" />
+                                    {draftButtons}
                                     <PrimaryButton title="Next"
                                         onClick={() => {
                                             const { success, errors } = validate(studentFamilyDetailsSchema, formData);
@@ -1090,7 +1117,7 @@ const AddStudent = () => {
                                 </div>
 
                                 <div className="buttons">
-                                    <SecondaryButton title="Save" />
+                                    {draftButtons}
                                     <PrimaryButton title="Next" onClick={() => handleNextInputsTab(3)} />
                                 </div>
                             </div>
@@ -1114,7 +1141,7 @@ const AddStudent = () => {
                                     </div>
                                 </div>
                                 <div className="buttons" >
-                                    <SecondaryButton title="Save" />
+                                    {draftButtons}
                                     <PrimaryButton title="Next" onClick={() => handleNextInputsTab(4)} />
                                 </div>
                             </div>
@@ -1145,7 +1172,7 @@ const AddStudent = () => {
                                 </div> */}
 
                                 <div className="buttons">
-                                    <SecondaryButton title="Save" />
+                                    {draftButtons}
                                     <PrimaryButton title="Next" onClick={() => handleNextInputsTab(5)} />
                                 </div>
                             </div>
@@ -1156,7 +1183,7 @@ const AddStudent = () => {
                         <>
                             <div className="popup_body" >
                                 <div className="buttons">
-                                    <SecondaryButton title="Save" />
+                                    {draftButtons}
                                     <PrimaryButton title="Submit" onClick={() => handleNextInputsTab(0, "submit")} />
                                 </div>
                             </div>

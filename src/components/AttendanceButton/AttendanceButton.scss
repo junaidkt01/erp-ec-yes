@@ -27,6 +27,23 @@
         border-color 0.2s ease,
         box-shadow 0.2s ease,
         transform 0.15s ease;
+
+    .attendance_button_short {
+        display: none;
+    }
+
+    @media (max-width: 768px) {
+        min-width: 33px;
+        padding: 8px;
+
+        .attendance_button_full {
+            display: none;
+        }
+
+        .attendance_button_short {
+            display: inline;
+        }
+    }
         
         // Small press interaction
         &:active:not(:disabled) {

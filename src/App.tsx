@@ -71,7 +71,9 @@ import HomeWorkReport from './pages/HomeWork/HomeWorkReport/HomeWorkReport'
 import StudentParentList from './pages/StudentInfo/StudentParent/StudentParentList'
 import AcademicCategory from './pages/Academics/AcademicCategory/AcademicCategory'
 import UsersAndAccess from './pages/UsersAndAccess/UsersAndAccess'
-import Snowfall from './components/Snowfall'
+import FeesInvoice from './pages/Fees/FeesInvoice/FeesInvoice'
+import FeesType from './pages/Fees/FeesType/FeesType'
+// import Snowfall from './components/Snowfall'
 
 function App() {
   const { open, statusCode, message, hide } = useOverlayStore();
@@ -91,11 +93,7 @@ function App() {
     return (
       <div className='app'>
         {open && (
-          <ErrorStatusOverlay
-            isError={true}
-            status={statusCode ?? 500}
-            message={message}
-          />
+          <ErrorStatusOverlay isError={true} status={statusCode ?? 500} message={message} />
         )}
         <Toaster />
         <OfflineGate>
@@ -112,7 +110,7 @@ function App() {
 
   return (
     <div className='app'>
-      <Snowfall />
+      {/* <Snowfall /> */}
       {open && (
         <ErrorStatusOverlay
           isError={true}
@@ -192,8 +190,8 @@ function App() {
 
                 {/* 6. Fees */}
                 <Route path='/fees/fees-group' element={<FeesGroup />} />
-                <Route path='/fees/fees-type' element={<div>fees-type</div>} />
-                <Route path='/fees/fees-invoice' element={<div>fees-invoice</div>} />
+                <Route path='/fees/fees-type' element={<div><FeesType /></div>} />
+                <Route path='/fees/fees-invoice' element={<div><FeesInvoice /></div>} />
                 <Route path='/fees/bank-payment' element={<div>bank-payment</div>} />
                 <Route path='/fees/fees-carry-forward' element={<div>fees-carry-forward</div>} />
 

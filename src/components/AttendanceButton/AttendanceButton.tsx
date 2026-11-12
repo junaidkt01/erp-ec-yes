@@ -11,6 +11,8 @@ export type StatusType =
 interface AttendanceButtonProps {
     status: StatusType;
     title: string;
+    /** Short label shown on mobile. Defaults to the first letter of `title`. */
+    shortTitle?: string;
     active?: boolean;
     onClick?: (status: StatusType) => void;
     disabled?: boolean;
@@ -20,6 +22,7 @@ interface AttendanceButtonProps {
 const AttendanceButton: React.FC<AttendanceButtonProps> = ({
     status,
     title,
+    shortTitle,
     active = false,
     onClick,
     disabled = false,
@@ -37,8 +40,13 @@ const AttendanceButton: React.FC<AttendanceButtonProps> = ({
                 } ${disabled ? "disabled" : ""} ${className}`}
             onClick={handleClick}
             disabled={disabled}
+            title={title}
+            aria-label={title}
         >
-            {title}
+            <span className="attendance_button_full">{title}</span>
+            <span className="attendance_button_short" aria-hidden="true">
+                {shortTitle ?? title.charAt(0)}
+            </span>
         </button>
     );
 };
