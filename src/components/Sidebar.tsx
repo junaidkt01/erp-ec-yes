@@ -28,7 +28,9 @@ const Sidebar: React.FC = () => {
 
     // Call custom hook for sidebar menus
     const { data: dynamicMenus } = useSidebarMenus();
+    console.log("dynamicMenus: ", dynamicMenus)
     const menus: SidebarMenuGroup[] = dynamicMenus && dynamicMenus.length > 0 ? dynamicMenus : EMPTY_MENUS;
+    console.log("dynamicMenus: menus", menus)
 
     const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
     const [activeSubMenu, setActiveSubMenu] = useState<string | null>(null);

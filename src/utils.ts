@@ -12,6 +12,7 @@ export interface RawSidebarMenuItem {
   path: string;
   sub_menus?: SubMenuItem[];
   permission?: string | null;
+  permission_id?: number | string | null;
   order?: number;
   is_active?: boolean;
   created_at?: string;
@@ -47,8 +48,7 @@ export const parseIsActive = (val: any): boolean => {
 /**
  * Converts flat backend menu items (with `section` field) into grouped SidebarMenuGroup[]
  */
-export const formatSidebarMenus = (
-  rawItems: (RawSidebarMenuItem | SidebarMenuGroup)[]
+export const formatSidebarMenus = (rawItems: (RawSidebarMenuItem | SidebarMenuGroup)[]
 ): SidebarMenuGroup[] => {
   if (!Array.isArray(rawItems) || rawItems.length === 0) {
     return [];

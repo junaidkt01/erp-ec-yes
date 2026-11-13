@@ -240,4 +240,72 @@ export const useFetchMonthlyStudentAttendanceReport = (params?: MonthlyAttendanc
         },
         enabled: Boolean(params?.student_id || params?.class_id),
     });
-};
+};
+
+// Student Attendance List (GET /student-attendances with full filter set)
+// Returns one record per student per date.
+// Prefixed with STUDENT_ATTENDANCE_KEY so add/update/delete mutations invalidate it too
+export const STUDENT_ATTENDANCE_LIST_KEY = [...STUDENT_ATTENDANCE_KEY, "list"];
+
+export type AttendanceStatus = "Present" | "Late" | "Absent" | "Half Day" | "Leave" | string;
+
+export interface StudentAttendanceListParams {
+    class_id?: number | string;
+    section_id?: number | string;
+    academic_year_id?: number | string;
+    student_id?: number | string;
+    student_code?: string;
+    date?: string; // YYYY-MM-DD
+    status?: AttendanceStatus;
+    search?: string;
+    only_uploaded?: boolean;
+}
+
+export interface StudentAttendanceRecord {
+    id: number;
+    student_id: number;
+    class_id: number;
+    section_id: number;
+    academic_year_id: number;
+    roll_no?: string;
+    photo?: string;
+    student_name?: string;
+    student_code?: string;
+    admission_no?: string;
+    date: string;
+    status: AttendanceStatus;
+    note?: string | null;
+    student?: any;
+    class?: any;
+    section?: any;
+    academic_year?: any;
+}
+
+interface StudentAttendanceListResponse {
+    success: boolean;
+    data: StudentAttendanceRecord[];
+}
+
+export const useFetchStudentAttendanceList = (
+    params?: StudentAttendanceListParams,
+    options?: { enabled?: boolean }
+) => {
+    return useQuery<StudentAttendanceRecord[]>({
+        queryKey: [...STUDENT_ATTENDANCE_LIST_KEY, params],
+        queryFn: async () => {
+            const queryParams: Record<string, string | number | boolean> = {};
+            Object.entries(params ?? {}).forEach(([key, value]) => {
+                if (value !== undefined && value !== null && value !== "") {
+                    queryParams[key] = value as string | number | boolean;
+                }
+            });
+
+            const res = await axiosInstance.get<StudentAttendanceListResponse>(
+                `${studentAttendance.student_attendances}`,
+                { params: queryParams }
+            );
+            return Array.isArray(res.data?.data) ? res.data.data : [];
+        },
+        enabled: options?.enabled ?? true,
+    });
+};

@@ -36,7 +36,13 @@ export const studentPersonalDetailsSchema = z.object({
   // section_id: z.number({ error: "Must be a number" }).min(1, "Section is required"),
   admission_no: z.string().min(1, "Admission number is required"),
   admission_date: z.date({ error: "Admission date is required" }).min(new Date("1900-01-01"), "Admission date is required"),
-  roll_no: z.string().min(1, "Roll number is required"),
+  
+  
+  roll_no: z.number({ error: "Must be a number" }).min(1, "Roll number is required"),
+  student_code: z.string().min(1, "Student ID is required"),
+  // roll_no: z.string().min(1, "Roll number is required"),
+  
+  
   full_name: z.string().min(1, "Full name is required"),
   gender: z.string().min(1, "Gender is required"),
   dob: z.date({ error: "DOB is required" }).min(new Date("1900-01-01"), "DOB is required"),

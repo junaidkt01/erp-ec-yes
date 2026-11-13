@@ -10,6 +10,7 @@ import TableWrapper from "../../../components/TableWrapper.tsx";
 import InputRadioButtons from "../../../components/InputRadioButtons/InputRadioButtons.tsx";
 import { SCHOOLS_STATES } from "../../../utils/studentOptions.ts";
 import { SCHOOLS_ZONE } from "../../../utils/studentOptions.ts";
+import { useNavigate } from "react-router-dom";
 
 const UpdateGeneralSettings = () => {
     const { data, isLoading: generalSettingLoading, error } = useFetchGeneralSettings();
@@ -206,6 +207,8 @@ const UpdateGeneralSettings = () => {
     //     }
     // };
 
+    const navigate = useNavigate();
+
     const handleSubmit = async () => {
         setIsLoading(true);
         setErrors({});
@@ -242,6 +245,7 @@ const UpdateGeneralSettings = () => {
             console.log("general settings: updated", res);
             toast.success('General setting updated');
             setIsLoading(false);
+            navigate(-1)
         } catch (err: any) {
             setIsLoading(false);
             if (err.response?.data?.errors) {

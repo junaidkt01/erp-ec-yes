@@ -40,7 +40,7 @@ interface CreateAcademicYearPayload {
   name: string;
   start_date: string;
   end_date: string;
-  is_current: number;
+  is_current?: number;
 }
 
 export const useAddAcademicYear = () => {
@@ -52,7 +52,7 @@ const queryClient = useQueryClient(); //for update and add
         `${academicYear.academic_years}`,
         payload,
       );
-      res.data;
+      return res.data;
     },
 
     onSuccess: () => {
@@ -70,7 +70,7 @@ export interface UpdateAcademicYearPayload {
   name: string;
   start_date: string;
   end_date: string;
-  is_current: number;
+  is_current?: number;
 }
 
 export const useUpdateAcademicYear = () => {

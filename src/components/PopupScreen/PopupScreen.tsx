@@ -2,7 +2,7 @@ import { useState } from "react";
 import "./PopupScreen.scss";
 // import { AddButton, PrimaryButton } from "../Buttons/Buttons";
 
-const PopupScreen = ({title, children, onClick, className = "" }: {title:string; children: any; onClick?: any; className?: string }) => {
+const PopupScreen = ({title, children, onClick, className = "", overflow }: { overflow?:string; title:string; children: any; onClick?: any; className?: string }) => {
     const [closing, setClosing] = useState(false);
 
     const handleClose = () => {
@@ -16,8 +16,8 @@ const PopupScreen = ({title, children, onClick, className = "" }: {title:string;
 
     return (
         <div className={`popup_screen_overlay ${closing ? "closing" : ""}`}>
-            <div className={`popup_screen ${className} ${closing ? "closing" : ""}`}>
-                <div className="popup_header">
+            <div className={`popup_screen ${className} ${closing ? "closing" : ""}`} style={{overflow:overflow}} >
+                <div className="popup_header" >
                     <p className="popup_header_title" >{title}</p>
                     {onClick && <img src="/svgs/close.svg" onClick={handleClose} />}
                         {/* <AddButton onClick={onClick} title={title = "Import Student"} /> */}

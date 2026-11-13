@@ -9,7 +9,7 @@ import InputFiles from "../../../components/InputFields/InputFiles.tsx"
 import { useAddStaff, useUpdateStaff, useFetchOneStaff } from "../../../hooks/useStaff.ts"
 
 import { useAuth } from "../../../auth/useAuth.ts"
-import { useParams } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import LoadingOverlay from "../../../components/Loadingoverlay.tsx"
 import { toast } from "sonner"
 import StaffBulkUpload from "../../../components/BulkUpload/StaffBulkUpload.tsx"
@@ -17,6 +17,8 @@ import { STAFF_CATEGORY_OPTIONS } from "../../../utils/studentOptions.ts"
 import { validate } from "../../../utils/validate.ts"
 import { staffDetailsSchema } from "../../../validations/staffSchema.ts"
 import { useRoleOptions } from "../../../hooks/useRoles.ts"
+import InputCheckbox from "../../../components/InputCheckbox/InputCheckbox.tsx"
+import { BASE_URL } from "../../../api/endpoints.ts"
 
 const AddStaff = () => {
     const { staff_id } = useParams();
@@ -80,12 +82,45 @@ const AddStaff = () => {
         location: "",
     };
     const [formData, setFormData] = useState(initialStaffState);
-    console.log("formData: ", formData);
+
+    // Show each validation error as a toast
+    useEffect(() => {
+        Object.values(errors || {}).forEach((error) => {
+            if (typeof error === "string" && error.trim()) toast.error(error);
+        });
+    }, [errors]);
+
+    // Photo upload (preview + remove), same model as AddStudent
+    const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+    const [photoRemoved, setPhotoRemoved] = useState(false);
+
+    const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        setPhotoPreview(URL.createObjectURL(file));
+        setFormData((prev) => ({ ...prev, photo: file }));
+        setPhotoRemoved(false);
+    };
+
+    const handlePhotoRemove = () => {
+        setPhotoPreview(null);
+        setFormData((prev) => ({ ...prev, photo: null }));
+        setPhotoRemoved(true);
+    };
+
+    // Same as current address
+    const [sameAsCurrentAddress, setSameAsCurrentAddress] = useState(false);
+    useEffect(() => {
+        if (sameAsCurrentAddress) setFormData((prev) => ({ ...prev, permanent_address: prev.current_address }));
+    }, [formData.current_address, sameAsCurrentAddress]);
 
     useEffect(() => {
         if (!staff || !staff_id) return;
 
         const data = staff.data || {};
+        if (data.current_address && data.current_address === data.permanent_address) setSameAsCurrentAddress(true);
+        setPhotoPreview(data.photo ? `${BASE_URL}/public/${data.photo}` : null);
+        setPhotoRemoved(false);
 
         setFormData((prev) => ({
             ...prev,
@@ -127,6 +162,7 @@ const AddStaff = () => {
     }, [staff, staff_id]);
 
     const handleChange = (value: any, name?: string) => {
+        setErrors((prev: any) => ({ ...prev, [name || value?.target?.name]: undefined }));
         if (name) {
             setFormData((prev) => ({
                 ...prev,
@@ -155,7 +191,7 @@ const AddStaff = () => {
     const { data } = useAuth();
     console.log(data)
 
-    const [isLoading, setIsLoading] = useState(false)
+    const [isLoading, setIsLoading] = useState(false);
 
     const formatDateDisplay = (dateVal: any, fallback = ""): string => {
         if (!dateVal) return fallback;
@@ -171,6 +207,8 @@ const AddStaff = () => {
         }
         return String(dateVal);
     };
+
+    const navigate = useNavigate();
 
     const handleSubmit = async () => {
         setIsLoading(true);
@@ -212,7 +250,9 @@ const AddStaff = () => {
         payload.append("contract_type", formData?.contract_type);
         payload.append("location", formData?.location);
 
-        if (formData.photo) payload.append("photo", formData.photo);
+        // New file -> upload/replace, removed -> remove_photo=1, untouched -> omitted (backend keeps existing)
+        if (formData.photo instanceof File) payload.append("photo", formData.photo);
+        else if (staff_id && photoRemoved) payload.append("remove_photo", "1");
         if (formData.resume) payload.append("resume", formData.resume);
         if (formData.joining_letter) payload.append("joining_letter", formData.joining_letter);
         if (formData.other_document) payload.append("other_document", formData.other_document);
@@ -222,6 +262,7 @@ const AddStaff = () => {
                 const res = await updateStaff(payload);
                 if (res.success) {
                     toast.success('Staff updated successfully')
+                    navigate(-1)
                 } else {
                     toast.error('Staff updation failed')
                 }
@@ -229,6 +270,7 @@ const AddStaff = () => {
                 const res = await addStaff(payload);
                 if (res.success) {
                     toast.success('Staff added successfully')
+                    navigate(-1)
                 } else {
                     toast.error('Staff addition failed')
                 }
@@ -247,13 +289,19 @@ const AddStaff = () => {
         }
     };
 
+    // Validate staff details; returns false (and shows errors) if invalid
+    const validateStaff = () => {
+        const { success, errors } = validate(staffDetailsSchema, formData);
+        if (!success) setErrors(errors);
+        return success;
+    };
+
     const handleNextInputsTab = (index: number, submit?: string) => {
         if (submit && readyToSubmit) {
             handleSubmit()
         } else if (submit) {
-            const { success, errors } = validate(staffDetailsSchema, formData);
-            if (!success) {
-                setErrors(errors);
+            if (!validateStaff()) {
+                setSelectedInputTitleTab(addStaffsTabs[0]);
                 return;
             }
             setReadyToSubmit(true)
@@ -272,6 +320,7 @@ const AddStaff = () => {
     const maritalStatusOptions = [
         { label: "Single", value: "single" },
         { label: "Married", value: "married" },
+        { label: "Widow", value: "widow" },
     ];
 
     const expertStaffOptions = [
@@ -304,7 +353,7 @@ const AddStaff = () => {
                                 <div className="student_content_to_submit_wrapper">
                                     <div className="student_content_to_submit">
                                         <div>
-                                            <p className="title" >Staff ID</p>
+                                            <p className="title" >Staff ID No</p>
                                             <p className="value" >{formData?.staff_code || "N/A"}</p>
                                         </div>
                                         <div>
@@ -386,12 +435,12 @@ const AddStaff = () => {
                             <div className="popup_body" >
                                 <div className="fields_wrapper" >
                                     <div className="body_section" >
-                                        <InputField type="text" label="Staff ID" placeHolder="Enter staff ID" name="staff_code" value={formData?.staff_code} onChange={handleChange} />
-                                        <InputField type="text" label="Staff Number" placeHolder="Enter staff number" name="staff_no" value={formData?.staff_no} onChange={handleChange} />
+                                        <InputField type="text" label="Staff ID No" placeHolder="Enter staff ID" name="staff_code" value={formData?.staff_code} onChange={handleChange} />
+                                        {/* <InputField type="text" label="Staff Number" placeHolder="Enter staff number" name="staff_no" value={formData?.staff_no} onChange={handleChange} /> */}
                                         <CustomSelect value={formData?.category} label="Category" placeholder="Select category" options={STAFF_CATEGORY_OPTIONS} onChange={(val) => setFormData((prev: any) => ({ ...prev, category: val }))} />
                                     </div>
                                     <div className="body_section" >
-                                        <CustomSelect value={formData?.role} label="Role" placeholder="Select role" options={roleOptions} onChange={(val) => setFormData((prev: any) => ({ ...prev, role: val }))} />
+                                        <CustomSelect value={formData?.role} label="Role" placeholder="Select role" options={roleOptions.filter((item) => item.value !== "parent" && item.value !== "student" && item.value !== "super-admin")} onChange={(val) => setFormData((prev: any) => ({ ...prev, role: val }))} />
                                         <InputField type="text" label="Designation" placeHolder="Enter designation" name="designation" value={formData?.designation} onChange={handleChange} />
                                         <InputField error={errors.first_name} name="first_name" value={formData?.first_name} onChange={handleChange} type="text" label="First Name" placeHolder="Enter first name" />
                                     </div>
@@ -412,7 +461,14 @@ const AddStaff = () => {
                             <div className="popup_body" >
                                 <div className="fields_wrapper" >
                                     <div className="body_section" >
-                                        <InputFiles name="photo" title="Staff's Photo" onChange={handleChange} />
+                                        <InputFiles
+                                            image={photoPreview || undefined}
+                                            accept="image/*" name="photo"
+                                            title="Staff's Photo"
+                                            displaySize={{ width: 130, height: 130 }}
+                                            cropSize={{ width: 350, height: 450 }}
+                                            onChange={handlePhotoUpload} onRemove={handlePhotoRemove}
+                                        />
                                     </div>
                                     <div className="body_section" >
                                         <InputField error={errors.phone} name="phone" value={formData?.phone} onChange={handleChange} type="number" label="Phone" placeHolder="Enter phone number" />
@@ -425,22 +481,24 @@ const AddStaff = () => {
                                     <div className="body_section" >
                                         <InputField name="current_address" value={formData?.current_address} onChange={handleChange} type="text" label="Current Address" placeHolder="Enter current address" />
                                     </div>
+                                    <div className="body_section same_as_address_mark" >
+                                        <InputCheckbox label="Same as Current Address" checked={sameAsCurrentAddress} onChange={() => setSameAsCurrentAddress((prev) => !prev)} />
+                                    </div>
                                     <div className="body_section" >
-                                        <InputField name="permanent_address" value={formData?.permanent_address} onChange={handleChange} type="text" label="Permanent Address" placeHolder="Enter permanent address" />
+                                        <InputField name="permanent_address" value={formData?.permanent_address} onChange={handleChange} type="text" label="Permanent Address" placeHolder="Enter permanent address" disabled={sameAsCurrentAddress} />
                                     </div>
                                     <div className="body_section" >
                                         <InputField name="qualifications" value={formData?.qualifications} onChange={handleChange} type="text" label="Current Qualification" placeHolder="Enter qualification" />
                                         <InputField name="experience" value={formData?.experience} onChange={handleChange} type="text" label="Experience" placeHolder="Enter experience" />
                                     </div>
-                                    <div className="body_section" >
+                                    {/* <div className="body_section" >
                                         <CustomSelect value={formData?.is_expert_staff ? "1" : "0"} label="Expert Staff" placeholder="Select" options={expertStaffOptions} onChange={(value) => setFormData((prev: any) => ({ ...prev, is_expert_staff: value === "1" }))} />
-                                        {/* <InputField name="mother_phone" value={formData?.mother_phone} onChange={handleChange} type="text" label="Mother Phone" placeHolder="Enter mother phone" /> */}
-                                    </div>
+                                    </div> */}
                                 </div>
 
                                 <div className="buttons">
                                     <SecondaryButton title="Save" />
-                                    <PrimaryButton title="Next" onClick={() => handleNextInputsTab(1)} />
+                                    <PrimaryButton title="Next" onClick={() => validateStaff() && handleNextInputsTab(1)} />
                                 </div>
                             </div>
                         </>
@@ -457,7 +515,7 @@ const AddStaff = () => {
                                     </div>
                                     <div className="body_section" >
                                         <InputField name="contract_type" value={formData?.contract_type} onChange={handleChange} type="text" label="Contract Type" placeHolder="Enter contract type" />
-                                        <InputField name="location" value={formData?.location} onChange={handleChange} type="text" label="Location" placeHolder="Enter location" />
+                                        {/* <InputField name="location" value={formData?.location} onChange={handleChange} type="text" label="Location" placeHolder="Enter location" /> */}
                                     </div>
                                 </div>
 

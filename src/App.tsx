@@ -73,6 +73,8 @@ import AcademicCategory from './pages/Academics/AcademicCategory/AcademicCategor
 import UsersAndAccess from './pages/UsersAndAccess/UsersAndAccess'
 import FeesInvoice from './pages/Fees/FeesInvoice/FeesInvoice'
 import FeesType from './pages/Fees/FeesType/FeesType'
+import StudentsAttendanceReport from './pages/StudentsReport/StudentsAttendanceReport/StudentsAttendanceReport'
+import AcademicYear from './pages/SettingsSection/AcademicYear/AcademicYear'
 // import Snowfall from './components/Snowfall'
 
 function App() {
@@ -213,6 +215,7 @@ function App() {
                 {/* 8. Settings Section */}
                 <Route path='/settings-section/general-settings' element={<GeneralSettings />} />
                 <Route path='/settings-section/update-general-settings' element={<UpdateGeneralSettings />} />
+                <Route path='/settings-section/academic-year' element={<AcademicYear />} />
 
                 {/* 9. Admin Section */}
                 <Route path='/admin-info/profile/:admin_id' element={<AdminProfile />} />
@@ -225,8 +228,10 @@ function App() {
                 <Route path='/home-work/homework-report' element={<HomeWorkReport />} />
 
                 {/* 12. Users & Access */}
-                {/* <Route path='/users-and-access/users-and-access' element={<UsersAndAccess />} /> */}
                 <Route path='/settings-section/users-access' element={<UsersAndAccess />} />
+
+                {/* 13. Students Report */}
+                <Route path='/students-report/students-attendance-report' element={<StudentsAttendanceReport />} />
 
                 {/* Error page */}
                 <Route path='/error-page-404' element={<ErrorStatusOverlay isError={true} status={404} />} />

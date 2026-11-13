@@ -71,8 +71,8 @@ const StudentProfilePage = () => {
         { label: "Age", value: calculateAge(dobValue) },
         { label: "Category", value: student?.data?.category?.name || "N/A" },
         { label: "Religion", value: student?.data?.religion || "N/A" },
-        { label: "Phone Number", value: student?.data?.phone || "N/A" },
-        { label: "Email Address", value: student?.data?.email || "N/A" },
+        // { label: "Phone Number", value: student?.data?.phone || "N/A" },
+        // { label: "Email Address", value: student?.data?.email || "N/A" },
         { label: "Present Address", value: student?.data?.current_address || "N/A" },
         { label: "Permanent Address", value: student?.data?.permanent_address || "N/A" },
     ];
@@ -80,7 +80,6 @@ const StudentProfilePage = () => {
     const [activeTab, setActiveTab] = useState("Profile");
 
     ///////////////////////
-
 
     if (studentLoading) {
         return <LoadingOverlay isLoading={true} />

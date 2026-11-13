@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react"
+import { useEffect, useState, useMemo, useRef } from "react"
 import { PrimaryButton, SecondaryButton } from "../../../components/Buttons/Buttons"
 import { InputField } from "../../../components/InputFields/InputFields"
 import PopupScreen from "../../../components/PopupScreen/PopupScreen"
@@ -16,7 +16,7 @@ import { useFetchAllStudentCategories } from "../../../hooks/useStudentCategory.
 
 import "./AddStudent.scss"
 import { useAuth } from "../../../auth/useAuth.ts"
-import { useParams } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import LoadingOverlay from "../../../components/Loadingoverlay.tsx"
 import { toast } from "sonner"
 import BulkUpload from "../../../components/BulkUpload/BulkUpload.tsx"
@@ -94,9 +94,15 @@ const AddStudent = () => {
 
     const [selectedInputTitleTab, setSelectedInputTitleTab] = useState(addStudentsTabs[0]);
     const [readyToSubmit, setReadyToSubmit] = useState(false);
+    const topRef = useRef<HTMLDivElement>(null);
+
+    const scrollToTop = () => {
+        topRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
 
     const handleSelecteInputTitleTab = (title: string) => {
         setSelectedInputTitleTab(title);
+        scrollToTop();
     }
 
     const [isImportStudents, setIsImportStudents] = useState(false)
@@ -530,9 +536,9 @@ const AddStudent = () => {
     };
 
     const { data } = useAuth();
-    console.log("dsds: ", data?.user?.id)
 
     const [isLoading, setIsLoading] = useState(false);
+    const navigate = useNavigate();
 
     const handleSubmit = async () => {
         setIsLoading(true);
@@ -641,6 +647,7 @@ const AddStudent = () => {
                     setPhotos(initialPhotosState);
                     setRemovedPhotos(initialRemovedPhotos);
                     setReadyToSubmit(false);
+                    navigate(-1)
                 } else {
                     toast('Student updation failed')
                 }
@@ -652,6 +659,7 @@ const AddStudent = () => {
                 setFormData(studentForm);
                 setPhotos(initialPhotosState);
                 setReadyToSubmit(false);
+                navigate(-1)
             }
             setIsLoading(false);
         } catch (err) {
@@ -663,7 +671,7 @@ const AddStudent = () => {
     };
 
     const handleNextInputsTab = (index: number, submit?: string) => {
-        window.scrollTo({ top: 0, left: 0 })
+        scrollToTop();
         if (submit && readyToSubmit) {
             handleSubmit()
         } else if (submit) {
@@ -727,7 +735,7 @@ const AddStudent = () => {
     }
 
     return (
-        <div className="page_wrapper">
+        <div className="page_wrapper" ref={topRef}>
             <div className="add_student" >
                 {isFindParent && <PopupScreen title="Find Parent" onClick={handleFindParent} >
                     <div className="popup_body" >
@@ -870,14 +878,14 @@ const AddStudent = () => {
                                         <InputField error={errors.admission_no} type="text" label="Admission Number" placeHolder="Enter admission number" name="admission_no" value={formData?.admission_no} onChange={handleChange} />
                                         <InputField error={errors.admission_date} name="admission_date" type="date" label="Admission Date" value={formData.admission_date} placeHolder="Select date" onChange={handleChange} />
                                         {/* <InputField name="email" value={formData?.email} onChange={handleChange} type="text" label="Email" placeHolder="Enter mail address" /> */}
-                                        <InputField error={errors.roll_no} name="roll_no" value={formData?.roll_no} onChange={handleChange} type="text" label="Roll Number" placeHolder="Enter roll number" />
+                                        <InputField error={errors.roll_no} name="roll_no" value={formData?.roll_no} onChange={handleChange} type="number" label="Roll Number" placeHolder="Enter roll number" />
                                     </div>
                                     <div className="body_section" >
-                                        <InputField error={errors.apaar_id} type="text" label="Apaar ID" placeHolder="Enter Apaar ID number" name="apaar_id" value={formData?.apaar_id} onChange={handleChange} />
-                                        <InputField error={errors.aadharshila_no} type="text" label="Aadharshila Number" placeHolder="Enter Aadharshila ID number" name="aadharshila_no" value={formData?.aadharshila_no} onChange={handleChange} />
+                                        <InputField error={errors.apaar_id} type="number" label="Apaar ID" placeHolder="Enter Apaar ID number" name="apaar_id" value={formData?.apaar_id} onChange={handleChange} />
+                                        <InputField error={errors.aadharshila_no} type="number" label="Aadharshila Number" placeHolder="Enter Aadharshila ID number" name="aadharshila_no" value={formData?.aadharshila_no} onChange={handleChange} />
                                     </div>
                                     <div className="body_section" >
-                                        <InputField error={errors.pen_no} type="text" label="Pen Number" placeHolder="Enter Pen number" name="pen_no" value={formData?.pen_no} onChange={handleChange} />
+                                        <InputField error={errors.pen_no} type="number" label="Pen Number" placeHolder="Enter Pen number" name="pen_no" value={formData?.pen_no} onChange={handleChange} />
                                         <InputField error={errors.student_code} type="text" label="Student ID" placeHolder="Enter student ID" name="student_code" value={formData?.student_code} onChange={handleChange} />
                                     </div>
                                 </div>
