@@ -24,6 +24,8 @@ export interface SidebarMenuItem {
   icon: string;
   path: string;
   sub_menus?: SubMenuItem[];
+  permission?: string | null;
+  permission_id?: number | string | null;
 }
 
 export interface SidebarMenuGroup {
@@ -79,6 +81,8 @@ export const formatSidebarMenus = (rawItems: (RawSidebarMenuItem | SidebarMenuGr
       title: item.title,
       icon: item.icon,
       path: item.path,
+      permission: item.permission,
+      permission_id: item.permission_id,
     };
 
     if (item.sub_menus && Array.isArray(item.sub_menus)) {

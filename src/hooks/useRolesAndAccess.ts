@@ -283,3 +283,28 @@ export const useAssignUserRoles = () => {
     },
   });
 };
+
+/* ------------------------------------------------------------------ */
+/* Users list                                                          */
+/* ------------------------------------------------------------------ */
+
+export interface UserListItem {
+  id: number;
+  name: string;
+  full_name?: string;
+  email: string;
+  phone?: string | null;
+  is_active?: number;
+  roles?: { id: number; name: string }[];
+}
+
+export const USERS_KEY = ["users"];
+
+export const useFetchAllUsers = () =>
+  useQuery<UserListItem[]>({
+    queryKey: USERS_KEY,
+    queryFn: async () => {
+      const res = await axiosInstance.get(user.users);
+      return unwrap(res) ?? [];
+    },
+  });

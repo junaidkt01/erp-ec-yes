@@ -1,6 +1,29 @@
 // src/routes/ProtectedRoute.tsx
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth, getStoredAuth } from "../auth/useAuth";
+import { useRouteAccess } from "../auth/usePermissions";
+import { ErrorStatusOverlay } from "../components/Loadingoverlay";
+
+/**
+ * Layout route: wrap all private routes once. Checks login, then the permission
+ * (permission_id / permission) of the sidebar menu that owns the current URL.
+ */
+export const PermissionRoute = () => {
+  const { pathname } = useLocation();
+  const { allowed, isLoading } = useRouteAccess(pathname);
+
+  if (isLoading) return null;
+  if (!allowed) {
+    return <ErrorStatusOverlay key={pathname} isError={true} status={403} message="You don't have permission to access this page." />;
+  }
+  return <Outlet />;
+};
+
+export const PrivateRoutes = () => (
+  <ProtectedRoute>
+    <PermissionRoute />
+  </ProtectedRoute>
+);
 
 export const ProtectedRoute = ({ children }: { children: any }) => {
   const { data, isLoading, isError } = useAuth();

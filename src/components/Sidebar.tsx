@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 // import { sidebar_menus } from "../utils";
 import { useSidebarMenus, type SidebarMenuGroup } from "../hooks/useSidebarMenus";
+import { usePermissions } from "../auth/usePermissions";
 import { parseIsActive } from "../utils";
 import { useFetchGeneralSettings } from "../hooks/useGeneralSettings";
 import { useTranslation } from "../i18n/LanguageContext";
@@ -28,9 +29,14 @@ const Sidebar: React.FC = () => {
 
     // Call custom hook for sidebar menus
     const { data: dynamicMenus } = useSidebarMenus();
-    console.log("dynamicMenus: ", dynamicMenus)
-    const menus: SidebarMenuGroup[] = dynamicMenus && dynamicMenus.length > 0 ? dynamicMenus : EMPTY_MENUS;
-    console.log("dynamicMenus: menus", menus)
+    const { can } = usePermissions();
+    // Only show menus the user has permission for; drop groups left empty
+    const menus: SidebarMenuGroup[] = useMemo(() => {
+        if (!dynamicMenus?.length) return EMPTY_MENUS;
+        return dynamicMenus
+            .map((group) => ({ ...group, menus: (group.menus || []).filter((menu) => can(menu)) }))
+            .filter((group) => group.menus.length > 0);
+    }, [dynamicMenus, can]);
 
     const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
     const [activeSubMenu, setActiveSubMenu] = useState<string | null>(null);

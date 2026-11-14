@@ -6,7 +6,7 @@ import { PrimaryButton, SecondaryButton } from "../../components/Buttons/Buttons
 import { highlightText } from "../../utils/utils";
 import { useDebounce } from "../../hooks/useDebounce";
 import { useSearchUsers } from "../../hooks/useSearchUsers";
-import { useDeleteRole, useFetchRolesAndAccess, type Role } from "../../hooks/useRolesAndAccess";
+import { useDeleteRole, useFetchAllUsers, useFetchRolesAndAccess, type Role } from "../../hooks/useRolesAndAccess";
 import { useTranslation } from "../../i18n/LanguageContext";
 import DataTable, { type Column } from "../../components/DataTable/DataTable";
 import { AddRolePopup, EditRolePermissionsPopup, ViewRolePermissionsPopup } from "./RolePermissionPopups";
@@ -175,11 +175,51 @@ export const UsersAndAccess = () => {
         [data]
     );
 
+
+    const { data: usersData, isLoading: isUsersLoading, isError: isUsersError } = useFetchAllUsers();
+
+    const usersColumns: Column[] = [
+        { key: "sl", title: "SL" },
+        { key: "full_name", title: "Full Name" },
+        { key: "email", title: "Email" },
+        { key: "roles", title: "Roles" },
+    ];
+
+    const [userSearch, setUserSearch] = useState("");
+
+    const users = useMemo(() => {
+        const q = userSearch.trim().toLowerCase();
+        return (usersData ?? [])
+            .map((u) => ({
+                id: u.id,
+                full_name: u.full_name || u.name,
+                email: u.email,
+                roles: u.roles?.map((r) => r.name).join(", ") || "-",
+                raw: u,
+            }))
+            .filter(
+                (u) =>
+                    !q ||
+                    u.full_name?.toLowerCase().includes(q) ||
+                    u.email?.toLowerCase().includes(q) ||
+                    u.roles.toLowerCase().includes(q)
+            )
+            .map((u, i) => ({ ...u, sl: i + 1 }));
+    }, [usersData, userSearch]);
+
+    const usersEmptyMessage = isUsersLoading
+        ? "Loading users..."
+        : isUsersError
+            ? "Failed to load users"
+            : userSearch
+                ? `No users found for "${userSearch}"`
+                : "No users found";
+
     const emptyMessage = isLoading
         ? "Loading roles..."
         : isError
-        ? "Failed to load roles"
-        : "No roles found";
+            ? "Failed to load roles"
+            : "No roles found";
 
     return (
         <div className="page_wrapper">
@@ -189,7 +229,7 @@ export const UsersAndAccess = () => {
                     <div className="header">
                         <RoleAccessToggle value={roleType} onChange={setRoleType} />
 
-                        {roleType === "custom" && (
+                        {/* {roleType === "custom" && (
                             <div className="search_selection_wrapper hvr_zm_in">
                                 <div className={`search_bar_wrapper ${searchTerm ? "has" : ""}`}>
                                     <div className="search_bar">
@@ -219,7 +259,8 @@ export const UsersAndAccess = () => {
                                 </div>
                                 <SearchResults />
                             </div>
-                        )}
+                        )} */}
+
                     </div>
                 </div>
 
@@ -236,7 +277,7 @@ export const UsersAndAccess = () => {
                             data={tableData}
                             currentPage={1}
                             totalPages={1}
-                            onPageChange={() => {}}
+                            onPageChange={() => { }}
                             emptyMessage={emptyMessage}
                             actions={(row) => (
                                 <div className="actions">
@@ -278,16 +319,47 @@ export const UsersAndAccess = () => {
                                 fallbackUser={selectedUserMeta || undefined}
                             />
                         ) : (
-                            <div className="user_permissions_container">
-                                <div className="custom_role_empty_state">
-                                    <img src="/header_icons/search_icon.svg" alt="Search" />
-                                    <h3>Search & Select a User</h3>
-                                    <p>
-                                        Use the search bar above to select a student, staff member, or user
-                                        to view and configure their customized roles and direct permissions.
-                                    </p>
-                                </div>
-                            </div>
+                            <TableWrapper
+                                isSearchBar
+                                title="Users and Access"
+                                searchValue={userSearch}
+                                searchOnchange={setUserSearch}
+                            >
+                                <DataTable
+                                    columns={usersColumns}
+                                    data={users}
+                                    currentPage={1}
+                                    totalPages={1}
+                                    onPageChange={() => { }}
+                                    emptyMessage={usersEmptyMessage}
+                                    actions={(row) => (
+                                        <div className="actions">
+                                            <button
+                                                onClick={() => {
+                                                    setSelectedUserId(row.raw.id);
+                                                    setSelectedUserMeta({
+                                                        name: row.raw.full_name || row.raw.name,
+                                                        email: row.raw.email,
+                                                    });
+                                                }}
+                                                title="Manage permissions"
+                                            >
+                                                <img src="/svgs/edit.svg" alt="Edit" />
+                                            </button>
+                                        </div>
+                                    )}
+                                />
+                            </TableWrapper>
+                            // <div className="user_permissions_container">
+                            //     <div className="custom_role_empty_state">
+                            //         <img src="/header_icons/search_icon.svg" alt="Search" />
+                            //         <h3>Search & Select a User</h3>
+                            //         <p>
+                            //             Use the search bar above to select a student, staff member, or user
+                            //             to view and configure their customized roles and direct permissions.
+                            //         </p>
+                            //     </div>
+                            // </div>
                         )}
                     </div>
                 )}

@@ -46,7 +46,7 @@ import Incidents from './pages/BehaviourRecords/Incidents/Incidents'
 import AssignIncident from './pages/BehaviourRecords/AssignIncident/AssignIncident'
 // import ProtectedRoute from './api/ProtectedRoute'
 import Login from './pages/Auth/Login'
-import { ProtectedRoute } from './api/ProtectedRoute'
+import { PrivateRoutes } from './api/ProtectedRoute'
 import AddStudent from './pages/StudentInfo/AddStudent/AddStudent'
 import { Toaster } from 'sonner'
 import { OfflineGate } from './components/PWA/OfflineGate'
@@ -133,10 +133,12 @@ function App() {
           <div style={{ height: "calc(100% - 64.5px)", overflowY: "auto" }} >
             <OfflineGate>
               <Routes>
-                <Route path='/dashboard' element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                {/* Every route inside is login + permission protected */}
+                <Route element={<PrivateRoutes />}>
+                <Route path='/dashboard' element={<Dashboard />} />
 
                 {/* 1. Admin Section Routes */}
-                <Route path='/admin-section/complaint' element={<ProtectedRoute><Complaint /></ProtectedRoute>} />
+                <Route path='/admin-section/complaint' element={<Complaint />} />
                 <Route path='/admin-section/admission-query' element={<AdmissionQuery />} />
                 <Route path='/admin-section/postal-receive' element={<PostalReceive />} />
                 <Route path='/admin-section/postal-dispatch' element={<PostalDispatch />} />
@@ -232,6 +234,8 @@ function App() {
 
                 {/* 13. Students Report */}
                 <Route path='/students-report/students-attendance-report' element={<StudentsAttendanceReport />} />
+
+                </Route>
 
                 {/* Error page */}
                 <Route path='/error-page-404' element={<ErrorStatusOverlay isError={true} status={404} />} />
