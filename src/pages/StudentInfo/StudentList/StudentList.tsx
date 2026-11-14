@@ -14,6 +14,7 @@ import { useFetchAllStudentClasses } from "../../../hooks/useStudentClass"
 import { useFetchAllSections } from "../../../hooks/useSections"
 import { useDebounce } from "../../../hooks/useDebounce"
 import { BASE_URL } from "../../../api/endpoints"
+import Can from "../../../components/permissions/Can"
 
 const StudentList = () => {
     const navigate = useNavigate()
@@ -267,7 +268,7 @@ const StudentList = () => {
                     </div>
                 </PopupScreen>}
 
-                <TableWrapper isAddButton title={"Manage Students"} onClick={() => navigate("/student-info/add-student")} >
+                <TableWrapper permission="add_student" isAddButton title={"Manage Students"} onClick={() => navigate("/student-info/add-student")} >
                     <div className="search_screen">
                         <p className="search_screen_title" >Select Criteria</p>
                         <div className="popup_body" >
@@ -302,10 +303,10 @@ const StudentList = () => {
                         onPageChange={(p) => setPage(p)}
                         actions={(row) => (
                             <div className="actions">
-                                <button className="hvr_zm_out" onClick={() => navigate(`/student-info/profile/${row?.full_data?.id}`)} ><img src="/svgs/eye_open.svg" alt="" /></button>
-                                <button className="hvr_zm_out" onClick={() => navigate(`/student-info/add-student/${row?.full_data?.id}`)} ><img src="/svgs/edit.svg" alt="" /></button>
-                                <button className="hvr_zm_out" onClick={() => handleDeleteStudent(row?.full_data?.id, `${row.full_data?.first_name} ${row.full_data?.last_name}`)} ><img src="/svgs/delete.svg" alt="" /></button>
-                                <button className="hvr_zm_out" onClick={() => handleBlockStudent(row?.full_data?.id, `${row.full_data?.first_name} ${row.full_data?.last_name}`, row?.full_data?.disable_reason)} >{row.full_data?.is_disabled ? <img src="/svgs/enable.svg" alt="" /> : <img src="/svgs/block.svg" alt="" />}</button>
+                                <Can permission="view_student" ><button className="hvr_zm_out" onClick={() => navigate(`/student-info/profile/${row?.full_data?.id}`)} ><img src="/svgs/eye_open.svg" alt="" /></button></Can>
+                                <Can permission="edit_student" ><button className="hvr_zm_out" onClick={() => navigate(`/student-info/add-student/${row?.full_data?.id}`)} ><img src="/svgs/edit.svg" alt="" /></button></Can>
+                                <Can permission="delete_student" ><button className="hvr_zm_out" onClick={() => handleDeleteStudent(row?.full_data?.id, `${row.full_data?.first_name} ${row.full_data?.last_name}`)} ><img src="/svgs/delete.svg" alt="" /></button></Can>
+                                <Can permission="disable_student" ><button className="hvr_zm_out" onClick={() => handleBlockStudent(row?.full_data?.id, `${row.full_data?.first_name} ${row.full_data?.last_name}`, row?.full_data?.disable_reason)} >{row.full_data?.is_disabled ? <img src="/svgs/enable.svg" alt="" /> : <img src="/svgs/block.svg" alt="" />}</button></Can>
                             </div>
                         )}
                     />

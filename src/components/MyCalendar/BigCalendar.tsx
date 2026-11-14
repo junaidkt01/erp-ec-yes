@@ -25,6 +25,7 @@ import {
   type CalendarEvent,
 } from "../../hooks/useEvents";
 import { useRoleOptions } from "../../hooks/useRoles";
+import Can from "../permissions/Can";
 
 const localizer = momentLocalizer(moment);
 
@@ -502,14 +503,18 @@ const BigCalendar: React.FC = () => {
             )}
 
             <div className="buttons">
-              <SecondaryButton
-                title="Delete"
-                onClick={() => activeEventDetail && handleDeleteClick(activeEventDetail)}
-              />
-              <PrimaryButton
-                title="Edit Event"
-                onClick={() => activeEventDetail && handleOpenEditModal(activeEventDetail)}
-              />
+              <Can permission="delete_event" >
+                <SecondaryButton
+                  title="Delete"
+                  onClick={() => activeEventDetail && handleDeleteClick(activeEventDetail)}
+                />
+              </Can>
+              <Can permission="edit_event" >
+                <PrimaryButton
+                  title="Edit Event"
+                  onClick={() => activeEventDetail && handleOpenEditModal(activeEventDetail)}
+                />
+              </Can>
             </div>
           </div>
         </PopupScreen>
@@ -517,10 +522,7 @@ const BigCalendar: React.FC = () => {
 
       {/* DELETE CONFIRMATION POPUP */}
       {deleteTarget && (
-        <PopupScreen
-          title="Delete Event"
-          onClick={handleCancelDelete}
-        >
+        <PopupScreen title="Delete Event" onClick={handleCancelDelete} >
           <div className="popup_body">
             <div className="body_section">
               <p>
@@ -550,7 +552,9 @@ const BigCalendar: React.FC = () => {
       <div className="big-calendar hvr_zm_in">
         <div className="calendar_header_bar">
           <h2 className="calendar_heading">Events Calendar</h2>
-          <AddButton title="Add Event" onClick={handleOpenAddModal} />
+          <Can permission={`add_event`} >
+            <AddButton title="Add Event" onClick={handleOpenAddModal} />
+          </Can>
         </div>
 
         <Calendar

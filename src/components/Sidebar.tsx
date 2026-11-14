@@ -31,12 +31,41 @@ const Sidebar: React.FC = () => {
     const { data: dynamicMenus } = useSidebarMenus();
     const { can } = usePermissions();
     // Only show menus the user has permission for; drop groups left empty
+    // const menus: SidebarMenuGroup[] = useMemo(() => {
+    //     if (!dynamicMenus?.length) return EMPTY_MENUS;
+    //     return dynamicMenus
+    //         .map((group) => ({ ...group, menus: (group.menus || []).filter((menu) => can(menu)) }))
+    //         .filter((group) => group.menus.length > 0);
+    // }, [dynamicMenus, can]);
+
     const menus: SidebarMenuGroup[] = useMemo(() => {
         if (!dynamicMenus?.length) return EMPTY_MENUS;
+
         return dynamicMenus
-            .map((group) => ({ ...group, menus: (group.menus || []).filter((menu) => can(menu)) }))
+            .map((group) => ({
+                ...group,
+                menus: (group.menus || [])
+                    .filter((menu) => can(menu))
+                    .map((menu) => ({
+                        ...menu,
+                        sub_menus: (menu.sub_menus || []).filter((sub) => {
+                            if (typeof sub === "string") return true;
+
+                            return (
+                                parseIsActive(sub.is_active) &&
+                                // can(sub)
+                                can({
+                                    ...sub,
+                                    path: sub.path ?? undefined,
+                                })
+                            );
+                        }),
+                    })),
+            }))
             .filter((group) => group.menus.length > 0);
     }, [dynamicMenus, can]);
+
+    console.log("menus: ", menus)
 
     const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
     const [activeSubMenu, setActiveSubMenu] = useState<string | null>(null);

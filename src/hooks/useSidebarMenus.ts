@@ -23,7 +23,7 @@ export interface SidebarMenusApiResponse {
   [key: string]: any;
 }
 
-export type SidebarMenusResponse =
+export type SidebarMenusResponse = 
   | SidebarMenusApiResponse
   | (RawSidebarMenuItem | SidebarMenuGroup)[];
 
