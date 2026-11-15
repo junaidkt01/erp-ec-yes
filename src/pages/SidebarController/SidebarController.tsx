@@ -37,9 +37,12 @@ const SidebarController: React.FC = () => {
         is_active: parseIsActive(item.is_active),
         sub_menus: Array.isArray(item.sub_menus)
           ? item.sub_menus.map((sub: any) => ({
+              ...sub,
               id: sub.id,
               title: typeof sub === "string" ? sub : (sub.title || ""),
               is_active: typeof sub === "string" ? true : parseIsActive(sub.is_active),
+              permission: typeof sub === "object" ? (sub.permission ?? sub.permission_name ?? null) : null,
+              permission_id: typeof sub === "object" ? (sub.permission_id ?? null) : null,
             }))
           : [],
       }));

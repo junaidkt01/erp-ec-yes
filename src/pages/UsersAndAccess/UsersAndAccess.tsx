@@ -6,10 +6,22 @@ import { PrimaryButton, SecondaryButton } from "../../components/Buttons/Buttons
 import { highlightText } from "../../utils/utils";
 import { useDebounce } from "../../hooks/useDebounce";
 import { useSearchUsers } from "../../hooks/useSearchUsers";
-import { useDeleteRole, useFetchRolesAndAccess, type Role } from "../../hooks/useRolesAndAccess";
-import { useTranslation } from "../../i18n/LanguageContext";
+import {
+    useDeleteRole,
+    useFetchAllUsers,
+    useFetchRolesAndAccess,
+    useFetchAllPermissions,
+    type Role,
+    type Permission,
+} from "../../hooks/useRolesAndAccess";
+// import { useTranslation } from "../../i18n/LanguageContext";
 import DataTable, { type Column } from "../../components/DataTable/DataTable";
 import { AddRolePopup, EditRolePermissionsPopup, ViewRolePermissionsPopup } from "./RolePermissionPopups";
+import {
+    AddPermissionPopup,
+    EditPermissionPopup,
+    DeletePermissionPopup,
+} from "./PermissionPopups";
 import RoleAccessToggle, { type RoleType } from "../../components/RoleAccessToggle";
 import { UserPermissions } from "./UserPermissions/UserPermissions";
 import axiosInstance from "../../api/axiosInstance";
@@ -17,7 +29,7 @@ import "./UsersAndAccess.scss";
 
 export const UsersAndAccess = () => {
     const [searchTerm, setSearchTerm] = useState("");
-    const { t } = useTranslation();
+    // const { t } = useTranslation();
 
     const debouncedSearch = useDebounce(searchTerm, 400);
     const { data: searchData, isLoading: isSearchLoading } = useSearchUsers(debouncedSearch);
@@ -175,11 +187,109 @@ export const UsersAndAccess = () => {
         [data]
     );
 
+
+    const { data: usersData, isLoading: isUsersLoading, isError: isUsersError } = useFetchAllUsers();
+
+    const usersColumns: Column[] = [
+        { key: "sl", title: "SL" },
+        { key: "full_name", title: "Full Name" },
+        { key: "email", title: "Email" },
+        { key: "roles", title: "Roles" },
+    ];
+
+    const [userSearch, setUserSearch] = useState("");
+
+    const users = useMemo(() => {
+        const q = userSearch.trim().toLowerCase();
+        return (usersData ?? [])
+            .map((u) => ({
+                id: u.id,
+                full_name: u.full_name || u.name,
+                email: u.email,
+                roles: u.roles?.map((r) => r.name).join(", ") || "-",
+                raw: u,
+            }))
+            .filter(
+                (u) =>
+                    !q ||
+                    u.full_name?.toLowerCase().includes(q) ||
+                    u.email?.toLowerCase().includes(q) ||
+                    u.roles.toLowerCase().includes(q)
+            )
+            .map((u, i) => ({ ...u, sl: i + 1 }));
+    }, [usersData, userSearch]);
+
+    const usersEmptyMessage = isUsersLoading
+        ? "Loading users..."
+        : isUsersError
+            ? "Failed to load users"
+            : userSearch
+                ? `No users found for "${userSearch}"`
+                : "No users found";
+
     const emptyMessage = isLoading
         ? "Loading roles..."
         : isError
-        ? "Failed to load roles"
-        : "No roles found";
+            ? "Failed to load roles"
+            : "No roles found";
+
+    // Permissions management table
+    const {
+        data: allPermissionsData = [],
+        isLoading: isPermissionsLoading,
+        isError: isPermissionsError,
+    } = useFetchAllPermissions();
+
+    const [permissionSearch, setPermissionSearch] = useState("");
+    const [isAddPermissionOpen, setIsAddPermissionOpen] = useState(false);
+    const [editPermissionTarget, setEditPermissionTarget] = useState<Permission | null>(null);
+    const [deletePermissionTarget, setDeletePermissionTarget] = useState<Permission | null>(null);
+    const [permissionPage, setPermissionPage] = useState(1);
+    const PERMISSIONS_PER_PAGE = 10;
+
+    const permissionColumns: Column[] = [
+        { key: "sl", title: "SL" },
+        { key: "id", title: "Permission ID" },
+        { key: "name", title: "Permission Name" },
+        // { key: "guard_name", title: "Guard" },
+        { key: "created_at", title: "Created At" },
+    ];
+
+    const filteredPermissions = useMemo(() => {
+        const q = permissionSearch.trim().toLowerCase();
+        return (allPermissionsData ?? []).filter((p) => {
+            if (!q) return true;
+            return (
+                p.name?.toLowerCase().includes(q) ||
+                p.guard_name?.toLowerCase().includes(q) ||
+                String(p.id).includes(q)
+            );
+        });
+    }, [allPermissionsData, permissionSearch]);
+
+    const totalPermissionPages = Math.max(1, Math.ceil(filteredPermissions.length / PERMISSIONS_PER_PAGE));
+
+    const permissionTableData = useMemo(() => {
+        const start = (permissionPage - 1) * PERMISSIONS_PER_PAGE;
+        const pageItems = filteredPermissions.slice(start, start + PERMISSIONS_PER_PAGE);
+
+        return pageItems.map((p, i) => ({
+            id: p.id,
+            sl: start + i + 1,
+            name: p.name,
+            guard_name: p.guard_name || "web",
+            created_at: p.created_at ? new Date(p.created_at).toLocaleDateString() : "—",
+            raw: p,
+        }));
+    }, [filteredPermissions, permissionPage]);
+
+    const permissionsEmptyMessage = isPermissionsLoading
+        ? "Loading permissions..."
+        : isPermissionsError
+            ? "Failed to load permissions"
+            : permissionSearch
+                ? `No permissions found for "${permissionSearch}"`
+                : "No permissions found";
 
     return (
         <div className="page_wrapper">
@@ -189,7 +299,7 @@ export const UsersAndAccess = () => {
                     <div className="header">
                         <RoleAccessToggle value={roleType} onChange={setRoleType} />
 
-                        {roleType === "custom" && (
+                        {/* {roleType === "custom" && (
                             <div className="search_selection_wrapper hvr_zm_in">
                                 <div className={`search_bar_wrapper ${searchTerm ? "has" : ""}`}>
                                     <div className="search_bar">
@@ -219,43 +329,69 @@ export const UsersAndAccess = () => {
                                 </div>
                                 <SearchResults />
                             </div>
-                        )}
+                        )} */}
+
                     </div>
                 </div>
 
-                {/* 1. Default Role View: Full existing Roles management table */}
-                {roleType === "default" ? (
+                {/* 1. Permissions View: System permissions listing and CRUD */}
+                {roleType === "permissions" ? (
                     <TableWrapper
-                        title="Users and Access"
-                        addButtonTitle="Add Role"
+                        title="Permissions"
+                        addButtonTitle="Add Permission"
                         isAddButton
-                        onClick={() => setIsAddOpen(true)}
+                        isSearchBar
+                        searchValue={permissionSearch}
+                        searchOnchange={(val) => {
+                            setPermissionSearch(val);
+                            setPermissionPage(1);
+                        }}
+                        onClick={() => setIsAddPermissionOpen(true)}
                     >
+                        <DataTable
+                            columns={permissionColumns}
+                            data={permissionTableData}
+                            currentPage={permissionPage}
+                            totalPages={totalPermissionPages}
+                            onPageChange={setPermissionPage}
+                            emptyMessage={permissionsEmptyMessage}
+                            actions={(row) => (
+                                <div className="actions">
+                                    <button
+                                        onClick={() => setEditPermissionTarget(row.raw)}
+                                        title="Edit permission"
+                                    >
+                                        <img src="/svgs/edit.svg" alt="Edit" />
+                                    </button>
+                                    <button
+                                        onClick={() => setDeletePermissionTarget(row.raw)}
+                                        title="Delete permission"
+                                    >
+                                        <img src="/svgs/delete.svg" alt="Delete" />
+                                    </button>
+                                </div>
+                            )}
+                        />
+                    </TableWrapper>
+                ) : roleType === "default" ? (
+                    /* 2. Default Role View: Full existing Roles management table */
+                    <TableWrapper title="Users and Access" addButtonTitle="Add Role" isAddButton onClick={() => setIsAddOpen(true)} >
                         <DataTable
                             columns={columns}
                             data={tableData}
                             currentPage={1}
                             totalPages={1}
-                            onPageChange={() => {}}
+                            onPageChange={() => { }}
                             emptyMessage={emptyMessage}
                             actions={(row) => (
                                 <div className="actions">
-                                    <button
-                                        onClick={() => setViewTarget(row.raw)}
-                                        title="View permissions"
-                                    >
+                                    <button onClick={() => setViewTarget(row.raw)} title="View permissions" >
                                         <img src="/svgs/eye_open.svg" alt="View" />
                                     </button>
-                                    <button
-                                        onClick={() => setPermissionsTarget(row.raw)}
-                                        title="Edit permissions"
-                                    >
+                                    <button onClick={() => setPermissionsTarget(row.raw)} title="Edit permissions" >
                                         <img src="/svgs/edit.svg" alt="Edit" />
                                     </button>
-                                    <button
-                                        onClick={() => setDeleteTarget(row.raw)}
-                                        title="Delete role"
-                                    >
+                                    <button onClick={() => setDeleteTarget(row.raw)} title="Delete role" >
                                         <img src="/svgs/delete.svg" alt="Delete" />
                                     </button>
                                 </div>
@@ -278,16 +414,47 @@ export const UsersAndAccess = () => {
                                 fallbackUser={selectedUserMeta || undefined}
                             />
                         ) : (
-                            <div className="user_permissions_container">
-                                <div className="custom_role_empty_state">
-                                    <img src="/header_icons/search_icon.svg" alt="Search" />
-                                    <h3>Search & Select a User</h3>
-                                    <p>
-                                        Use the search bar above to select a student, staff member, or user
-                                        to view and configure their customized roles and direct permissions.
-                                    </p>
-                                </div>
-                            </div>
+                            <TableWrapper
+                                isSearchBar
+                                title="Users and Access"
+                                searchValue={userSearch}
+                                searchOnchange={setUserSearch}
+                            >
+                                <DataTable
+                                    columns={usersColumns}
+                                    data={users}
+                                    currentPage={1}
+                                    totalPages={1}
+                                    onPageChange={() => { }}
+                                    emptyMessage={usersEmptyMessage}
+                                    actions={(row) => (
+                                        <div className="actions">
+                                            <button
+                                                onClick={() => {
+                                                    setSelectedUserId(row.raw.id);
+                                                    setSelectedUserMeta({
+                                                        name: row.raw.full_name || row.raw.name,
+                                                        email: row.raw.email,
+                                                    });
+                                                }}
+                                                title="Manage permissions"
+                                            >
+                                                <img src="/svgs/edit.svg" alt="Edit" />
+                                            </button>
+                                        </div>
+                                    )}
+                                />
+                            </TableWrapper>
+                            // <div className="user_permissions_container">
+                            //     <div className="custom_role_empty_state">
+                            //         <img src="/header_icons/search_icon.svg" alt="Search" />
+                            //         <h3>Search & Select a User</h3>
+                            //         <p>
+                            //             Use the search bar above to select a student, staff member, or user
+                            //             to view and configure their customized roles and direct permissions.
+                            //         </p>
+                            //     </div>
+                            // </div>
                         )}
                     </div>
                 )}
@@ -342,6 +509,24 @@ export const UsersAndAccess = () => {
                             </div>
                         </div>
                     </PopupScreen>
+                )}
+                {/* Popups for Permissions view */}
+                {isAddPermissionOpen && (
+                    <AddPermissionPopup onClose={() => setIsAddPermissionOpen(false)} />
+                )}
+
+                {editPermissionTarget && (
+                    <EditPermissionPopup
+                        permission={editPermissionTarget}
+                        onClose={() => setEditPermissionTarget(null)}
+                    />
+                )}
+
+                {deletePermissionTarget && (
+                    <DeletePermissionPopup
+                        permission={deletePermissionTarget}
+                        onClose={() => setDeletePermissionTarget(null)}
+                    />
                 )}
             </div>
         </div>

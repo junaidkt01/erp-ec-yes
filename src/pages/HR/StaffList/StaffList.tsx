@@ -10,9 +10,10 @@ import { useBlockStaff, useFetchAllStaff, useRemoveStaff } from "../../../hooks/
 import { useDebounce } from "../../../hooks/useDebounce"
 import { toast } from "sonner"
 import { BASE_URL } from "../../../api/endpoints"
+import Can from "../../../components/permissions/Can"
 
 const StaffList = () => {
-    const navigate = useNavigate()
+    const navigate = useNavigate();
     const [page, setPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState("");
     const debouncedSearch = useDebounce(searchTerm, 500);
@@ -151,7 +152,7 @@ const StaffList = () => {
                     </div>
                 </PopupScreen>}
 
-                <TableWrapper isAddButton onClick={() => navigate("/human-resource/add-staff")} isSearchBar searchValue={searchTerm} searchOnchange={setSearchTerm} title="Staff List" >
+                <TableWrapper permission="add_staff" isAddButton onClick={() => navigate("/human-resource/add-staff")} isSearchBar searchValue={searchTerm} searchOnchange={setSearchTerm} title="Staff List" >
                     <DataTable
                         columns={columns}
                         data={staffList}
@@ -159,11 +160,11 @@ const StaffList = () => {
                         totalPages={totalPages}
                         onPageChange={(p) => setPage(p)}
                         actions={(row) => (
-                            <div className="actions">
-                                <button className="hvr_zm_out" onClick={() => navigate(`/human-resource/profile/${row?.full_data?.id}`)} ><img src="/svgs/eye_open.svg" alt="" /></button>
-                                <button className="hvr_zm_out" onClick={() => navigate(`/human-resource/add-staff/${row?.full_data?.id}`)} ><img src="/svgs/edit.svg" alt="" /></button>
-                                <button className="hvr_zm_out" onClick={() => handleDeleteStaff(row?.full_data?.id, `${row?.full_data?.first_name || ""} ${row?.full_data?.last_name || ""}`.trim() || row?.full_data?.name || "Staff")} ><img src="/svgs/delete.svg" alt="" /></button>
-                                <button className="hvr_zm_out" onClick={() => handleBlockStaff(row?.full_data?.id, `${row?.full_data?.first_name || ""} ${row?.full_data?.last_name || ""}`.trim() || row?.full_data?.name || "Staff", row?.full_data?.disable_reason)} >{row?.full_data?.is_disabled ? <img src="/svgs/enable.svg" alt="" /> : <img src="/svgs/block.svg" alt="" />}</button>
+                            <div className="actions" >
+                                <Can permission="view_staff" ><button className="hvr_zm_out" onClick={() => navigate(`/human-resource/profile/${row?.full_data?.id}`)} ><img src="/svgs/eye_open.svg" alt="" /></button></Can>
+                                <Can permission="edit_staff" ><button className="hvr_zm_out" onClick={() => navigate(`/human-resource/add-staff/${row?.full_data?.id}`)} ><img src="/svgs/edit.svg" alt="" /></button></Can>
+                                <Can permission="delete_staff" ><button className="hvr_zm_out" onClick={() => handleDeleteStaff(row?.full_data?.id, `${row?.full_data?.first_name || ""} ${row?.full_data?.last_name || ""}`.trim() || row?.full_data?.name || "Staff")} ><img src="/svgs/delete.svg" alt="" /></button></Can>
+                                <Can permission="disable_staff" ><button className="hvr_zm_out" onClick={() => handleBlockStaff(row?.full_data?.id, `${row?.full_data?.first_name || ""} ${row?.full_data?.last_name || ""}`.trim() || row?.full_data?.name || "Staff", row?.full_data?.disable_reason)} >{row?.full_data?.is_disabled ? <img src="/svgs/enable.svg" alt="" /> : <img src="/svgs/block.svg" alt="" />}</button></Can>
                             </div>
                         )}
                     />

@@ -15,6 +15,7 @@ import {
   useUpdateIncident,
   type Incident,
 } from "../../../hooks/useIncidents";
+import Can from "../../../components/permissions/Can";
 
 const initialFormState = {
   title: "",
@@ -124,7 +125,7 @@ const Incidents: React.FC = () => {
       // item.is_negative === "1" ||
       // item.is_negative === "true";
 
-    setEditingIncident(item);
+      setEditingIncident(item);
     setFormData({
       title: item.title || "",
       point: String(Math.abs(Number(item.point) || 0) || item.point || ""),
@@ -351,6 +352,7 @@ const Incidents: React.FC = () => {
         <TableWrapper
           onClick={handleOpenAddModal}
           isAddButton
+          permission="add_incident"
           isSearchBar
           searchValue={searchTerm}
           searchOnchange={setSearchTerm}
@@ -364,22 +366,8 @@ const Incidents: React.FC = () => {
             onPageChange={(p) => setPage(p)}
             actions={(row) => (
               <div className="actions">
-                <button
-                  type="button"
-                  className="hvr_zm_out"
-                  title="Edit Incident"
-                  onClick={() => handleOpenEditModal(row.full_data)}
-                >
-                  <img src="/svgs/edit.svg" alt="Edit" />
-                </button>
-                <button
-                  type="button"
-                  className="hvr_zm_out"
-                  title="Delete Incident"
-                  onClick={() => handleDeleteClick(row.full_data)}
-                >
-                  <img src="/svgs/delete.svg" alt="Delete" />
-                </button>
+                <Can permission="edit_incident" ><button type="button" className="hvr_zm_out" title="Edit Incident" onClick={() => handleOpenEditModal(row.full_data)} ><img src="/svgs/edit.svg" alt="Edit" /></button></Can>
+                <Can permission="delete_incident" ><button type="button" className="hvr_zm_out" title="Delete Incident" onClick={() => handleDeleteClick(row.full_data)} ><img src="/svgs/delete.svg" alt="Delete" /></button></Can>
               </div>
             )}
           />

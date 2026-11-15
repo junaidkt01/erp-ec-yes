@@ -94,9 +94,12 @@ export const useSyncRolePermissions = () => {
     mutationFn: syncRolePermissionsApi,
     onSuccess: (res) => {
       console.log("permissions:01 res", res);
-      // refreshes roles list, role detail and role permissions
+      // refreshes roles list, role detail, role permissions, active session auth & menus
       queryClient.invalidateQueries({ queryKey: ROLES_KEY });
       queryClient.invalidateQueries({ queryKey: USER_ACCESS_KEY });
+      queryClient.invalidateQueries({ queryKey: ["auth"] });
+      queryClient.invalidateQueries({ queryKey: ["sidebar-menus"] });
+      queryClient.invalidateQueries({ queryKey: ["raw-sidebar-menus"] });
     },
     onError: (error) => {
       console.log("permissions:01 error", error);
@@ -150,6 +153,35 @@ export const useCreatePermission = () => {
     mutationFn: createPermissionApi,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: PERMISSIONS_KEY });
+      queryClient.invalidateQueries({ queryKey: ROLES_KEY });
+      queryClient.invalidateQueries({ queryKey: USER_ACCESS_KEY });
+      queryClient.invalidateQueries({ queryKey: ["auth"] });
+    },
+  });
+};
+
+export interface UpdatePermissionPayload {
+  id: number | string;
+  name: string;
+  guard_name?: string;
+}
+
+// PUT /api/permissions/{id} — update a permission
+export const updatePermissionApi = async ({ id, ...payload }: UpdatePermissionPayload) => {
+  const res = await axiosInstance.put(`${permission.permissions}/${id}`, payload);
+  return unwrap(res);
+};
+
+export const useUpdatePermission = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updatePermissionApi,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: PERMISSIONS_KEY });
+      queryClient.invalidateQueries({ queryKey: ROLES_KEY });
+      queryClient.invalidateQueries({ queryKey: USER_ACCESS_KEY });
+      queryClient.invalidateQueries({ queryKey: ["auth"] });
     },
   });
 };
@@ -169,6 +201,7 @@ export const useDeletePermission = () => {
       queryClient.invalidateQueries({ queryKey: PERMISSIONS_KEY });
       queryClient.invalidateQueries({ queryKey: ROLES_KEY });
       queryClient.invalidateQueries({ queryKey: USER_ACCESS_KEY });
+      queryClient.invalidateQueries({ queryKey: ["auth"] });
     },
   });
 };
@@ -256,6 +289,9 @@ export const useAssignUserPermissions = () => {
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: [...USER_ACCESS_KEY, String(id)] });
       queryClient.invalidateQueries({ queryKey: USER_ACCESS_KEY });
+      queryClient.invalidateQueries({ queryKey: ["auth"] });
+      queryClient.invalidateQueries({ queryKey: ["sidebar-menus"] });
+      queryClient.invalidateQueries({ queryKey: ["raw-sidebar-menus"] });
     },
   });
 };
@@ -280,6 +316,34 @@ export const useAssignUserRoles = () => {
       queryClient.invalidateQueries({ queryKey: [...USER_ACCESS_KEY, String(id)] });
       queryClient.invalidateQueries({ queryKey: USER_ACCESS_KEY });
       queryClient.invalidateQueries({ queryKey: ROLES_KEY }); // users_count changes
+      queryClient.invalidateQueries({ queryKey: ["auth"] });
+      queryClient.invalidateQueries({ queryKey: ["sidebar-menus"] });
+      queryClient.invalidateQueries({ queryKey: ["raw-sidebar-menus"] });
     },
   });
 };
+
+/* ------------------------------------------------------------------ */
+/* Users list                                                          */
+/* ------------------------------------------------------------------ */
+
+export interface UserListItem {
+  id: number;
+  name: string;
+  full_name?: string;
+  email: string;
+  phone?: string | null;
+  is_active?: number;
+  roles?: { id: number; name: string }[];
+}
+
+export const USERS_KEY = ["users"];
+
+export const useFetchAllUsers = () =>
+  useQuery<UserListItem[]>({
+    queryKey: USERS_KEY,
+    queryFn: async () => {
+      const res = await axiosInstance.get(user.users);
+      return unwrap(res) ?? [];
+    },
+  });

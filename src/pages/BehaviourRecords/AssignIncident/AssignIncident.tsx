@@ -18,6 +18,7 @@ import {
     useFetchAllIncidents,
     useAssignStudentIncident,
 } from "../../../hooks/useIncidents"
+import Can from "../../../components/permissions/Can"
 
 const AssignIncident = () => {
     const navigate = useNavigate()
@@ -52,10 +53,10 @@ const AssignIncident = () => {
         const list: any[] = Array.isArray(incidentsData?.data?.data)
             ? incidentsData.data.data
             : Array.isArray(incidentsData?.data)
-            ? incidentsData.data
-            : Array.isArray(incidentsData)
-            ? incidentsData
-            : [];
+                ? incidentsData.data
+                : Array.isArray(incidentsData)
+                    ? incidentsData
+                    : [];
 
         return list.map((item: any) => {
             const pointDisplay = item.point
@@ -112,8 +113,8 @@ const AssignIncident = () => {
         const dateStr =
             assignForm.date instanceof Date
                 ? new Date(assignForm.date.getTime() - assignForm.date.getTimezoneOffset() * 60000)
-                      .toISOString()
-                      .split("T")[0]
+                    .toISOString()
+                    .split("T")[0]
                 : assignForm.date || new Date().toISOString().split("T")[0];
 
         try {
@@ -305,10 +306,7 @@ const AssignIncident = () => {
                         onPageChange={(p) => setPage(p)}
                         actions={(row) => (
                             <div>
-                                <PrimaryButton
-                                    title="Assign Incident"
-                                    onClick={() => handleOpenAssignModal(row)}
-                                />
+                                <Can permission="assign_incident" ><PrimaryButton title="Assign Incident" onClick={() => handleOpenAssignModal(row)} /></Can>
                             </div>
                         )}
                     />

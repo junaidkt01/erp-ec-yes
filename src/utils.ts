@@ -2,6 +2,10 @@ export interface SubMenuItem {
   id?: number;
   title: string;
   is_active: boolean;
+  permission?: string | null;
+  permission_id?: number | string | null;
+  path?: string | null;
+  [key: string]: any;
 }
 
 export interface RawSidebarMenuItem {
@@ -17,19 +21,31 @@ export interface RawSidebarMenuItem {
   is_active?: boolean;
   created_at?: string;
   updated_at?: string;
+  [key: string]: any;
 }
 
 export interface SidebarMenuItem {
+  id?: number;
   title: string;
   icon: string;
   path: string;
   sub_menus?: SubMenuItem[];
+  permission?: string | null;
+  permission_id?: number | string | null;
+  [key: string]: any;
 }
 
 export interface SidebarMenuGroup {
   title: string;
   menus: SidebarMenuItem[];
 }
+
+export const slugify = (s: string): string =>
+  s
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 
 export const parseIsActive = (val: any): boolean => {
   if (
@@ -76,17 +92,35 @@ export const formatSidebarMenus = (rawItems: (RawSidebarMenuItem | SidebarMenuGr
     }
 
     const menuItem: SidebarMenuItem = {
+      id: item.id,
       title: item.title,
       icon: item.icon,
       path: item.path,
+      permission: item.permission,
+      permission_id: item.permission_id,
     };
 
     if (item.sub_menus && Array.isArray(item.sub_menus)) {
-      menuItem.sub_menus = item.sub_menus.map((sub_menu: any) => ({
-        id: sub_menu.id,
-        title: typeof sub_menu === "string" ? sub_menu : sub_menu.title,
-        is_active: typeof sub_menu === "string" ? true : parseIsActive(sub_menu.is_active),
-      }));
+      menuItem.sub_menus = item.sub_menus.map((sub_menu: any) => {
+        if (typeof sub_menu === "string") {
+          return {
+            title: sub_menu,
+            is_active: true,
+            permission: null,
+            permission_id: null,
+            path: null,
+          };
+        }
+        return {
+          ...sub_menu,
+          id: sub_menu.id,
+          title: typeof sub_menu.title === "string" ? sub_menu.title : "",
+          is_active: parseIsActive(sub_menu.is_active),
+          permission: sub_menu.permission ?? sub_menu.permission_name ?? null,
+          permission_id: sub_menu.permission_id ?? null,
+          path: sub_menu.path ?? null,
+        };
+      });
     }
 
     groupMap.get(sectionName)!.push(menuItem);

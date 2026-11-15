@@ -38,7 +38,8 @@ export const studentPersonalDetailsSchema = z.object({
   admission_date: z.date({ error: "Admission date is required" }).min(new Date("1900-01-01"), "Admission date is required"),
   
   
-  roll_no: z.number({ error: "Must be a number" }).min(1, "Roll number is required"),
+  // roll_no: z.number({ error: "Must be a number" }).min(1, "Roll number is required"),
+  roll_no: z.string().min(1, "Roll number is required"),
   student_code: z.string().min(1, "Student ID is required"),
   // roll_no: z.string().min(1, "Roll number is required"),
   

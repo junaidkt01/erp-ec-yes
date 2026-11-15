@@ -2,7 +2,7 @@
 import React from "react";
 import { PrimaryButton, SecondaryButton } from "./Buttons/Buttons";
 
-export type RoleType = "default" | "custom";
+export type RoleType = "default" | "custom" | "permissions";
 
 interface RoleAccessToggleProps {
     value: RoleType;
@@ -18,6 +18,7 @@ const RoleAccessToggle: React.FC<RoleAccessToggleProps> = ({
     const options: { label: string; value: RoleType }[] = [
         { label: "Default role", value: "default" },
         { label: "Custom role", value: "custom" },
+        { label: "Permissions", value: "permissions" },
     ];
 
     return (

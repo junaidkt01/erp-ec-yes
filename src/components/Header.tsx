@@ -333,15 +333,14 @@ const Profile = () => {
 
             {/* Menu */}
             <div className="menu">
-                <div className="item hvr_zm_out" >
+                <div className="item hvr_zm_out" onClick={() => navigate("/reset-password")} >
                     <span>
                         <img src="/header_icons/change_password.svg" alt="" />
                     </span>
                     <p>{t("header.change_password", "Change Password")}</p>
                 </div>
 
-                <div
-                    className="item hvr_zm_out"
+                <div className="item hvr_zm_out"
                     onClick={(e) => {
                         e.stopPropagation();
                         setIsTwoFactorOpen(true);
