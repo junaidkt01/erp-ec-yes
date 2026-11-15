@@ -14,6 +14,7 @@ import {
   useRemoveStudentCategory,
   type StudentCategory as StudentCategoryType,
 } from "../../../hooks/useStudentCategory";
+import Can from "../../../components/permissions/Can";
 
 const initialFormState = {
   name: "",
@@ -241,9 +242,9 @@ const StudentCategory: React.FC = () => {
                     editingCategory
                       ? handleCloseModal
                       : () => {
-                          setFormData(initialFormState);
-                          setErrors({});
-                        }
+                        setFormData(initialFormState);
+                        setErrors({});
+                      }
                   }
                 />
                 <PrimaryButton
@@ -302,6 +303,7 @@ const StudentCategory: React.FC = () => {
         <TableWrapper
           onClick={handleOpenAddModal}
           isAddButton
+          permission="add_student_category"
           isSearchBar
           searchValue={searchTerm}
           searchOnchange={(val) => {
@@ -318,22 +320,12 @@ const StudentCategory: React.FC = () => {
             onPageChange={(p) => setPage(p)}
             actions={(row) => (
               <div className="actions">
-                <button
-                  type="button"
-                  className="hvr_zm_out"
-                  title="Edit Category"
-                  onClick={() => handleOpenEditModal(row.full_data)}
-                >
-                  <img src="/svgs/edit.svg" alt="Edit" />
-                </button>
-                <button
-                  type="button"
-                  className="hvr_zm_out"
-                  title="Delete Category"
-                  onClick={() => handleDeleteClick(row.full_data)}
-                >
-                  <img src="/svgs/delete.svg" alt="Delete" />
-                </button>
+                <Can permission="edit_student_category">
+                  <button type="button" className="hvr_zm_out" title="Edit Category" onClick={() => handleOpenEditModal(row.full_data)} ><img src="/svgs/edit.svg" alt="Edit" /></button>
+                </Can>
+                <Can permission="delete_student_category">
+                  <button type="button" className="hvr_zm_out" title="Delete Category" onClick={() => handleDeleteClick(row.full_data)} ><img src="/svgs/delete.svg" alt="Delete" /></button>
+                </Can>
               </div>
             )}
           />

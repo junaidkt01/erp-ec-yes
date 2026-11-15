@@ -249,8 +249,9 @@ export const UsersAndAccess = () => {
 
     const permissionColumns: Column[] = [
         { key: "sl", title: "SL" },
+        { key: "id", title: "Permission ID" },
         { key: "name", title: "Permission Name" },
-        { key: "guard_name", title: "Guard" },
+        // { key: "guard_name", title: "Guard" },
         { key: "created_at", title: "Created At" },
     ];
 
