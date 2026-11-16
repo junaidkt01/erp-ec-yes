@@ -3,11 +3,11 @@ import axiosInstance from "../api/axiosInstance";
 import { auth } from "../api/endpoints";
 
 export type ResetPasswordPayload = {
-  token: string;
   email: string;
-  code: string;
   password: string;
   password_confirmation: string;
+  token?: string;
+  code?: string;
 };
 
 export const useResetPassword = (options?: any) => {

@@ -299,7 +299,7 @@ export const UsersAndAccess = () => {
                     <div className="header">
                         <RoleAccessToggle value={roleType} onChange={setRoleType} />
 
-                        {/* {roleType === "custom" && (
+                        {roleType === "custom" && (
                             <div className="search_selection_wrapper hvr_zm_in">
                                 <div className={`search_bar_wrapper ${searchTerm ? "has" : ""}`}>
                                     <div className="search_bar">
@@ -310,10 +310,7 @@ export const UsersAndAccess = () => {
                                             onChange={(e) => setSearchTerm(e.target.value)}
                                             value={searchTerm}
                                             type="text"
-                                            placeholder={t(
-                                                "header.search_placeholder",
-                                                "Search user by name, email, admission..."
-                                            )}
+                                            placeholder="Search user by name, email, admission..."
                                         />
                                     </div>
                                     <div className="search_sort_close">
@@ -329,7 +326,7 @@ export const UsersAndAccess = () => {
                                 </div>
                                 <SearchResults />
                             </div>
-                        )} */}
+                        )}
 
                     </div>
                 </div>

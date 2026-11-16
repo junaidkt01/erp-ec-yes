@@ -29,14 +29,7 @@ const Sidebar: React.FC = () => {
 
     // Call custom hook for sidebar menus
     const { data: dynamicMenus } = useSidebarMenus();
-    const { can } = usePermissions();
-    // Only show menus the user has permission for; drop groups left empty
-    // const menus: SidebarMenuGroup[] = useMemo(() => {
-    //     if (!dynamicMenus?.length) return EMPTY_MENUS;
-    //     return dynamicMenus
-    //         .map((group) => ({ ...group, menus: (group.menus || []).filter((menu) => can(menu)) }))
-    //         .filter((group) => group.menus.length > 0);
-    // }, [dynamicMenus, can]);
+    const { can, canSubmenu } = usePermissions();
 
     const menus: SidebarMenuGroup[] = useMemo(() => {
         if (!dynamicMenus?.length) return EMPTY_MENUS;
@@ -46,24 +39,31 @@ const Sidebar: React.FC = () => {
                 ...group,
                 menus: (group.menus || [])
                     .filter((menu) => can(menu))
-                    .map((menu) => ({
-                        ...menu,
-                        sub_menus: (menu.sub_menus || []).filter((sub) => {
-                            if (typeof sub === "string") return true;
+                    .map((menu) => {
+                        const hasOriginalSubmenus = Array.isArray(menu.sub_menus) && menu.sub_menus.length > 0;
+                        const filteredSubmenus = hasOriginalSubmenus
+                            ? (menu.sub_menus || []).filter((sub) => {
+                                const subObj = typeof sub === "string" ? { title: sub, is_active: true } : sub;
+                                return parseIsActive(subObj.is_active) && canSubmenu(menu, subObj);
+                            })
+                            : menu.sub_menus;
 
-                            return (
-                                parseIsActive(sub.is_active) &&
-                                // can(sub)
-                                can({
-                                    ...sub,
-                                    path: sub.path ?? undefined,
-                                })
-                            );
-                        }),
-                    })),
+                        return {
+                            ...menu,
+                            sub_menus: filteredSubmenus,
+                            _hadSubmenus: hasOriginalSubmenus,
+                        };
+                    })
+                    .filter((menu) => {
+                        // If the menu originally had submenus, but all were filtered out by permissions, hide the parent menu
+                        if (menu._hadSubmenus && (!menu.sub_menus || menu.sub_menus.length === 0)) {
+                            return false;
+                        }
+                        return true;
+                    }),
             }))
             .filter((group) => group.menus.length > 0);
-    }, [dynamicMenus, can]);
+    }, [dynamicMenus, can, canSubmenu]);
 
     console.log("menus: ", menus)
 

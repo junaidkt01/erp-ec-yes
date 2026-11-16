@@ -112,11 +112,10 @@ const Header = () => {
                 <div className="header_right_icons">
                     <div className="icon_box hvr_zm_out" ><img className="hvr_zm_in" src="/header_icons/notification.svg" alt="" /> </div>
                     <div className="icon_box hvr_zm_out" ><img className="hvr_zm_in" src="/header_icons/messages.svg" alt="" /> </div>
-                    <div className="icon_box profile hvr_zm_out" onClick={() => setIsProfile(!isProfile)} ><img className="hvr_zm_in" src="/header_icons/profile_pic.png" alt="" />
-                    </div>
+                    <div className="icon_box profile hvr_zm_out" onClick={() => setIsProfile(!isProfile)} ><img className="hvr_zm_in" src="/header_icons/profile_pic.png" alt="" /></div>
 
                     {isProfile && <div onClick={() => setIsProfile(false)} className="overlay_wrapper"></div>}
-                    {isProfile && <Profile />}
+                    {isProfile && <ProfileMenu />}
                 </div>
             </div>
 
@@ -151,10 +150,7 @@ const Header = () => {
                             )}
                         </div>
                         <SearchResults />
-                        <button
-                            className="mobile_search_cancel"
-                            onClick={() => { setMobileSearchOpen(false); setSearchTerm("") }}
-                        >
+                        <button className="mobile_search_cancel" onClick={() => { setMobileSearchOpen(false); setSearchTerm("") }} >
                             {t("common.cancel", "Cancel")}
                         </button>
                     </div>
@@ -287,7 +283,7 @@ const YearFilter = ({ isMobile = false }: { isMobile?: boolean }) => {
     );
 };
 
-const Profile = () => {
+const ProfileMenu = () => {
     const navigate = useNavigate();
     const { language, setLanguage, currentLanguage, t } = useTranslation();
     const [isLangOpen, setIsLangOpen] = useState(false);
@@ -313,15 +309,16 @@ const Profile = () => {
                     <img src="/header_icons/profile_pic.png" alt="user" />
                 </div>
                 <div onClick={() => {
-                    if (data?.user.roles[0].name === "admin") {
-                        navigate(`/admin-info/profile/${data?.user?.id}`)
-                    } else if (data?.user.roles[0].name === "parent") {
-                        navigate(`/parent-info/profile/${data?.user?.id}`)
-                    } else if (data?.user.roles[0].name === "teacher") {
-                        navigate(`/human-resource/profile/${data?.user?.id}`)
-                    } else if (data?.user.roles[0].name === "student") {
-                        navigate(`/student-info/profile/${data?.user?.id}`)
-                    }
+                    navigate(`/profile-page/user/${data?.user?.id}`)
+                    // if (data?.user.roles[0].name === "admin") {
+                    //     navigate(`/admin-info/profile/${data?.user?.id}`)
+                    // } else if (data?.user.roles[0].name === "parent") {
+                    //     navigate(`/parent-info/profile/${data?.user?.id}`)
+                    // } else if (data?.user.roles[0].name === "teacher") {
+                    //     navigate(`/human-resource/profile/${data?.user?.id}`)
+                    // } else if (data?.user.roles[0].name === "student") {
+                    //     navigate(`/student-info/profile/${data?.user?.id}`)
+                    // }
                 }} style={{ cursor: "pointer" }}>
                     <p className="email">{data?.user?.email}</p>
                     <span className="role">{data?.user?.roles[0]?.name}</span>

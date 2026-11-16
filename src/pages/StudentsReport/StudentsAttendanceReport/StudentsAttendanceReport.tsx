@@ -7,7 +7,9 @@ import { useFetchStudentAttendanceList } from "../../../hooks/useStudentAttendan
 import { useFetchAllStudentClasses, type ClassItem } from "../../../hooks/useStudentClass"
 import { useFetchAllSections, type SectionItem } from "../../../hooks/useSections"
 import { useFetchAllAcademicYears } from "../../../hooks/useAcademicYear"
+import { useFetchGeneralSettings } from "../../../hooks/useGeneralSettings"
 import StudentsAttendanceReportTable, { MONTH_NAMES } from "./StudentsAttendanceReportTable"
+import { printMonthlyAttendanceReport } from "./StudentsAttendancePrint"
 
 interface ReportFilter {
     academic_year_id: string | number;
@@ -40,6 +42,7 @@ const StudentsAttendanceReport = () => {
     const { data: studentClasses } = useFetchAllStudentClasses();
     const { data: sections } = useFetchAllSections();
     const { data: academicYears } = useFetchAllAcademicYears();
+    const { data: generalSettings } = useFetchGeneralSettings();
 
     const { data: records, isFetching, isError, refetch } = useFetchStudentAttendanceList(
         appliedFilter ?? undefined,
@@ -115,6 +118,31 @@ const StudentsAttendanceReport = () => {
         setYear(y);
     };
 
+    const handlePrint = () => {
+        if (!appliedFilter || !records || records.length === 0) {
+            toast.warning("Please search for attendance records before printing.");
+            return;
+        }
+
+        const selectedClass = classOptions.find((c: any) => String(c.value) === String(appliedFilter.class_id))?.label || "";
+        const selectedSection = appliedFilter.section_id
+            ? (sectionOptions.find((s: any) => String(s.value) === String(appliedFilter.section_id))?.label || "All")
+            : "All";
+        const monthName = MONTH_NAMES[month - 1] || "";
+
+        printMonthlyAttendanceReport({
+            schoolName: generalSettings?.data?.school_name || "RAZA UL ULOOM ISLAMIA HIGHER SECONDARY SCHOOL POONCH",
+            schoolAddress: generalSettings?.data?.address || "",
+            logoUrl: generalSettings?.data?.logo || "",
+            className: selectedClass,
+            sectionName: selectedSection,
+            monthName,
+            month,
+            year,
+            records,
+        });
+    };
+
     return (
         <div className="page_wrapper">
             <div className="students-attendance-report">
@@ -175,7 +203,7 @@ const StudentsAttendanceReport = () => {
                     </div>
                 </TableWrapper>
 
-                <TableWrapper isSearchBar title="Student List" searchValue={search} searchOnchange={setSearch}>
+                <TableWrapper onClick={handlePrint} isAddButton addButtonTitle="Print" isSearchBar title="Student Attendance List" searchValue={search} searchOnchange={setSearch}>
                     <StudentsAttendanceReportTable
                         records={records ?? []}
                         month={month}

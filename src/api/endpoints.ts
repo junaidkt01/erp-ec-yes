@@ -137,6 +137,7 @@ export const frontOffice = {
   complaints: "/front-office/complaints",
   phone_call_logs: "/front-office/phone-call-logs",
   postal_receives: "/front-office/postal-receives",
+  postal_dispatch: "/front-office/postal-dispatch",
 };
 
 export const admissionQueries = { admission_queries: "/admission-queries" };

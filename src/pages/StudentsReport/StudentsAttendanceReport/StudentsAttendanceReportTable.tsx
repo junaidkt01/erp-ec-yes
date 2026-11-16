@@ -7,12 +7,12 @@ export const MONTH_NAMES = [
     "July", "August", "September", "October", "November", "December"
 ];
 
-type StatusCode = "P" | "L" | "A" | "F" | "H" | "Le";
-type Summary = Record<StatusCode, number>;
+export type StatusCode = "P" | "L" | "A" | "F" | "H" | "Le";
+export type Summary = Record<StatusCode, number>;
 
-const EMPTY_SUMMARY: Summary = { P: 0, L: 0, A: 0, F: 0, H: 0, Le: 0 };
+export const EMPTY_SUMMARY: Summary = { P: 0, L: 0, A: 0, F: 0, H: 0, Le: 0 };
 
-const STATUS_CLASS: Record<StatusCode, string> = {
+export const STATUS_CLASS: Record<StatusCode, string> = {
     P: "stat_p",
     L: "stat_l",
     A: "stat_a",
@@ -22,7 +22,7 @@ const STATUS_CLASS: Record<StatusCode, string> = {
 };
 
 // API status string -> short code
-const toStatusCode = (status?: string): StatusCode | null => {
+export const toStatusCode = (status?: string): StatusCode | null => {
     switch (String(status ?? "").trim().toLowerCase()) {
         case "present": case "p": return "P";
         case "late": case "l": return "L";
@@ -35,18 +35,18 @@ const toStatusCode = (status?: string): StatusCode | null => {
 };
 
 // Parse "YYYY-MM-DD" (or an ISO datetime) without timezone shifting
-const parseDateParts = (date?: string) => {
+export const parseDateParts = (date?: string) => {
     const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(date ?? ""));
     if (!match) return null;
     return { year: Number(match[1]), month: Number(match[2]), day: Number(match[3]) };
 };
 
-interface DayCell {
+export interface DayCell {
     code: StatusCode;
     note?: string | null;
 }
 
-interface StudentRow {
+export interface StudentRow {
     key: string;
     name: string;
     admissionNo: string;
@@ -57,11 +57,81 @@ interface StudentRow {
 }
 
 // Present, Late = full day attended; Half Day = 0.5; Holidays are excluded from the total
-const calcPercentage = (c: Summary) => {
+export const calcPercentage = (c: Summary) => {
     const workingDays = c.P + c.L + c.A + c.F + c.Le;
     if (workingDays === 0) return "-";
     const attended = c.P + c.L + c.F * 0.5;
-    return `${Math.round((attended / workingDays) * 100)}%`;
+    const pct = (attended / workingDays) * 100;
+    return pct === 100 || pct === 0 ? `${pct.toFixed(0)}%` : `${pct.toFixed(2)}%`;
+};
+
+export interface MonthDayInfo {
+    day: number;
+    day_name: string;
+    weekday: string;
+    is_weekend: boolean;
+}
+
+export const getMonthDays = (month: number, year: number): MonthDayInfo[] => {
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const weekdays2Letter = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
+    return Array.from({ length: daysInMonth }, (_, i) => {
+        const d = new Date(year, month - 1, i + 1);
+        const dayOfWeek = d.getDay();
+        return {
+            day: i + 1,
+            day_name: d.toLocaleDateString("en-US", { weekday: "short" }),
+            weekday: weekdays2Letter[dayOfWeek],
+            is_weekend: dayOfWeek === 0,
+        };
+    });
+};
+
+export const buildStudentRows = (
+    records: StudentAttendanceRecord[],
+    month: number,
+    year: number
+): StudentRow[] => {
+    const rows = new Map<string, StudentRow>();
+
+    records.forEach((rec) => {
+        const parts = parseDateParts(rec.date);
+        if (!parts || parts.month !== month || parts.year !== year) return;
+
+        const code = toStatusCode(rec.status);
+        if (!code) return;
+
+        const key = String(rec.student_id ?? rec.student_code ?? rec.admission_no ?? rec.id);
+        let row = rows.get(key);
+        if (!row) {
+            row = {
+                key,
+                name: rec.student_name || rec.student?.full_name || rec.student?.name || "N/A",
+                admissionNo: rec.admission_no || rec.student_code || rec.student?.admission_no || "-",
+                rollNo: rec.roll_no || rec.student?.roll_no || "",
+                days: {},
+                counts: { ...EMPTY_SUMMARY },
+                percentage: "-",
+            };
+            rows.set(key, row);
+        }
+
+        // If a day has duplicate records, the later one wins; keep counts consistent
+        const existing = row.days[parts.day];
+        if (existing) row.counts[existing.code] -= 1;
+        row.days[parts.day] = { code, note: rec.note };
+        row.counts[code] += 1;
+    });
+
+    const list = [...rows.values()];
+    list.forEach((row) => { row.percentage = calcPercentage(row.counts); });
+
+    // Sort by roll number (numeric where possible), then name
+    return list.sort((a, b) => {
+        const ra = Number(a.rollNo), rb = Number(b.rollNo);
+        if (!isNaN(ra) && !isNaN(rb) && ra !== rb) return ra - rb;
+        return a.name.localeCompare(b.name);
+    });
 };
 
 interface StudentsAttendanceReportTableProps {
@@ -104,61 +174,13 @@ const StudentsAttendanceReportTable: React.FC<StudentsAttendanceReportTableProps
     };
 
     // Day headers for the selected month
-    const days = useMemo(() => {
-        const daysInMonth = new Date(year, month, 0).getDate();
-        return Array.from({ length: daysInMonth }, (_, i) => {
-            const d = new Date(year, month - 1, i + 1);
-            return {
-                day: i + 1,
-                day_name: d.toLocaleDateString("en-US", { weekday: "short" }),
-                is_weekend: d.getDay() === 0, // Sunday
-            };
-        });
-    }, [month, year]);
+    const days = useMemo(() => getMonthDays(month, year), [month, year]);
 
     // Group per-day records into one row per student for the selected month
-    const studentRows = useMemo<StudentRow[]>(() => {
-        const rows = new Map<string, StudentRow>();
-
-        records.forEach((rec) => {
-            const parts = parseDateParts(rec.date);
-            if (!parts || parts.month !== month || parts.year !== year) return;
-
-            const code = toStatusCode(rec.status);
-            if (!code) return;
-
-            const key = String(rec.student_id ?? rec.student_code ?? rec.admission_no ?? rec.id);
-            let row = rows.get(key);
-            if (!row) {
-                row = {
-                    key,
-                    name: rec.student_name || rec.student?.full_name || rec.student?.name || "N/A",
-                    admissionNo: rec.admission_no || rec.student_code || rec.student?.admission_no || "-",
-                    rollNo: rec.roll_no || rec.student?.roll_no || "",
-                    days: {},
-                    counts: { ...EMPTY_SUMMARY },
-                    percentage: "-",
-                };
-                rows.set(key, row);
-            }
-
-            // If a day has duplicate records, the later one wins; keep counts consistent
-            const existing = row.days[parts.day];
-            if (existing) row.counts[existing.code] -= 1;
-            row.days[parts.day] = { code, note: rec.note };
-            row.counts[code] += 1;
-        });
-
-        const list = [...rows.values()];
-        list.forEach((row) => { row.percentage = calcPercentage(row.counts); });
-
-        // Sort by roll number (numeric where possible), then name
-        return list.sort((a, b) => {
-            const ra = Number(a.rollNo), rb = Number(b.rollNo);
-            if (!isNaN(ra) && !isNaN(rb) && ra !== rb) return ra - rb;
-            return a.name.localeCompare(b.name);
-        });
-    }, [records, month, year]);
+    const studentRows = useMemo<StudentRow[]>(
+        () => buildStudentRows(records, month, year),
+        [records, month, year]
+    );
 
     const visibleRows = useMemo(() => {
         const q = search.trim().toLowerCase();

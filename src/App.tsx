@@ -62,7 +62,7 @@ import UpdateGeneralSettings from './pages/SettingsSection/GeneralSettings/Updat
 import { useFetchGeneralSettings } from './hooks/useGeneralSettings'
 import useSiteSettings from './hooks/useSiteSettings'
 import GeneralSettings from './pages/SettingsSection/GeneralSettings/GeneralSettings'
-import AdminProfile from './pages/Admin/AdminProfile'
+// import AdminProfile from './pages/Admin/AdminProfile'
 import ForgotPassword from './pages/Auth/ForgotPassword'
 import SidebarController from './pages/SidebarController/SidebarController'
 import BehaviourReport from './pages/BehaviourRecords/BehaviourReport/BehaviourReport'
@@ -75,6 +75,7 @@ import FeesInvoice from './pages/Fees/FeesInvoice/FeesInvoice'
 import FeesType from './pages/Fees/FeesType/FeesType'
 import StudentsAttendanceReport from './pages/StudentsReport/StudentsAttendanceReport/StudentsAttendanceReport'
 import AcademicYear from './pages/SettingsSection/AcademicYear/AcademicYear'
+import UserProfile from './pages/UserProfile/UserProfile'
 
 // import Snowfall from './components/Snowfall'
 
@@ -221,7 +222,9 @@ function App() {
                   <Route path='/settings-section/academic-year' element={<AcademicYear />} />
 
                   {/* 9. Admin Section */}
-                  <Route path='/admin-info/profile/:admin_id' element={<AdminProfile />} />
+                  {/* <Route path='/admin-info/profile/:admin_id' element={<AdminProfile />} /> */}
+                  <Route path='/profile-page/user/:id' element={<UserProfile />} />
+                  {/* <Route path='/profile-page/user/:id' element={<AdminProfile />} /> */}
 
                   {/* 10. Controls Section */}
                   <Route path='/settings-section/sidebar' element={<SidebarController />} />
