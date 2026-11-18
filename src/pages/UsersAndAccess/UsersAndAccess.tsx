@@ -3,9 +3,9 @@ import { toast } from "sonner";
 import TableWrapper from "../../components/TableWrapper";
 import PopupScreen from "../../components/PopupScreen/PopupScreen";
 import { PrimaryButton, SecondaryButton } from "../../components/Buttons/Buttons";
-import { highlightText } from "../../utils/utils";
-import { useDebounce } from "../../hooks/useDebounce";
-import { useSearchUsers } from "../../hooks/useSearchUsers";
+// import { highlightText } from "../../utils/utils";
+// import { useDebounce } from "../../hooks/useDebounce";
+// import { useSearchUsers } from "../../hooks/useSearchUsers";
 import {
     useDeleteRole,
     useFetchAllUsers,
@@ -24,15 +24,15 @@ import {
 } from "./PermissionPopups";
 import RoleAccessToggle, { type RoleType } from "../../components/RoleAccessToggle";
 import { UserPermissions } from "./UserPermissions/UserPermissions";
-import axiosInstance from "../../api/axiosInstance";
+// import axiosInstance from "../../api/axiosInstance";
 import "./UsersAndAccess.scss";
 
 export const UsersAndAccess = () => {
-    const [searchTerm, setSearchTerm] = useState("");
+    // const [searchTerm, setSearchTerm] = useState("");
     // const { t } = useTranslation();
 
-    const debouncedSearch = useDebounce(searchTerm, 400);
-    const { data: searchData, isLoading: isSearchLoading } = useSearchUsers(debouncedSearch);
+    // const debouncedSearch = useDebounce(searchTerm, 400);
+    // const { data: searchData, isLoading: isSearchLoading } = useSearchUsers(debouncedSearch);
 
     // Selected user for Custom Role view
     const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
@@ -42,104 +42,107 @@ export const UsersAndAccess = () => {
         details?: string;
         type?: string;
     } | null>(null);
-    const [isResolvingUser, setIsResolvingUser] = useState(false);
+    // const [isResolvingUser, setIsResolvingUser] = useState(false);
 
     // Default vs Custom role view toggle
     const [roleType, setRoleType] = useState<RoleType>("default");
 
     // Resolve accurate user_id from various search result item types
-    const resolveUserId = async (item: any): Promise<number | null> => {
-        if (item.user_id) return Number(item.user_id);
-        if (item.user?.id) return Number(item.user.id);
+    // const resolveUserId = async (item: any): Promise<number | null> => {
+    //     if (item.user_id) return Number(item.user_id);
+    //     if (item.user?.id) return Number(item.user.id);
 
-        if (item.type === "Student" && item.student_id) {
-            try {
-                const res = await axiosInstance.get(`/students/${item.student_id}`);
-                const s = res.data?.data ?? res.data;
-                if (s?.user_id) return Number(s.user_id);
-            } catch (e) {
-                console.warn("Could not resolve student user_id", e);
-            }
-        }
+    //     if (item.type === "Student" && item.student_id) {
+    //         try {
+    //             const res = await axiosInstance.get(`/students/${item.student_id}`);
+    //             const s = res.data?.data ?? res.data;
+    //             if (s?.user_id) return Number(s.user_id);
+    //         } catch (e) {
+    //             console.warn("Could not resolve student user_id", e);
+    //         }
+    //     }
 
-        if ((item.type === "Staff" || item.type === "Teacher") && item.staff_id) {
-            try {
-                const res = await axiosInstance.get(`/staff/${item.staff_id}`);
-                const st = res.data?.data ?? res.data;
-                if (st?.user_id) return Number(st.user_id);
-            } catch (e) {
-                console.warn("Could not resolve staff user_id", e);
-            }
-        }
+    //     if ((item.type === "Staff" || item.type === "Teacher") && item.staff_id) {
+    //         try {
+    //             const res = await axiosInstance.get(`/staff/${item.staff_id}`);
+    //             const st = res.data?.data ?? res.data;
+    //             if (st?.user_id) return Number(st.user_id);
+    //         } catch (e) {
+    //             console.warn("Could not resolve staff user_id", e);
+    //         }
+    //     }
 
-        if (item.id && !item.student_id && !item.staff_id) {
-            return Number(item.id);
-        }
+    //     if (item.id && !item.student_id && !item.staff_id) {
+    //         return Number(item.id);
+    //     }
 
-        return item.id ? Number(item.id) : null;
-    };
+    //     return item.id ? Number(item.id) : null;
+    // };
 
-    const handleSearchResultClick = async (item: any) => {
-        setSearchTerm("");
-        setIsResolvingUser(true);
-        try {
-            const resolvedId = await resolveUserId(item);
-            if (!resolvedId) {
-                toast.error("Could not find a valid user account for this record.");
-                return;
-            }
-            setSelectedUserId(resolvedId);
-            setSelectedUserMeta({
-                name: item.name || item.full_name,
-                email: item.email || (item.details && item.details.includes("@") ? item.details : undefined),
-                details: item.details,
-                type: item.type,
-            });
-        } catch (e) {
-            toast.error("Failed to select user.");
-        } finally {
-            setIsResolvingUser(false);
-        }
-    };
+    // const handleSearchResultClick = async (item: any) => {
+    //     setSearchTerm("");
+    //     setIsResolvingUser(true);
+    //     try {
+    //         const resolvedId = await resolveUserId(item);
+    //         if (!resolvedId) {
+    //             toast.error("Could not find a valid user account for this record.");
+    //             return;
+    //         }
+    //         setSelectedUserId(resolvedId);
+    //         setSelectedUserMeta({
+    //             name: item.name || item.full_name,
+    //             email: item.email || (item.details && item.details.includes("@") ? item.details : undefined),
+    //             details: item.details,
+    //             type: item.type,
+    //         });
+    //     } catch (e) {
+    //         toast.error("Failed to select user.");
+    //     } finally {
+    //         setIsResolvingUser(false);
+    //     }
+    // };
 
-    const SearchResults = () => {
-        if (!searchTerm) return null;
 
-        return (
-            <div className={`header_selection_bar ${searchTerm ? "has" : ""}`}>
-                {isSearchLoading ? (
-                    <div className="selection_item">
-                        <p className="details">Searching users...</p>
-                    </div>
-                ) : !searchData?.data?.length ? (
-                    <div className="selection_item">
-                        <p className="details">No users found for "{searchTerm}"</p>
-                    </div>
-                ) : (
-                    searchData.data.map((item: any, i: number) => (
-                        <div
-                            key={item.id ?? i}
-                            className="selection_item"
-                            onClick={() => handleSearchResultClick(item)}
-                        >
-                            <img src="/header_icons/profile_pic.png" alt="" />
-                            <div className="selection_details">
-                                <p className="name">
-                                    {highlightText(item.name || item.full_name || "User", searchTerm)}
-                                </p>
-                                <p className="details">
-                                    {item.type ? `[${item.type}] ` : ""}
-                                    {highlightText(item.details || item.email || "", searchTerm)}
-                                </p>
-                            </div>
-                        </div>
-                    ))
-                )}
-            </div>
-        );
-    };
+
+    // const SearchResults = () => {
+    //     if (!searchTerm) return null;
+
+    //     return (
+    //         <div className={`header_selection_bar ${searchTerm ? "has" : ""}`}>
+    //             {isSearchLoading ? (
+    //                 <div className="selection_item">
+    //                     <p className="details">Searching users...</p>
+    //                 </div>
+    //             ) : !searchData?.data?.length ? (
+    //                 <div className="selection_item">
+    //                     <p className="details">No users found for "{searchTerm}"</p>
+    //                 </div>
+    //             ) : (
+    //                 searchData.data.map((item: any, i: number) => (
+    //                     <div
+    //                         key={item.id ?? i}
+    //                         className="selection_item"
+    //                         onClick={() => handleSearchResultClick(item)}
+    //                     >
+    //                         <img src="/header_icons/profile_pic.png" alt="" />
+    //                         <div className="selection_details">
+    //                             <p className="name">
+    //                                 {highlightText(item.name || item.full_name || "User", searchTerm)}
+    //                             </p>
+    //                             <p className="details">
+    //                                 {item.type ? `[${item.type}] ` : ""}
+    //                                 {highlightText(item.details || item.email || "", searchTerm)}
+    //                             </p>
+    //                         </div>
+    //                     </div>
+    //                 ))
+    //             )}
+    //         </div>
+    //     );
+    // };
 
     // Default Roles management table
+
     const { data, isLoading, isError } = useFetchRolesAndAccess();
     const deleteRoleMutation = useDeleteRole();
 
@@ -310,10 +313,7 @@ export const UsersAndAccess = () => {
                                             onChange={(e) => setSearchTerm(e.target.value)}
                                             value={searchTerm}
                                             type="text"
-                                            placeholder={t(
-                                                "header.search_placeholder",
-                                                "Search user by name, email, admission..."
-                                            )}
+                                            placeholder="Search user by name, email, admission..."
                                         />
                                     </div>
                                     <div className="search_sort_close">
@@ -401,61 +401,63 @@ export const UsersAndAccess = () => {
                 ) : (
                     /* 2. Custom Role View: User specific roles & permissions management */
                     <div className="custom_role_view">
-                        {isResolvingUser ? (
-                            <div className="user_permissions_container">
-                                <div className="custom_role_empty_state">
-                                    <p>Resolving user account details...</p>
-                                </div>
-                            </div>
-                        ) : selectedUserId ? (
-                            <UserPermissions
-                                key={selectedUserId}
-                                userId={selectedUserId}
-                                fallbackUser={selectedUserMeta || undefined}
-                            />
-                        ) : (
-                            <TableWrapper
-                                isSearchBar
-                                title="Users and Access"
-                                searchValue={userSearch}
-                                searchOnchange={setUserSearch}
-                            >
-                                <DataTable
-                                    columns={usersColumns}
-                                    data={users}
-                                    currentPage={1}
-                                    totalPages={1}
-                                    onPageChange={() => { }}
-                                    emptyMessage={usersEmptyMessage}
-                                    actions={(row) => (
-                                        <div className="actions">
-                                            <button
-                                                onClick={() => {
-                                                    setSelectedUserId(row.raw.id);
-                                                    setSelectedUserMeta({
-                                                        name: row.raw.full_name || row.raw.name,
-                                                        email: row.raw.email,
-                                                    });
-                                                }}
-                                                title="Manage permissions"
-                                            >
-                                                <img src="/svgs/edit.svg" alt="Edit" />
-                                            </button>
-                                        </div>
-                                    )}
-                                />
-                            </TableWrapper>
-                            // <div className="user_permissions_container">
-                            //     <div className="custom_role_empty_state">
-                            //         <img src="/header_icons/search_icon.svg" alt="Search" />
-                            //         <h3>Search & Select a User</h3>
-                            //         <p>
-                            //             Use the search bar above to select a student, staff member, or user
-                            //             to view and configure their customized roles and direct permissions.
-                            //         </p>
+                        {
+                            // isResolvingUser ? (
+                            //     <div className="user_permissions_container">
+                            //         <div className="custom_role_empty_state">
+                            //             <p>Resolving user account details...</p>
+                            //         </div>
                             //     </div>
-                            // </div>
-                        )}
+                            // ) :
+                            selectedUserId ? (
+                                <UserPermissions
+                                    key={selectedUserId}
+                                    userId={selectedUserId}
+                                    fallbackUser={selectedUserMeta || undefined}
+                                />
+                            ) : (
+                                <TableWrapper
+                                    isSearchBar
+                                    title="Users and Access"
+                                    searchValue={userSearch}
+                                    searchOnchange={setUserSearch}
+                                >
+                                    <DataTable
+                                        columns={usersColumns}
+                                        data={users}
+                                        currentPage={1}
+                                        totalPages={1}
+                                        onPageChange={() => { }}
+                                        emptyMessage={usersEmptyMessage}
+                                        actions={(row) => (
+                                            <div className="actions">
+                                                <button
+                                                    onClick={() => {
+                                                        setSelectedUserId(row.raw.id);
+                                                        setSelectedUserMeta({
+                                                            name: row.raw.full_name || row.raw.name,
+                                                            email: row.raw.email,
+                                                        });
+                                                    }}
+                                                    title="Manage permissions"
+                                                >
+                                                    <img src="/svgs/edit.svg" alt="Edit" />
+                                                </button>
+                                            </div>
+                                        )}
+                                    />
+                                </TableWrapper>
+                                // <div className="user_permissions_container">
+                                //     <div className="custom_role_empty_state">
+                                //         <img src="/header_icons/search_icon.svg" alt="Search" />
+                                //         <h3>Search & Select a User</h3>
+                                //         <p>
+                                //             Use the search bar above to select a student, staff member, or user
+                                //             to view and configure their customized roles and direct permissions.
+                                //         </p>
+                                //     </div>
+                                // </div>
+                            )}
                     </div>
                 )}
 

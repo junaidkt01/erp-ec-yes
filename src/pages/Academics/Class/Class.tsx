@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import { PrimaryButton, SecondaryButton } from "../../../components/Buttons/Buttons";
 import { InputField } from "../../../components/InputFields/InputFields";
 import { CustomSelect } from "../../../components/InputFields/CustomSelect";
-import InputCheckbox from "../../../components/InputCheckbox/InputCheckbox";
+// import InputCheckbox from "../../../components/InputCheckbox/InputCheckbox";
 import PopupScreen from "../../../components/PopupScreen/PopupScreen";
 import TableWrapper from "../../../components/TableWrapper";
 import DataTable, { type Column } from "../../../components/DataTable/DataTable";
@@ -16,15 +16,17 @@ import {
   useRemoveStudentClass,
   type ClassItem,
 } from "../../../hooks/useStudentClass";
-import { useFetchAllAcademicYears } from "../../../hooks/useAcademicYear";
-import { useFetchAllStudentCategories } from "../../../hooks/useStudentCategory";
-import { useFetchAllSections, type SectionItem } from "../../../hooks/useSections";
+// import { useFetchAllAcademicYears } from "../../../hooks/useAcademicYear";
+// import { useFetchAllStudentCategories } from "../../../hooks/useStudentCategory";
+import { useFetchAllAcademicCategories } from "../../../hooks/useAcademicCategory";
+// import { useFetchAllSections, type SectionItem } from "../../../hooks/useSections";
 
 const initialFormState = {
   name: "",
-  academic_year_id: "" as string | number,
-  category_id: "" as string | number,
-  section_ids: [] as number[],
+  // academic_year_id: "" as string | number,
+  // category_id: "" as string | number,
+  academic_category_id: "" as string | number,
+  // section_ids: [] as number[],
 };
 
 const ITEMS_PER_PAGE = 10;
@@ -36,9 +38,11 @@ const Class: React.FC = () => {
 
   // Queries & Mutations
   const { data: apiResponse, isLoading } = useFetchAllStudentClasses(page, debouncedSearch);
-  const { data: academicYears } = useFetchAllAcademicYears();
-  const { data: categories } = useFetchAllStudentCategories();
-  const { data: sectionsData } = useFetchAllSections();
+  // const { data: academicYears } = useFetchAllAcademicYears();
+  // const { data: categories } = useFetchAllStudentCategories();
+  const { data: academicCategories } = useFetchAllAcademicCategories();
+  console.log("academicCategories: ", academicCategories);
+  // const { data: sectionsData } = useFetchAllSections();
 
   const addClassMutation = useAddStudentClass();
   const updateClassMutation = useUpdateStudentClass();
@@ -56,44 +60,44 @@ const Class: React.FC = () => {
   const columns: Column[] = [
     { key: "sl", title: "SL" },
     { key: "class", title: "Class" },
-    { key: "section", title: "Section" },
-    { key: "academic_year", title: "Academic Year" },
-    { key: "category", title: "Category" },
+    // { key: "section", title: "Section" },
+    // { key: "academic_year", title: "Academic Year" },
+    { key: "academic_category", title: "Academic Category" },
   ];
 
   // Options for Academic Years
-  const academicYearOptions = useMemo(() => {
-    const list = Array.isArray(academicYears) ? academicYears : [];
-    return list.map((y: any) => ({
-      label: y.name,
-      value: y.id,
-    }));
-  }, [academicYears]);
+  // const academicYearOptions = useMemo(() => {
+  //   const list = Array.isArray(academicYears) ? academicYears : [];
+  //   return list.map((y: any) => ({
+  //     label: y.name,
+  //     value: y.id,
+  //   }));
+  // }, [academicYears]);
 
   // Options for Student Categories
   const categoryOptions = useMemo(() => {
-    const arr = Array.isArray(categories?.data?.data)
-      ? categories.data.data
-      : Array.isArray(categories?.data)
-        ? categories.data
-        : Array.isArray(categories)
-          ? categories
+    const arr = Array.isArray(academicCategories?.data?.data)
+      ? academicCategories.data.data
+      : Array.isArray(academicCategories?.data)
+        ? academicCategories.data
+        : Array.isArray(academicCategories)
+          ? academicCategories
           : [];
     return arr.map((cat: any) => ({
       label: cat.name,
       value: cat.id,
     }));
-  }, [categories]);
+  }, [academicCategories]);
 
   // Available Sections for Class assignment
-  const availableSections: SectionItem[] = useMemo(() => {
-    const arr = Array.isArray(sectionsData?.data)
-      ? sectionsData.data
-      : Array.isArray(sectionsData)
-        ? sectionsData
-        : [];
-    return arr;
-  }, [sectionsData]);
+  // const availableSections: SectionItem[] = useMemo(() => {
+  //   const arr = Array.isArray(sectionsData?.data)
+  //     ? sectionsData.data
+  //     : Array.isArray(sectionsData)
+  //       ? sectionsData
+  //       : [];
+  //   return arr;
+  // }, [sectionsData]);
 
   // Extract raw classes list
   const rawList: ClassItem[] = useMemo(() => {
@@ -167,15 +171,15 @@ const Class: React.FC = () => {
   // Open Edit Modal
   const handleOpenEditModal = (item: ClassItem) => {
     setEditingClass(item);
-    const existingSectionIds = Array.isArray(item.sections)
-      ? item.sections.map((s: any) => s.id)
-      : [];
+    // const existingSectionIds = Array.isArray(item.sections)
+    // ? item.sections.map((s: any) => s.id)
+    // : [];
 
     setFormData({
       name: item.name || "",
-      academic_year_id: item.academic_year_id ?? item.academic_year?.id ?? "",
-      category_id: item.category_id ?? item.category?.id ?? "",
-      section_ids: existingSectionIds,
+      // academic_year_id: item.academic_year_id ?? item.academic_year?.id ?? "",
+      academic_category_id: item.academic_category_id ?? item.academic_category?.id ?? "",
+      // section_ids: existingSectionIds,
     });
     setErrors({});
     setIsModalOpen(true);
@@ -190,17 +194,17 @@ const Class: React.FC = () => {
   };
 
   // Toggle Section selection
-  const handleToggleSection = (sectionId: number) => {
-    setFormData((prev) => {
-      const exists = prev.section_ids.includes(sectionId);
-      return {
-        ...prev,
-        section_ids: exists
-          ? prev.section_ids.filter((id) => id !== sectionId)
-          : [...prev.section_ids, sectionId],
-      };
-    });
-  };
+  // const handleToggleSection = (sectionId: number) => {
+  //   setFormData((prev) => {
+  //     // const exists = prev.section_ids.includes(sectionId);
+  //     return {
+  //       ...prev,
+  //       // section_ids: exists
+  //       //   ? prev.section_ids.filter((id) => id !== sectionId)
+  //       //   : [...prev.section_ids, sectionId],
+  //     };
+  //   });
+  // };
 
   // Validation
   const validateForm = () => {
@@ -219,10 +223,10 @@ const Class: React.FC = () => {
 
     const payload = {
       name: formData.name.trim(),
-      academic_year_id: formData.academic_year_id ? Number(formData.academic_year_id) : null,
-      category_id: formData.category_id ? Number(formData.category_id) : null,
-      sections: formData.section_ids,
-      section_ids: formData.section_ids,
+      // academic_year_id: formData.academic_year_id ? Number(formData.academic_year_id) : null,
+      academic_category_id: formData.academic_category_id ? Number(formData.academic_category_id) : null,
+      // sections: formData.section_ids,
+      // section_ids: formData.section_ids,
     };
 
     try {
@@ -301,7 +305,7 @@ const Class: React.FC = () => {
                       if (errors.name) setErrors((prev) => ({ ...prev, name: "" }));
                     }}
                   />
-                  <CustomSelect
+                  {/* <CustomSelect
                     label="Academic Year"
                     placeholder="Select academic year"
                     value={formData.academic_year_id}
@@ -309,19 +313,19 @@ const Class: React.FC = () => {
                     onChange={(val) =>
                       setFormData((prev) => ({ ...prev, academic_year_id: val }))
                     }
-                  />
+                  /> */}
                   <CustomSelect
-                    label="Category"
+                    label="Academic Category"
                     placeholder="Select category"
-                    value={formData.category_id}
+                    value={formData.academic_category_id}
                     options={categoryOptions}
                     onChange={(val) =>
-                      setFormData((prev) => ({ ...prev, category_id: val }))
+                      setFormData((prev) => ({ ...prev, academic_category_id: val }))
                     }
                   />
                 </div>
 
-                {availableSections.length > 0 && (
+                {/* {availableSections.length > 0 && (
                   <div className="body_section">
                     <label
                       style={{
@@ -352,7 +356,7 @@ const Class: React.FC = () => {
                       ))}
                     </div>
                   </div>
-                )}
+                )} */}
               </div>
 
               <div className="buttons">
@@ -362,9 +366,9 @@ const Class: React.FC = () => {
                     editingClass
                       ? handleCloseModal
                       : () => {
-                          setFormData(initialFormState);
-                          setErrors({});
-                        }
+                        setFormData(initialFormState);
+                        setErrors({});
+                      }
                   }
                 />
                 <PrimaryButton

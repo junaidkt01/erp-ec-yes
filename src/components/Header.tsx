@@ -12,6 +12,24 @@ import { LANGUAGES } from "../i18n/translations"
 import { useSidebarStore } from "../stores/sidebarStore"
 import { ShieldCheck } from "lucide-react"
 import TwoFactorModal from "./TwoFactorModal/TwoFactorModal"
+import { BASE_URL } from "../api/endpoints"
+
+const getPhotoUrl = (photoPath?: string | null) => {
+    if (!photoPath) return "";
+    if (
+        photoPath.startsWith("http://") ||
+        photoPath.startsWith("https://") ||
+        photoPath.startsWith("blob:") ||
+        photoPath.startsWith("data:")
+    ) {
+        return photoPath;
+    }
+    const cleanPath = photoPath.startsWith("/") ? photoPath.slice(1) : photoPath;
+    if (cleanPath.startsWith("public/")) {
+        return `${BASE_URL}/${cleanPath}`;
+    }
+    return `${BASE_URL}/public/${cleanPath}`;
+};
 
 const Header = () => {
     const [searchTerm, setSearchTerm] = useState("")
@@ -19,6 +37,9 @@ const Header = () => {
     const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
     const { t } = useTranslation();
     const toggleMobile = useSidebarStore((state) => state.toggleMobile);
+
+    const { data: authData } = useAuth();
+    const userPhoto = getPhotoUrl(authData?.user?.photo);
 
     const debouncedSearch = useDebounce(searchTerm, 500);
 
@@ -112,11 +133,20 @@ const Header = () => {
                 <div className="header_right_icons">
                     <div className="icon_box hvr_zm_out" ><img className="hvr_zm_in" src="/header_icons/notification.svg" alt="" /> </div>
                     <div className="icon_box hvr_zm_out" ><img className="hvr_zm_in" src="/header_icons/messages.svg" alt="" /> </div>
-                    <div className="icon_box profile hvr_zm_out" onClick={() => setIsProfile(!isProfile)} ><img className="hvr_zm_in" src="/header_icons/profile_pic.png" alt="" />
+                    <div className="icon_box profile hvr_zm_out" onClick={() => setIsProfile(!isProfile)}>
+                        <img
+                            className="hvr_zm_in"
+                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                            src={userPhoto || "/header_icons/profile_pic.png"}
+                            alt={authData?.user?.name || "profile"}
+                            onError={(e) => {
+                                (e.target as HTMLImageElement).src = "/header_icons/profile_pic.png";
+                            }}
+                        />
                     </div>
 
                     {isProfile && <div onClick={() => setIsProfile(false)} className="overlay_wrapper"></div>}
-                    {isProfile && <Profile />}
+                    {isProfile && <ProfileMenu />}
                 </div>
             </div>
 
@@ -151,10 +181,7 @@ const Header = () => {
                             )}
                         </div>
                         <SearchResults />
-                        <button
-                            className="mobile_search_cancel"
-                            onClick={() => { setMobileSearchOpen(false); setSearchTerm("") }}
-                        >
+                        <button className="mobile_search_cancel" onClick={() => { setMobileSearchOpen(false); setSearchTerm("") }} >
                             {t("common.cancel", "Cancel")}
                         </button>
                     </div>
@@ -287,7 +314,7 @@ const YearFilter = ({ isMobile = false }: { isMobile?: boolean }) => {
     );
 };
 
-const Profile = () => {
+const ProfileMenu = () => {
     const navigate = useNavigate();
     const { language, setLanguage, currentLanguage, t } = useTranslation();
     const [isLangOpen, setIsLangOpen] = useState(false);
@@ -304,26 +331,35 @@ const Profile = () => {
         }, 100)
     }
 
+    const userPhoto = getPhotoUrl(data?.user?.photo);
+
     return (
         <div className={`profile-dropdown ${!isTwoFactorOpen ? "hvr_zm_out" : ""}`} >
 
             {/* Header */}
             <div className="profile-header hvr_zm_out" >
                 <div className="profile_pic">
-                    <img src="/header_icons/profile_pic.png" alt="user" />
+                    <img
+                        src={userPhoto || "/header_icons/profile_pic.png"}
+                        alt="user"
+                        onError={(e) => {
+                            (e.target as HTMLImageElement).src = "/header_icons/profile_pic.png";
+                        }}
+                    />
                 </div>
                 <div onClick={() => {
-                    if (data?.user.roles[0].name === "admin") {
-                        navigate(`/admin-info/profile/${data?.user?.id}`)
-                    } else if (data?.user.roles[0].name === "parent") {
-                        navigate(`/parent-info/profile/${data?.user?.id}`)
-                    } else if (data?.user.roles[0].name === "teacher") {
-                        navigate(`/human-resource/profile/${data?.user?.id}`)
-                    } else if (data?.user.roles[0].name === "student") {
-                        navigate(`/student-info/profile/${data?.user?.id}`)
-                    }
+                    navigate(`/profile-page/user/${data?.user?.id}`)
+                    // if (data?.user.roles[0].name === "admin") {
+                    //     navigate(`/admin-info/profile/${data?.user?.id}`)
+                    // } else if (data?.user.roles[0].name === "parent") {
+                    //     navigate(`/parent-info/profile/${data?.user?.id}`)
+                    // } else if (data?.user.roles[0].name === "teacher") {
+                    //     navigate(`/human-resource/profile/${data?.user?.id}`)
+                    // } else if (data?.user.roles[0].name === "student") {
+                    //     navigate(`/student-info/profile/${data?.user?.id}`)
+                    // }
                 }} style={{ cursor: "pointer" }}>
-                    <p className="email">{data?.user?.email}</p>
+                    <p className="email">{data?.user?.name}</p>
                     <span className="role">{data?.user?.roles[0]?.name}</span>
                 </div>
                 <span className="settings">

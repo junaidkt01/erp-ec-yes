@@ -62,7 +62,7 @@ import UpdateGeneralSettings from './pages/SettingsSection/GeneralSettings/Updat
 import { useFetchGeneralSettings } from './hooks/useGeneralSettings'
 import useSiteSettings from './hooks/useSiteSettings'
 import GeneralSettings from './pages/SettingsSection/GeneralSettings/GeneralSettings'
-import AdminProfile from './pages/Admin/AdminProfile'
+// import AdminProfile from './pages/Admin/AdminProfile'
 import ForgotPassword from './pages/Auth/ForgotPassword'
 import SidebarController from './pages/SidebarController/SidebarController'
 import BehaviourReport from './pages/BehaviourRecords/BehaviourReport/BehaviourReport'
@@ -75,6 +75,7 @@ import FeesInvoice from './pages/Fees/FeesInvoice/FeesInvoice'
 import FeesType from './pages/Fees/FeesType/FeesType'
 import StudentsAttendanceReport from './pages/StudentsReport/StudentsAttendanceReport/StudentsAttendanceReport'
 import AcademicYear from './pages/SettingsSection/AcademicYear/AcademicYear'
+import UserProfile from './pages/UserProfile/UserProfile'
 
 // import Snowfall from './components/Snowfall'
 
@@ -150,14 +151,13 @@ function App() {
                   <Route path='/admin-section/generate-id-card' element={<GenerateIDCard />} />
 
                   {/* 2. Academics Routes */}
-                  <Route path='/Academics/optional-subject' element={<OptionalSubject />} />
-                  <Route path='/Academics/section' element={<Section />} />
-                  <Route path='/Academics/class' element={<Class />} />
-                  <Route path='/Academics/subjects' element={<Subjects />} />
-                  <Route path='/Academics/assign-class-teacher' element={<AssignClassTeacher />} />
-                  <Route path='/Academics/class-room' element={<ClassRoom />} />
-                  <Route path='/Academics/academic-categories' element={<AcademicCategory />} />
-
+                  <Route path='/academics/optional-subject' element={<OptionalSubject />} />
+                  <Route path='/academics/section' element={<Section />} />
+                  <Route path='/academics/class' element={<Class />} />
+                  <Route path='/academics/subjects' element={<Subjects />} />
+                  <Route path='/academics/assign-class-teacher' element={<AssignClassTeacher />} />
+                  <Route path='/academics/class-room' element={<ClassRoom />} />
+                  <Route path='/academics/academic-categories' element={<AcademicCategory />} />
 
                   {/* 3. Study Material Routes */}
                   <Route path='/study-material/upload-content' element={<UploadContent />} />
@@ -221,7 +221,9 @@ function App() {
                   <Route path='/settings-section/academic-year' element={<AcademicYear />} />
 
                   {/* 9. Admin Section */}
-                  <Route path='/admin-info/profile/:admin_id' element={<AdminProfile />} />
+                  {/* <Route path='/admin-info/profile/:admin_id' element={<AdminProfile />} /> */}
+                  <Route path='/profile-page/user/:id' element={<UserProfile />} />
+                  {/* <Route path='/profile-page/user/:id' element={<AdminProfile />} /> */}
 
                   {/* 10. Controls Section */}
                   <Route path='/settings-section/sidebar' element={<SidebarController />} />

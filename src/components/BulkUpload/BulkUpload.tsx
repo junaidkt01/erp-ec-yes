@@ -469,10 +469,10 @@ const BulkUpload = ({ onClick }: { onClick: () => void }) => {
             toast.error("Please select a Class.");
             return;
         }
-        if (!sectionId) {
-            toast.error("Please select a Section.");
-            return;
-        }
+        // if (!sectionId) {
+        //     toast.error("Please select a Section.");
+        //     return;
+        // }
         if (!uploadedFileName || rawData.length === 0) {
             toast.error("Please upload an Excel file with student data.");
             return;
@@ -609,7 +609,7 @@ const BulkUpload = ({ onClick }: { onClick: () => void }) => {
                     <div className="buttons">
                         <SecondaryButton title={t("bulk.download_sample", "Download Sample Student Excel")} onClick={handleDownloadSampleExcel} />
                         <SecondaryButton title={t("action.cancel", "Cancel")} onClick={() => onClick()} />
-                        <PrimaryButton disabled={!academicYear || !classId || !sectionId || !uploadedFileName} title={t("action.next", "Next")} onClick={handleStep1Next} />
+                        <PrimaryButton disabled={!academicYear || !classId || !uploadedFileName} title={t("action.next", "Next")} onClick={handleStep1Next} />
                     </div>
                 </div>
             )}

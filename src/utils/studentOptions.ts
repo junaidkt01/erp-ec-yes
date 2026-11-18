@@ -4,6 +4,27 @@ export interface SelectOption {
   id?: string | number;
 }
 
+export const COMPLAINTS_TYPES: SelectOption[] = [
+  { label: "Transport", value: "transport", id: "transport" },
+  { label: "Class Room", value: "class room", id: "class_room" },
+];
+
+export const COMPLAINTS_SOURCE: SelectOption[] = [
+  { label: "Email", value: "email", id: "email" },
+  { label: "Phone", value: "phone", id: "phone" },
+  { label: "WhatsApp", value: "whatsapp", id: "whatsapp" },
+  { label: "Direct", value: "direct", id: "direct" },
+];
+
+export const COMPLAINTS_STATUS: SelectOption[] = [
+  { label: "Active", value: "active", id: "active" },
+  { label: "Under Review", value: "under review", id: "under_review" },
+  { label: "In Progress", value: "in progress", id: "in_progress" },
+  { label: "Resolved", value: "resolved", id: "resolved" },
+  { label: "Closed", value: "closed", id: "closed" },
+];
+
+
 export const GENDER_OPTIONS: SelectOption[] = [
   { label: "Male", value: "male", id: "male" },
   { label: "Female", value: "female", id: "female" },
@@ -84,6 +105,8 @@ export const SCHOOLS_ZONE: SelectOption[] = [
   { label: "Srinagar", value: "srinagar", id: "srinagar" },
   { label: "Surankote", value: "surankote", id: "surankote" },
 ];
+
+
 /**
  * Format options array into instruction description string dynamically
  */

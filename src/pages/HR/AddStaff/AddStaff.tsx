@@ -323,10 +323,10 @@ const AddStaff = () => {
         { label: "Widow", value: "widow" },
     ];
 
-    const expertStaffOptions = [
-        { label: "Yes", value: "1" },
-        { label: "No", value: "0" },
-    ];
+    // const expertStaffOptions = [
+    //     { label: "Yes", value: "1" },
+    //     { label: "No", value: "0" },
+    // ];
 
     if (isLoading || staffLoading) {
         return <LoadingOverlay isLoading={true} />
