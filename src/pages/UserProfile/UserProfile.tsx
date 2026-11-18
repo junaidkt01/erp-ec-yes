@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import "./UserProfile.scss";
 import { PrimaryButton, SecondaryButton } from "../../components/Buttons/Buttons";
 import { InputField } from "../../components/InputFields/InputFields";
+import InputFiles from "../../components/InputFields/InputFiles";
 import { useResetPassword } from "../../auth/useResetPassword";
 import { useForgotPassword } from "../../auth/useForgotPassword";
 import { useUpdateUser, type UpdateUserPayload } from "../../hooks/useUsers";
@@ -11,6 +12,7 @@ import { toast } from "sonner";
 
 const UserProfile = () => {
     const { data: profileDetails, isLoading } = useAuth();
+    console.log("profileDetails: ", profileDetails)
 
     const details = [
         { label: "Email", value: profileDetails?.user?.email || "N/A" },
@@ -33,6 +35,8 @@ const UserProfile = () => {
         phone: "",
     });
     const [editErrors, setEditErrors] = useState<Record<string, string>>({});
+    const [photoFile, setPhotoFile] = useState<File | null>(null);
+    const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
     const { mutateAsync: updateUser, isPending: isUpdatingProfile } = useUpdateUser();
 
@@ -65,6 +69,18 @@ const UserProfile = () => {
         }
     }, [profileDetails]);
 
+    const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        setPhotoFile(file);
+        setPhotoPreview(URL.createObjectURL(file));
+    };
+
+    const handlePhotoRemove = () => {
+        setPhotoFile(null);
+        setPhotoPreview(null);
+    };
+
     const handleEditProfileChange = (field: keyof typeof editForm) => (e: any) => {
         const val = typeof e === "string" ? e : (e?.target?.value ?? "");
         setEditForm((prev) => ({ ...prev, [field]: val }));
@@ -79,6 +95,8 @@ const UserProfile = () => {
             name: user?.name || user?.full_name || "",
             phone: user?.phone || "",
         });
+        setPhotoFile(null);
+        setPhotoPreview(null);
         setEditErrors({});
     };
 
@@ -105,6 +123,7 @@ const UserProfile = () => {
                 name: editForm.name.trim(),
                 full_name: editForm.name.trim(),
                 phone: editForm.phone.trim(),
+                photo: photoFile,
             };
 
             if (user?.email) {
@@ -119,6 +138,8 @@ const UserProfile = () => {
 
             await updateUser(payload as any);
             toast.success("Profile updated successfully!");
+            setPhotoFile(null);
+            setPhotoPreview(null);
         } catch (err: any) {
             const apiMsg = err?.response?.data?.message || "Failed to update profile. Please try again.";
             toast.error(apiMsg);
@@ -258,7 +279,7 @@ const UserProfile = () => {
                 <div className="profile-details-wrapper">
                     <div className="profile-details-header profile-details-section">
                         <div className="profile-header-wrapper" >
-                            <img className="profile-photo" src={profileDetails?.user?.photo}
+                            <img className="profile-photo" src={photoPreview || profileDetails?.user?.photo}
                                 alt={profileDetails?.user?.name || "Profile"}
                                 onError={(e) => {
                                     (e.target as HTMLImageElement).src = "/user-square.svg";
@@ -322,6 +343,19 @@ const UserProfile = () => {
                                     <div className="search_screen" style={{ padding: "24px" }} >
                                         <form onSubmit={handleEditProfileSubmit} className="popup_body" style={{ width: "100%", maxWidth: "600px" }}>
                                             <div className="fields_wrapper" >
+                                                <div className="body_section" style={{ marginBottom: "8px" }}>
+                                                    <InputFiles
+                                                        cropSize={{ width: 350, height: 350 }}
+                                                        displaySize={{ width: 120, height: 120 }}
+                                                        image={photoPreview || profileDetails?.user?.photo}
+                                                        accept="image/*"
+                                                        name="photo"
+                                                        title="Profile Photo"
+                                                        onChange={handlePhotoChange}
+                                                        onRemove={handlePhotoRemove}
+                                                    />
+                                                </div>
+
                                                 <div className="body_section" >
                                                     <InputField
                                                         type="text"
@@ -479,8 +513,8 @@ const UserProfile = () => {
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 };
 

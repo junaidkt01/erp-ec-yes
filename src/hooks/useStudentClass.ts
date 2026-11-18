@@ -2,30 +2,37 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "../api/axiosInstance";
-import type { AcademicYear } from "./useAcademicYear";
-import type { SectionItem } from "./useSections";
+// import type { AcademicYear } from "./useAcademicYear";
+// import type { SectionItem } from "./useSections";
 import { classes } from "../api/endpoints";
 
 export const CLASSES_KEY = ["student-classes"];
 
-export interface StudentCategoryInfo {
+export interface StudentAcademicCategoryInfo {
   id: number;
   name: string;
   [key: string]: any;
 }
+// export interface StudentCategoryInfo {
+//   id: number;
+//   name: string;
+//   [key: string]: any;
+// }
 
 export interface ClassItem {
   id: number;
   name: string;
   branch_id?: number | null;
-  academic_year_id?: number | null;
-  category_id?: number | null;
+  // academic_year_id?: number | null;
+  // category_id?: number | null;
+  academic_category_id?: number | null;
   created_at?: string;
   updated_at?: string;
   deleted_at?: string | null;
-  academic_year?: AcademicYear | null;
-  category?: StudentCategoryInfo | null;
-  sections?: SectionItem[];
+  // academic_year?: AcademicYear | null;
+  // category?: StudentCategoryInfo | null;
+  academic_category?: StudentAcademicCategoryInfo | null;
+  // sections?: SectionItem[];
   [key: string]: any;
 }
 
@@ -59,10 +66,11 @@ export const useFetchAllStudentClasses = (page?: number, search?: string) => {
 export interface CreateClassPayload {
   name: string;
   branch_id?: number | string | null;
-  academic_year_id?: number | string | null;
-  category_id?: number | string | null;
-  sections?: (number | string)[];
-  section_ids?: (number | string)[];
+  // academic_year_id?: number | string | null;
+  // category_id?: number | string | null;
+  academic_category_id?: number | string | null;
+  // sections?: (number | string)[];
+  // section_ids?: (number | string)[];
   [key: string]: any;
 }
 

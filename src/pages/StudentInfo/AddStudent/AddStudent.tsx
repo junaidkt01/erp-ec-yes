@@ -431,7 +431,7 @@ const AddStudent = () => {
             photo: data.photo || null,
 
             class_id: Number(data.class_id || 0),
-            section_id: Number(data.section_id || 0),
+            section_id: Number(data.section_id),
 
             religion: String(data.religion || ""),
             roll_no: String(data.roll_no || ""),
@@ -554,7 +554,10 @@ const AddStudent = () => {
 
         // payload.append("email", formData?.email);
         payload.append("class_id", String(formData?.class_id));
-        payload.append("section_id", String(formData?.section_id));
+
+        if (formData.section_id !== 0) {
+            payload.append("section_id", String(formData?.section_id));
+        }
         payload.append("academic_year_id", String(formData?.academic_year_id));
         payload.append("gender", formData?.gender);
 
@@ -790,11 +793,11 @@ const AddStudent = () => {
                                         </div>
                                         <div>
                                             <p className="title" >Class</p>
-                                            <p className="value" >{formData?.class_id || "N/A"}</p>
+                                            <p className="value" >{classOptions.find((item: any) => item.value === formData?.class_id)?.label || "N/A"}</p>
                                         </div>
                                         <div>
                                             <p className="title" >Section</p>
-                                            <p className="value" >{formData?.section_id || "N/A"}</p>
+                                            <p className="value" >{sectionOptions.find((item: any) => item.value === formData?.section_id)?.label || "N/A"}</p>
                                         </div>
                                     </div>
                                     <div className="student_content_to_submit">

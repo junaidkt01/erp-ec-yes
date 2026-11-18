@@ -151,14 +151,13 @@ function App() {
                   <Route path='/admin-section/generate-id-card' element={<GenerateIDCard />} />
 
                   {/* 2. Academics Routes */}
-                  <Route path='/Academics/optional-subject' element={<OptionalSubject />} />
-                  <Route path='/Academics/section' element={<Section />} />
-                  <Route path='/Academics/class' element={<Class />} />
-                  <Route path='/Academics/subjects' element={<Subjects />} />
-                  <Route path='/Academics/assign-class-teacher' element={<AssignClassTeacher />} />
-                  <Route path='/Academics/class-room' element={<ClassRoom />} />
-                  <Route path='/Academics/academic-categories' element={<AcademicCategory />} />
-
+                  <Route path='/academics/optional-subject' element={<OptionalSubject />} />
+                  <Route path='/academics/section' element={<Section />} />
+                  <Route path='/academics/class' element={<Class />} />
+                  <Route path='/academics/subjects' element={<Subjects />} />
+                  <Route path='/academics/assign-class-teacher' element={<AssignClassTeacher />} />
+                  <Route path='/academics/class-room' element={<ClassRoom />} />
+                  <Route path='/academics/academic-categories' element={<AcademicCategory />} />
 
                   {/* 3. Study Material Routes */}
                   <Route path='/study-material/upload-content' element={<UploadContent />} />

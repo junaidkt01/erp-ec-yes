@@ -2,13 +2,6 @@ import React, { useMemo, useState, useCallback } from "react";
 import { Calendar, momentLocalizer, Views } from "react-big-calendar";
 import moment from "moment";
 import { toast } from "sonner";
-import {
-  Clock,
-  MapPin,
-  User,
-  AlignLeft,
-  ExternalLink,
-} from "lucide-react";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import "./BigCalendar.scss";
 import PopupScreen from "../PopupScreen/PopupScreen";
@@ -423,78 +416,54 @@ const BigCalendar: React.FC = () => {
 
       {/* EVENT DETAILS POPUP (GET by ID) */}
       {isDetailsModalOpen && (
-        <PopupScreen
-          title="Event Details"
-          onClick={handleCloseDetailsModal}
-        >
+        <PopupScreen title="Event Details" onClick={handleCloseDetailsModal} >
           <div className="popup_body">
             {isLoadingDetail && !activeEventDetail ? (
               <p style={{ padding: "20px", textAlign: "center" }}>Loading event details...</p>
             ) : activeEventDetail ? (
               <div className="event_details_view">
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <h3 style={{ fontSize: "18px", fontWeight: "600", color: "#111827" }}>
-                    {activeEventDetail.title}
-                  </h3>
-                  <span
-                    className="event_badge"
-                    style={{ backgroundColor: activeEventDetail.color || "#605dec" }}
-                  >
-                    {activeEventDetail.role || "Event"}
+                <div className="detail_item">
+                  <span className="label">Title</span>
+                  <span className="value">{activeEventDetail.title}</span>
+                </div>
+                <div className="detail_item">
+                  <span className="label">Role</span>
+                  <span className="value">{activeEventDetail.role || "All"}</span>
+                </div>
+                <div className="detail_item">
+                  <span className="label">Location</span>
+                  <span className="value">{activeEventDetail.location || "N/A"}</span>
+                </div>
+                <div className="detail_item">
+                  <span className="label">Date</span>
+                  <span className="value">
+                    {moment(activeEventDetail.start_date).format("DD/MM/YYYY")}
+                    {activeEventDetail.end_date &&
+                      moment(activeEventDetail.end_date).format("DD/MM/YYYY") !==
+                        moment(activeEventDetail.start_date).format("DD/MM/YYYY") &&
+                      ` - ${moment(activeEventDetail.end_date).format("DD/MM/YYYY")}`}
                   </span>
                 </div>
-
-                <div className="detail_row">
-                  <Clock size={18} className="detail_icon" />
-                  <div className="detail_content">
-                    <span className="detail_label">Time</span>
-                    <span className="detail_value">
-                      {moment(activeEventDetail.start_date).format("DD MMM YYYY, hh:mm A")}
-                      {activeEventDetail.end_date &&
-                        ` - ${moment(activeEventDetail.end_date).format("DD MMM YYYY, hh:mm A")}`}
-                    </span>
-                  </div>
+                <div className="detail_item full_width">
+                  <span className="label">Description</span>
+                  <span className="value">{activeEventDetail.description || "No description provided."}</span>
                 </div>
-
-                <div className="detail_row">
-                  <MapPin size={18} className="detail_icon" />
-                  <div className="detail_content">
-                    <span className="detail_label">Location</span>
-                    <span className="detail_value">{activeEventDetail.location || "N/A"}</span>
-                  </div>
+                <div className="detail_item">
+                  <span className="label">Time</span>
+                  <span className="value">
+                    {moment(activeEventDetail.start_date).format("hh:mm A")}
+                    {activeEventDetail.end_date &&
+                      ` - ${moment(activeEventDetail.end_date).format("hh:mm A")}`}
+                  </span>
                 </div>
-
-                <div className="detail_row">
-                  <User size={18} className="detail_icon" />
-                  <div className="detail_content">
-                    <span className="detail_label">Role</span>
-                    <span className="detail_value">{activeEventDetail.role || "All"}</span>
-                  </div>
-                </div>
-
-                <div className="detail_row">
-                  <AlignLeft size={18} className="detail_icon" />
-                  <div className="detail_content">
-                    <span className="detail_label">Description</span>
-                    <span className="detail_value">{activeEventDetail.description || "No description provided."}</span>
-                  </div>
-                </div>
-
                 {activeEventDetail.url && (
-                  <div className="detail_row">
-                    <ExternalLink size={18} className="detail_icon" />
-                    <div className="detail_content">
-                      <span className="detail_label">Link</span>
-                      <span className="detail_value">
-                        <a
-                          href={activeEventDetail.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          {activeEventDetail.url}
-                        </a>
-                      </span>
-                    </div>
+                  <div className="detail_item full_width">
+                    <span className="label">Link</span>
+                    <span className="value">
+                      <a href={activeEventDetail.url} target="_blank" rel="noopener noreferrer">
+                        {activeEventDetail.url}
+                      </a>
+                    </span>
                   </div>
                 )}
               </div>

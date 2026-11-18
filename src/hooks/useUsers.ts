@@ -10,9 +10,34 @@ export interface UpdateUserPayload {
   phone?: string;
   password?: string;
   roles?: (string | number)[];
+  photo?: File | string | null;
 }
 
 export const updateUserApi = async ({ id, ...payload }: UpdateUserPayload) => {
+  if (payload.photo instanceof File) {
+    const formData = new FormData();
+    formData.append("_method", "PUT");
+    if (payload.name) formData.append("name", payload.name);
+    if (payload.full_name) formData.append("full_name", payload.full_name);
+    if (payload.phone) formData.append("phone", payload.phone);
+    if (payload.email) formData.append("email", payload.email);
+    formData.append("photo", payload.photo);
+
+    if (Array.isArray(payload.roles)) {
+      payload.roles.forEach((r, index) => {
+        formData.append(`roles[${index}]`, String(r));
+      });
+    }
+
+    const res = await axiosInstance.post(`${user.users}/${id}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        "X-HTTP-Method-Override": "PUT",
+      },
+    });
+    return res.data;
+  }
+
   const res = await axiosInstance.put(`${user.users}/${id}`, payload);
   return res.data;
 };
