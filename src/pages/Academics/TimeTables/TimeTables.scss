@@ -1,0 +1,17 @@
+.timetable_page {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  // 3-column row for Day / Start Time / End Time
+  .body_section.three_col {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+
+    @media (max-width: 640px) {
+      grid-template-columns: 1fr;
+    }
+  }
+}

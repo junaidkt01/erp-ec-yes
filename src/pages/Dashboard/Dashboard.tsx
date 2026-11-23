@@ -1,68 +1,16 @@
-import { useNavigate } from "react-router-dom";
-import { PrimaryButton } from "../../components/Buttons/Buttons";
 import LoadingOverlay, { ErrorStatusOverlay } from "../../components/Loadingoverlay";
 import { useDashboard } from "../../hooks/useDashboard";
 import BigCalendar from "../../components/MyCalendar/BigCalendar";
-import { useEffect, useState } from "react";
+import TeachersWidget from "../../components/DashoardWidgets/TeacersWidgets/TeachersWidget";
+import Widgets from "../../components/DashoardWidgets/Widgets/Widgets";
 import Can from "../../components/permissions/Can";
 
 const Dashboard = () => {
-  const navigate = useNavigate();
-
   const { data, error, isLoading, isError } = useDashboard();
-  console.log("data: dash", data, error, isLoading, isError)
-
-  //////////////////////////////////////////////
-  const [activeMessage, setActiveMessage] = useState(0);
-  const studentsMsg = data?.card_stats?.students?.messages || [];
-  const parentsMsg = data?.card_stats?.parents?.messages || [];
-  const teachersMsg = data?.card_stats?.teachers?.messages || [];
-  const staffsMsg = data?.card_stats?.staffs?.messages || [];
-
-  useEffect(() => {
-    if (studentsMsg.length <= 1) return;
-
-    const interval = setInterval(() => {
-      setActiveMessage((prev) => (prev + 1) % studentsMsg.length);
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, [studentsMsg.length]);
-
-  useEffect(() => {
-    if (parentsMsg.length <= 1) return;
-
-    const interval = setInterval(() => {
-      setActiveMessage((prev) => (prev + 1) % parentsMsg.length);
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, [parentsMsg.length]);
-
-  useEffect(() => {
-    if (teachersMsg.length <= 1) return;
-
-    const interval = setInterval(() => {
-      setActiveMessage((prev) => (prev + 1) % teachersMsg.length);
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, [teachersMsg.length]);
-
-  useEffect(() => {
-    if (staffsMsg.length <= 1) return;
-
-    const interval = setInterval(() => {
-      setActiveMessage((prev) => (prev + 1) % staffsMsg.length);
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, [staffsMsg.length]);
-
-  //////////////////////////////////////////////
+  console.log("data: dash", data, error, isLoading, isError);
 
   if (isLoading) {
-    return <LoadingOverlay isLoading />
+    return <LoadingOverlay isLoading />;
   }
 
   if (isError) {
@@ -79,8 +27,14 @@ const Dashboard = () => {
           {/* <h2>EC YES - Super Admin</h2> */}
         </div>
 
-        <div className="widgets">
-          {/* {data?.summary?.map((item, i) => <div key={i} className="widget"> */}
+
+        <Can role="teacher" >
+          <TeachersWidget />
+        </Can>
+
+        <Widgets />
+
+        {/* <div className="widgets">
           {Object.entries(data?.summary ?? {})?.map(([key]) => <Can permission={`${key}_widget`} ><div key={key} className="widget hvr_zm_in">
             <div className="widget_head" >
               <div className="icon" >
@@ -186,7 +140,7 @@ const Dashboard = () => {
               </div>
             </>}
           </div></Can>)}
-        </div>
+        </div> */}
 
 
         <BigCalendar />

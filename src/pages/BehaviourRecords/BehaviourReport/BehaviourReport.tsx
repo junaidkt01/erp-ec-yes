@@ -66,6 +66,9 @@ const BehaviourReport: React.FC = () => {
         section_id: filterData.section_id || undefined,
     });
 
+
+    console.log("studentsData: ",studentsData)
+
     const studentOptions = useMemo(() => {
         const list = studentsData?.data || [];
         return list.map((st: any) => ({
@@ -306,67 +309,45 @@ const BehaviourReport: React.FC = () => {
                         onClick={() => setViewRecord(null)}
                     >
                         <div className="popup_body incident_details_popup">
-                            <div className="student_header_card">
-                                <img
-                                    src={viewRecord.photo_url || "/student.png"}
-                                    alt={viewRecord.student_name}
-                                    className="header_avatar"
-                                    onError={(e) => {
-                                        (e.target as HTMLImageElement).src = "/student.png";
-                                    }}
-                                />
-                                <div className="header_meta">
-                                    <h4>{viewRecord.student_name}</h4>
-                                    <p>
-                                        {viewRecord.admission_no ? `Admission No: ${viewRecord.admission_no} • ` : ""}
-                                        Class: {viewRecord.class_and_section}
-                                    </p>
+                            {/* Top meta row: Title | Point | Session | Date */}
+                            <div className="incident_meta_row">
+                                <div className="meta_col">
+                                    <span className="meta_label">Title</span>
+                                    <span className="meta_value">{viewRecord.incident_title_plain || "-"}</span>
+                                </div>
+                                <div className="meta_col">
+                                    <span className="meta_label">Point</span>
+                                    <span className={`meta_value point_val ${viewRecord.is_negative ? "neg" : "pos"}`}>
+                                        {viewRecord.is_negative ? `-${viewRecord.point_val}` : viewRecord.point_val}
+                                    </span>
+                                </div>
+                                <div className="meta_col">
+                                    <span className="meta_label">Session</span>
+                                    <span className="meta_value">{viewRecord.class_and_section || "NIL"}</span>
+                                </div>
+                                <div className="meta_col">
+                                    <span className="meta_label">Date</span>
+                                    <span className="meta_value">{viewRecord.date_plain || "-"}</span>
                                 </div>
                             </div>
 
-                            <div className="detail_grid">
-                                <div className="detail_item">
-                                    <label>Incident</label>
-                                    <p className="value">{viewRecord.incident_title_plain}</p>
-                                </div>
+                            {/* Description */}
+                            <div className="incident_section">
+                                <p className="section_label">Description</p>
+                                <p className="section_text">
+                                    {viewRecord.description || "No description provided."}
+                                </p>
+                            </div>
 
-                                <div className="detail_item">
-                                    <label>Points Awarded</label>
-                                    <p className="value">
-                                        <span
-                                            className={`point_badge ${viewRecord.point_val === 0
-                                                    ? "neutral"
-                                                    : viewRecord.is_negative
-                                                        ? "negative"
-                                                        : "positive"
-                                                }`}
-                                        >
-                                            {viewRecord.is_negative
-                                                ? `-${viewRecord.point_val}`
-                                                : `+${viewRecord.point_val}`}{" "}
-                                            pts
-                                        </span>
-                                    </p>
-                                </div>
-
-                                <div className="detail_item">
-                                    <label>Date</label>
-                                    <p className="value">{viewRecord.date_plain}</p>
-                                </div>
-
-                                <div className="detail_item">
-                                    <label>Type</label>
-                                    <p className="value">
-                                        {viewRecord.is_negative ? "Negative Incident" : "Positive Incident"}
-                                    </p>
-                                </div>
-
-                                <div className="detail_item full_width">
-                                    <label>Description / Remarks</label>
-                                    <div className="description_box">
-                                        {viewRecord.description || "No remark description provided."}
-                                    </div>
-                                </div>
+                            {/* Assigned By */}
+                            <div className="incident_section">
+                                <p className="section_label">Assigned By</p>
+                                <p className="section_text assigned_by">
+                                    {viewRecord.full_data?.assigned_by?.name ||
+                                        viewRecord.full_data?.created_by?.name ||
+                                        viewRecord.full_data?.user?.name ||
+                                        "Admin"}
+                                </p>
                             </div>
 
                             <div className="buttons">

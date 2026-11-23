@@ -22,6 +22,8 @@ import Section from './pages/Academics/Section/Section'
 import Class from './pages/Academics/Class/Class'
 import Subjects from './pages/Academics/Subjects/Subjects'
 import AssignClassTeacher from './pages/Academics/AssignClassTeacher/AssignClassTeacher'
+import AssignSubject from './pages/Academics/AssignSubject/AssignSubject'
+import TimeTables from './pages/Academics/TimeTables/TimeTables'
 import ClassRoom from './pages/Academics/ClassRoom/ClassRoom'
 
 {/* Study Material Routes */ }
@@ -115,13 +117,7 @@ function App() {
   return (
     <div className='app'>
       {/* <Snowfall /> */}
-      {open && (
-        <ErrorStatusOverlay
-          isError={true}
-          status={statusCode ?? 500}
-          message={message}
-        />
-      )}
+      {open && (<ErrorStatusOverlay isError={true} status={statusCode ?? 500} message={message} />)}
 
       <Toaster />
       <div style={{ display: "flex", position: "sticky", top: "0" }} >
@@ -151,11 +147,13 @@ function App() {
                   <Route path='/admin-section/generate-id-card' element={<GenerateIDCard />} />
 
                   {/* 2. Academics Routes */}
+                  <Route path='/academics/timetable' element={<TimeTables />} />
                   <Route path='/academics/optional-subject' element={<OptionalSubject />} />
                   <Route path='/academics/section' element={<Section />} />
                   <Route path='/academics/class' element={<Class />} />
                   <Route path='/academics/subjects' element={<Subjects />} />
                   <Route path='/academics/assign-class-teacher' element={<AssignClassTeacher />} />
+                  <Route path='/academics/assign-subject' element={<AssignSubject />} />
                   <Route path='/academics/class-room' element={<ClassRoom />} />
                   <Route path='/academics/academic-categories' element={<AcademicCategory />} />
 

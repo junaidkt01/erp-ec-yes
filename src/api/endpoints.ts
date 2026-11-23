@@ -38,11 +38,16 @@ export const classes = { classes: "/classes" };
 
 export const classRoom = { class_rooms: "/class-rooms" };
 
-export const classSubject = { class_subject: "/class-subject" };
+export const classSubject = {
+  class_subjects: "/class-subjects",
+  class_subject: "/class-subjects",
+};
 
 export const classTeacher = { class_teachers: "/class-teachers" };
 
 export const teacher = { teachers: "/teachers" };
+
+export const teacherWidget = { widgets: "/teacher/widgets" };
 
 export const downloadContent = { download_contents: "/download-contents" };
 
@@ -142,7 +147,7 @@ export const frontOffice = {
 
 export const admissionQueries = { admission_queries: "/admission-queries" };
 
-export const timeTable = { time_able: "/timeTables" };
+export const timeTable = { timetables: "/timetables" };
 
 export const dashboard = { dashboard: "/dashboard" };
 
@@ -156,6 +161,8 @@ export const sidebarMenus = {
   update: "/sidebar-menus",
   items: "/sidebar-menus/items",
   subMenus: "/sidebar-sub-menus",
+  subMenuStatusById: (id: number | string) => `/sidebar-sub-menus/${id}/status`,
+  subMenuStatusByTitle: (id: number | string) => `/sidebar-menus/${id}/sub-menu-status`,
 };
 
 export const incident = {
