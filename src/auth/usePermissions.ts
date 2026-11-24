@@ -136,8 +136,9 @@ const buildAccess = (rawData: any): Access => {
 
     // Collect roles and role permissions
     const collectRoles = (roleList: unknown) => {
-        if (!Array.isArray(roleList)) return;
-        roleList.forEach((r: any) => {
+        if (!roleList) return;
+        const list = Array.isArray(roleList) ? roleList : [roleList];
+        list.forEach((r: any) => {
             if (!r) return;
             const roleName = typeof r === "string" ? r : r.name;
             if (roleName) {
@@ -152,7 +153,9 @@ const buildAccess = (rawData: any): Access => {
     };
 
     collectRoles(data?.roles);
+    collectRoles(data?.role);
     collectRoles(user?.roles);
+    collectRoles(user?.role);
 
     return { ids, names, roles, isSuperUser };
 };
@@ -234,9 +237,13 @@ export const usePermissions = () => {
     /** Whether the user holds a specific role (case/format-insensitive). */
     const hasRole = useCallback((roleName?: string | null) => {
         if (!roleName) return true;
-        if (access.isSuperUser) return true;
         const target = roleName.toLowerCase().trim().replace(/[\s_]+/g, "-");
-        return Array.from(access.roles).some((r) => r.toLowerCase().trim().replace(/[\s_]+/g, "-") === target);
+        return Array.from(access.roles).some((r) => {
+            const normalized = r.toLowerCase().trim().replace(/[\s_]+/g, "-");
+            if (normalized === target) return true;
+            if (isSuperRole(target) && isSuperRole(normalized)) return true;
+            return false;
+        });
     }, [access]);
 
     return { ...access, can, canSubmenu, hasPermission, hasPermissions, hasRole, isLoading: isLoading && !data };

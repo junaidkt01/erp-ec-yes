@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
 import './App.scss'
 import './components/components.scss'
@@ -87,6 +88,20 @@ function App() {
   const { open, statusCode, message, hide } = useOverlayStore();
   console.log("test: ", open, statusCode, message, hide);
 
+  // Prevent touchpad / mouse wheel from accidentally changing number inputs
+  useEffect(() => {
+    const handleWheel = () => {
+      if (
+        document.activeElement instanceof HTMLInputElement &&
+        document.activeElement.type === "number"
+      ) {
+        document.activeElement.blur();
+      }
+    };
+    window.addEventListener("wheel", handleWheel, { passive: true });
+    return () => window.removeEventListener("wheel", handleWheel);
+  }, []);
+
   // General settings & site config
   const { data } = useFetchGeneralSettings();
   useSiteSettings(data?.data);
@@ -174,7 +189,7 @@ function App() {
                   {/* 5. Student Info */}
                   <Route path='/student-info/student-category' element={<StudentCategory />} />
 
-                  <Route path='/student-info/student-parents' element={<StudentParentList />} />
+                  <Route path='/student-info/students-parents' element={<StudentParentList />} />
                   {/* <Route path='/student-info/student-parent' element={<StudentParentList />} /> */}
 
                   <Route path='/student-info/add-student' element={<div><AddStudent /></div>} />

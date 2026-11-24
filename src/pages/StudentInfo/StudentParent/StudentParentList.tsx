@@ -781,8 +781,7 @@ export const StudentParentList: React.FC = () => {
                   >
                     <img src="/svgs/eye_open.svg" alt="View" />
                   </button>
-                  <button
-                    type="button"
+                  <button type="button"
                     className="hvr_zm_out"
                     title="Edit Details"
                     onClick={() => handleOpenEditModal(item)}

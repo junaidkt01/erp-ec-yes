@@ -23,6 +23,7 @@ import { useFetchAllSubjects } from "../../../hooks/useSubject";
 import { useFetchAllTeacher } from "../../../hooks/useTeacher";
 import { useFetchAllAcademicYears } from "../../../hooks/useAcademicYear";
 import "./AssignSubject.scss";
+import Can from "../../../components/permissions/Can";
 
 const initialFormState = {
   class_id: "" as string | number,
@@ -134,9 +135,9 @@ const AssignSubject: React.FC = () => {
         : [];
     const filtered = formData.class_id
       ? arr.filter(
-          (s: any) =>
-            !s.class_id || String(s.class_id) === String(formData.class_id)
-        )
+        (s: any) =>
+          !s.class_id || String(s.class_id) === String(formData.class_id)
+      )
       : arr;
     return filtered.map((s: any) => ({ label: s.name, value: s.id }));
   }, [sectionsData, formData.class_id]);
@@ -382,8 +383,8 @@ const AssignSubject: React.FC = () => {
     } catch (err: any) {
       toast.error(
         err?.response?.data?.message ||
-          err?.message ||
-          (editingItem ? "Failed to update subject assignment" : "Failed to assign subject")
+        err?.message ||
+        (editingItem ? "Failed to update subject assignment" : "Failed to assign subject")
       );
     }
   };
@@ -397,8 +398,8 @@ const AssignSubject: React.FC = () => {
     } catch (err: any) {
       toast.error(
         err?.response?.data?.message ||
-          err?.message ||
-          "Failed to remove subject assignment"
+        err?.message ||
+        "Failed to remove subject assignment"
       );
     }
   };
@@ -521,7 +522,7 @@ const AssignSubject: React.FC = () => {
                   <strong>{deleteTarget.subject_name}</strong> assigned to{" "}
                   <strong>{deleteTarget.class_name}</strong>
                   {deleteTarget.section_name &&
-                  deleteTarget.section_name !== "-"
+                    deleteTarget.section_name !== "-"
                     ? ` (${deleteTarget.section_name})`
                     : ""}?
                 </p>
@@ -621,6 +622,7 @@ const AssignSubject: React.FC = () => {
         <TableWrapper
           isAddButton
           isSearchBar
+          permission="assign_subject"
           searchValue={searchTerm}
           searchOnchange={(val) => {
             setSearchTerm(val);
@@ -636,23 +638,18 @@ const AssignSubject: React.FC = () => {
             totalPages={totalPages}
             onPageChange={setPage}
             actions={(row) => (
-              <div className="actions">
-                <button
-                  type="button"
-                  className="hvr_zm_out"
-                  title="Edit assignment"
-                  onClick={() => handleOpenEditModal(row.full_data)}
-                >
-                  <img src="/svgs/edit.svg" alt="Edit" />
-                </button>
-                <button
-                  type="button"
-                  className="hvr_zm_out"
-                  title="Remove assignment"
-                  onClick={() => setDeleteTarget(row.full_data)}
-                >
-                  <img src="/svgs/delete.svg" alt="Delete" />
-                </button>
+              <div className="actions" >
+                <Can permission="edit_assign_subject" >
+                  <button type="button" className="hvr_zm_out" title="Edit assignment" onClick={() => handleOpenEditModal(row.full_data)} >
+                    <img src="/svgs/edit.svg" alt="Edit" />
+                  </button>
+                </Can>
+
+                <Can permission="delete_assign_subject" >
+                  <button type="button" className="hvr_zm_out" title="Remove assignment" onClick={() => setDeleteTarget(row.full_data)} >
+                    <img src="/svgs/delete.svg" alt="Delete" />
+                  </button>
+                </Can>
               </div>
             )}
           />

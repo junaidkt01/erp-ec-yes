@@ -3,6 +3,7 @@ import { BASE_URL } from "../../api/endpoints"
 import "./Profile.scss"
 import DynamicQRCode from "../../components/DynamicQRCode/DynamicQRCode"
 import StudentAttendanceReport from "./components/StudentAttendanceReport/StudentAttendanceReport"
+import Can from "../../components/permissions/Can"
 
 const Profile = ({ type, data, details, tabs, profileDetails, activeTab, setActiveTab }: any) => {
     const navigate = useNavigate();
@@ -124,10 +125,13 @@ const Profile = ({ type, data, details, tabs, profileDetails, activeTab, setActi
                     {type !== "admin" && <div className="profile-details-body profile-details-section">
                         <div className="profile-info-head" >
                             <p>{type === "student" ? "Student Info" : "Staff Info"}</p>
-                            <button onClick={() => navigate(type === "student" ? `/student-info/add-student/${data?.data?.id}` : `/human-resource/add-staff/${data?.data?.id}`)} >
-                                <img src="/svgs/edit-icon.svg" alt="" />
-                                <span>Edit Details</span>
-                            </button>
+
+                            <Can permission={type === "student" ? "edit_student" : "edit_staff"} >
+                                <button onClick={() => navigate(type === "student" ? `/student-info/add-student/${data?.data?.id}` : `/human-resource/add-staff/${data?.data?.id}`)} >
+                                    <img src="/svgs/edit-icon.svg" alt="" />
+                                    <span>Edit Details</span>
+                                </button>
+                            </Can>
                         </div>
 
                         <div className="profile-tabs-wrapper" >

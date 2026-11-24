@@ -32,16 +32,18 @@ export const Can = ({
 
     if (isLoading) return null;
 
-    // Super user always bypasses all checks
-    if (isSuperUser) {
-        return <>{children}</>;
-    }
-
-    // Role check if specified
+    // Role check if specified — superadmin must also satisfy the role check
     if (role || roles?.length) {
         const roleList = [...(role ? [role] : []), ...(roles ?? [])];
-        const roleMatch = roleList.some((r) => hasRole?.(r));
+        const roleMatch = mode === "all"
+            ? roleList.every((r) => hasRole?.(r))
+            : roleList.some((r) => hasRole?.(r));
         if (!roleMatch) return <>{fallback}</>;
+    }
+
+    // Super user always bypasses permission checks
+    if (isSuperUser) {
+        return <>{children}</>;
     }
 
     const required = [...(permission ? [permission] : []), ...(permissions ?? [])];

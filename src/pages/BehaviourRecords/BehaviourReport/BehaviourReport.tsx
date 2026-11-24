@@ -67,7 +67,7 @@ const BehaviourReport: React.FC = () => {
     });
 
 
-    console.log("studentsData: ",studentsData)
+    console.log("studentsData: 0020",studentsData)
 
     const studentOptions = useMemo(() => {
         const list = studentsData?.data || [];
