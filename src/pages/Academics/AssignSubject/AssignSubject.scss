@@ -1,6 +1,11 @@
 // AssignSubject.scss
 
 .assign_subject_page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+
   .subject_badge {
     display: inline-block;
     padding: 2px 8px;

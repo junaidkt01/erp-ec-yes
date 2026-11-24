@@ -1,0 +1,406 @@
+// src/pages/HR/StaffAttendance/StaffAttendance.tsx
+
+import React, { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { PrimaryButton, SecondaryButton } from "../../../components/Buttons/Buttons";
+import { CustomSelect } from "../../../components/InputFields/CustomSelect";
+import { InputField } from "../../../components/InputFields/InputFields";
+import TableWrapper from "../../../components/TableWrapper";
+import DataTable, { type Column } from "../../../components/DataTable/DataTable";
+import AttendanceButton, { type StatusType } from "../../../components/AttendanceButton/AttendanceButton";
+import { useFetchAllRoles } from "../../../hooks/useRoles";
+import { useFetchAllStaff } from "../../../hooks/useStaff";
+import {
+  useAddStaffAttendance,
+  useFetchStaffAttendance,
+  type CreateStaffAttendanceItem,
+} from "../../../hooks/useStaffAttendance";
+import { BASE_URL } from "../../../api/endpoints";
+import "./StaffAttendance.scss";
+
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+const COLUMNS: Column[] = [
+  { key: "staff_code", title: "Staff ID" },
+  { key: "photo", title: "Image" },
+  { key: "name", title: "Staff Name" },
+  { key: "role", title: "Role" },
+];
+
+const getInitialFilter = () => ({
+  role_id: "" as string | number,
+  attendance_date: new Date(),
+});
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+const formatDate = (dateInput: Date | string | undefined): string => {
+  if (!dateInput) return "";
+  const d = new Date(dateInput);
+  if (isNaN(d.getTime())) return String(dateInput);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
+const StaffAttendance: React.FC = () => {
+  const navigate = useNavigate();
+  const [page, setPage] = useState(1);
+  const [tableSearch, setTableSearch] = useState("");
+
+  // Filter state
+  const [filterData, setFilterData] = useState(getInitialFilter);
+  const [filteredData, setFilteredData] = useState(getInitialFilter);
+  const [hasSearched, setHasSearched] = useState(false);
+
+  // Per-row attendance & note states
+  const [selectedStatuses, setSelectedStatuses] = useState<Record<string | number, StatusType>>({});
+  const [notes, setNotes] = useState<Record<string | number, string>>({});
+
+  // Remote data: Roles
+  const { data: roles = [] } = useFetchAllRoles();
+
+  const roleOptions = useMemo(() => {
+    return [
+      { label: "All Roles", value: "" },
+      ...roles.map((r: any) => ({
+        label: r.display_name || r.name,
+        value: r.id,
+      })),
+    ];
+  }, [roles]);
+
+  // Remote data: All Staff (filtered by role if selected)
+  const { data: staffData, isLoading: isStaffLoading } = useFetchAllStaff(
+    1,
+    hasSearched
+      ? {
+          role_id: filteredData.role_id ? Number(filteredData.role_id) : undefined,
+        }
+      : undefined
+  );
+
+  // Remote data: Existing Staff Attendance records for the selected date
+  const {
+    data: attendanceRecords = [],
+    isFetching: isAttendanceFetching,
+    refetch,
+  } = useFetchStaffAttendance(
+    {
+      attendance_date: filteredData.attendance_date,
+      role_id: filteredData.role_id || undefined,
+    },
+    { enabled: hasSearched }
+  );
+
+  const { mutate: addStaffAttendance, isPending: isSubmitting } = useAddStaffAttendance();
+
+  // Combine Staff list with existing attendance records for the chosen date
+  const combinedStaffRows = useMemo(() => {
+    if (!hasSearched) return [];
+
+    const rawStaffList: any[] = Array.isArray(staffData)
+      ? staffData
+      : Array.isArray(staffData?.data)
+      ? staffData.data
+      : [];
+
+    const attendanceMap = new Map<number, any>();
+    attendanceRecords.forEach((att) => {
+      if (att.staff_id) {
+        attendanceMap.set(Number(att.staff_id), att);
+      }
+    });
+
+    return rawStaffList.map((st: any) => {
+      const existing = attendanceMap.get(Number(st.id));
+      const backendStatus = (existing?.status?.toLowerCase() || "") as StatusType | "";
+      const backendNote = existing?.note || "";
+
+      const roleObj = roles.find((r: any) => r.id === st.role_id);
+      const roleName = st.role || roleObj?.display_name || roleObj?.name || "-";
+
+      let photoUrl = "/teacher.png";
+      if (st.photo) {
+        photoUrl = st.photo.startsWith("http")
+          ? st.photo
+          : `${BASE_URL}/public/${st.photo}`;
+      } else if (existing?.photo) {
+        photoUrl = existing.photo.startsWith("http")
+          ? existing.photo
+          : `${BASE_URL}/public/${existing.photo}`;
+      }
+
+      return {
+        id: st.id,
+        staff_id: st.id,
+        staff_code: st.staff_code || st.staff_no || `Staff #${st.id}`,
+        name: st.full_name || st.name || "-",
+        role: roleName,
+        photo: photoUrl,
+        status: backendStatus,
+        note: backendNote,
+        attendance_id: existing?.id,
+        raw: st,
+      };
+    });
+  }, [hasSearched, staffData, attendanceRecords, roles]);
+
+  // Client-side search within table
+  const filteredTableRows = useMemo(() => {
+    const q = tableSearch.trim().toLowerCase();
+    if (!q) return combinedStaffRows;
+    return combinedStaffRows.filter(
+      (r) =>
+        r.name.toLowerCase().includes(q) ||
+        r.staff_code.toLowerCase().includes(q) ||
+        r.role.toLowerCase().includes(q)
+    );
+  }, [combinedStaffRows, tableSearch]);
+
+  const ITEMS_PER_PAGE = 10;
+  const totalPages = Math.max(1, Math.ceil(filteredTableRows.length / ITEMS_PER_PAGE));
+  const paginatedRows = useMemo(() => {
+    const start = (page - 1) * ITEMS_PER_PAGE;
+    return filteredTableRows.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredTableRows, page]);
+
+  // Filter handlers
+  const handleSearch = () => {
+    setSelectedStatuses({});
+    setNotes({});
+    setPage(1);
+
+    const isSame =
+      hasSearched &&
+      String(filterData.role_id) === String(filteredData.role_id) &&
+      formatDate(filterData.attendance_date) === formatDate(filteredData.attendance_date);
+
+    if (isSame) {
+      refetch();
+    } else {
+      setFilteredData({ ...filterData });
+      setHasSearched(true);
+    }
+  };
+
+  const handleResetFilterData = () => {
+    const initial = getInitialFilter();
+    setFilterData(initial);
+    setFilteredData(initial);
+    setSelectedStatuses({});
+    setNotes({});
+    setHasSearched(false);
+    setPage(1);
+    setTableSearch("");
+  };
+
+  // Submit attendance handler
+  const handleSubmitAttendance = () => {
+    if (!combinedStaffRows || combinedStaffRows.length === 0) {
+      toast.warning("No staff attendance data to submit. Please search first.");
+      return;
+    }
+
+    const formattedDate = formatDate(filteredData.attendance_date);
+
+    const payload: CreateStaffAttendanceItem[] = combinedStaffRows.map((row) => {
+      const rowKey = row.staff_id;
+      const backendStatus = (row.status?.toLowerCase() || "") as StatusType | "";
+      const status = selectedStatuses[rowKey] ?? (backendStatus || "present");
+      const note = notes[rowKey] ?? row.note ?? "";
+
+      return {
+        staff_id: Number(row.staff_id),
+        date: formattedDate,
+        status,
+        note,
+      };
+    });
+
+    addStaffAttendance(payload, {
+      onSuccess: () => {
+        toast.success("Staff attendance submitted successfully");
+        navigate(-1);
+      },
+      onError: (err: any) => {
+        toast.error(
+          err?.response?.data?.message ||
+            err?.message ||
+            "Failed to submit staff attendance. Please try again."
+        );
+      },
+    });
+  };
+
+  const isFetching = isStaffLoading || isAttendanceFetching;
+
+  return (
+    <div className="page_wrapper">
+      <div className="staff_attendance">
+        {/* Filter Panel */}
+        <TableWrapper title="Staff Attendance">
+          <div className="search_screen">
+            <p className="search_screen_title">Select Criteria</p>
+            <div className="popup_body">
+              <div className="fields_wrapper">
+                <div className="body_section">
+                  <CustomSelect
+                    value={filterData.role_id}
+                    label="Role"
+                    placeholder="Select role"
+                    options={roleOptions}
+                    onChange={(value) =>
+                      setFilterData((prev) => ({
+                        ...prev,
+                        role_id: value,
+                      }))
+                    }
+                  />
+                  <InputField
+                    name="attendance_date"
+                    type="date"
+                    label="Attendance Date"
+                    value={filterData.attendance_date}
+                    placeHolder="Select date"
+                    onChange={(value) =>
+                      setFilterData((prev) => ({
+                        ...prev,
+                        attendance_date: value as any,
+                      }))
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="buttons">
+                <SecondaryButton title="Reset" onClick={handleResetFilterData} />
+                <PrimaryButton
+                  title="Search"
+                  isLoading={isFetching}
+                  onClick={handleSearch}
+                />
+              </div>
+            </div>
+          </div>
+        </TableWrapper>
+
+        {/* Attendance Table */}
+        <TableWrapper
+          isSearchBar
+          title="Staff Attendance List"
+          searchValue={tableSearch}
+          searchOnchange={(val) => {
+            setTableSearch(val);
+            setPage(1);
+          }}
+        >
+          <DataTable
+            columns={COLUMNS}
+            data={paginatedRows}
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={(p) => setPage(p)}
+            emptyMessage={
+              !hasSearched
+                ? "Select criteria and click Search to view staff."
+                : "No staff found for the selected criteria."
+            }
+            attendance={(row) => {
+              const rowKey = row.staff_id;
+              const backendStatus = (row.status?.toLowerCase() || "") as
+                | StatusType
+                | "";
+              const activeStatus: StatusType | undefined =
+                selectedStatuses[rowKey] ?? (backendStatus || undefined);
+
+              const handleStatusClick = (status: StatusType) => () =>
+                setSelectedStatuses((prev) => ({
+                  ...prev,
+                  [rowKey]: status,
+                }));
+
+              return (
+                <div className="attendance_buttons">
+                  <AttendanceButton
+                    status="present"
+                    title="Present"
+                    active={activeStatus === "present"}
+                    onClick={handleStatusClick("present")}
+                  />
+                  <AttendanceButton
+                    status="late"
+                    title="Late"
+                    active={activeStatus === "late"}
+                    onClick={handleStatusClick("late")}
+                  />
+                  <AttendanceButton
+                    status="absent"
+                    title="Absent"
+                    active={activeStatus === "absent"}
+                    onClick={handleStatusClick("absent")}
+                  />
+                  <AttendanceButton
+                    status="half-day"
+                    title="Half Day"
+                    active={activeStatus === "half-day"}
+                    onClick={handleStatusClick("half-day")}
+                  />
+                  <AttendanceButton
+                    status="leave"
+                    title="Leave"
+                    shortTitle="Le"
+                    active={activeStatus === "leave"}
+                    onClick={handleStatusClick("leave")}
+                  />
+                </div>
+              );
+            }}
+            note={(row) => {
+              const rowKey = row.staff_id;
+              return (
+                <div style={{ width: "350px" }}>
+                  <InputField
+                    value={notes[rowKey] ?? row.note ?? ""}
+                    type="text"
+                    placeHolder="Enter note"
+                    onChange={(val) => {
+                      const text =
+                        typeof val === "object" && val?.target
+                          ? val.target.value
+                          : val;
+                      setNotes((prev) => ({
+                        ...prev,
+                        [rowKey]: text as string,
+                      }));
+                    }}
+                  />
+                </div>
+              );
+            }}
+          />
+
+          {hasSearched && combinedStaffRows.length > 0 && (
+            <div className="submit_attendance_button">
+              <PrimaryButton
+                onClick={handleSubmitAttendance}
+                disabled={isSubmitting}
+                isLoading={isSubmitting}
+                title={isSubmitting ? "Submitting..." : "Submit Attendance"}
+              />
+            </div>
+          )}
+        </TableWrapper>
+      </div>
+    </div>
+  );
+};
+
+export default StaffAttendance;

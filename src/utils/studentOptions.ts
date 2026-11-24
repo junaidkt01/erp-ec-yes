@@ -74,8 +74,8 @@ export const HOSTEL_ROOM_OPTIONS: SelectOption[] = [
 ];
 
 export const STAFF_CATEGORY_OPTIONS: SelectOption[] = [
-  { label: "Teacher", value: "teacher", id: "teacher" },
-  { label: "Non Teacher", value: "non-teacher", id: "non-teacher" },
+  { label: "Teaching", value: "teaching", id: "teaching" },
+  { label: "Non Teaching", value: "non-teaching", id: "non-teaching" },
   // { label: "Parent", value: "Parent", id: "Parent" },
   // { label: "Others", value: "Others", id: "Others" },
 ];

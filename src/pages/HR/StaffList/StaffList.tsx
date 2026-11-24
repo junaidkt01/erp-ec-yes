@@ -7,6 +7,7 @@ import DataTable, { type Column } from "../../../components/DataTable/DataTable"
 import { useNavigate } from "react-router-dom"
 import LoadingOverlay from "../../../components/Loadingoverlay"
 import { useBlockStaff, useFetchAllStaff, useRemoveStaff } from "../../../hooks/useStaff"
+import { useFetchAllRoles } from "../../../hooks/useRoles"
 import { useDebounce } from "../../../hooks/useDebounce"
 import { toast } from "sonner"
 import { BASE_URL } from "../../../api/endpoints"
@@ -21,6 +22,7 @@ const StaffList = () => {
     const { data: sampleData, isLoading } = useFetchAllStaff(page, {
         search: debouncedSearch,
     });
+    const { data: roles = [] } = useFetchAllRoles();
 
     const columns: Column[] = [
         { key: "sl", title: "SL" },
@@ -45,9 +47,9 @@ const StaffList = () => {
             sl: index + 1,
             photo: staffItem.photo ? `${BASE_URL}/public/${staffItem.photo}` : "/teacher.png",
             staff_code: staffItem.staff_code || staffItem.staff_no || "",
-            name: staffItem.full_name || `${staffItem.first_name || ""} ${staffItem.last_name || ""}`.trim() || staffItem.name || "",
+            name: staffItem.full_name || `${staffItem.full_name || ""}`.trim() || staffItem.name || "",
             category: staffItem.category || "-",
-            role: staffItem.role || "-",
+            role: staffItem.role || roles.find((r) => r.id === staffItem.role_id)?.display_name || roles.find((r) => r.id === staffItem.role_id)?.name || "-",
             designation: staffItem.designation || "-",
             phone: staffItem.phone || "-",
             gender: staffItem.gender || "-",
@@ -163,8 +165,8 @@ const StaffList = () => {
                             <div className="actions" >
                                 <Can permission="view_staff" ><button className="hvr_zm_out" onClick={() => navigate(`/human-resource/profile/${row?.full_data?.id}`)} ><img src="/svgs/eye_open.svg" alt="" /></button></Can>
                                 <Can permission="edit_staff" ><button className="hvr_zm_out" onClick={() => navigate(`/human-resource/add-staff/${row?.full_data?.id}`)} ><img src="/svgs/edit.svg" alt="" /></button></Can>
-                                <Can permission="delete_staff" ><button className="hvr_zm_out" onClick={() => handleDeleteStaff(row?.full_data?.id, `${row?.full_data?.first_name || ""} ${row?.full_data?.last_name || ""}`.trim() || row?.full_data?.name || "Staff")} ><img src="/svgs/delete.svg" alt="" /></button></Can>
-                                <Can permission="disable_staff" ><button className="hvr_zm_out" onClick={() => handleBlockStaff(row?.full_data?.id, `${row?.full_data?.first_name || ""} ${row?.full_data?.last_name || ""}`.trim() || row?.full_data?.name || "Staff", row?.full_data?.disable_reason)} >{row?.full_data?.is_disabled ? <img src="/svgs/enable.svg" alt="" /> : <img src="/svgs/block.svg" alt="" />}</button></Can>
+                                <Can permission="delete_staff" ><button className="hvr_zm_out" onClick={() => handleDeleteStaff(row?.full_data?.id, `${row?.full_data?.full_name || ""}`.trim() || row?.full_data?.name || "Staff")} ><img src="/svgs/delete.svg" alt="" /></button></Can>
+                                <Can permission="disable_staff" ><button className="hvr_zm_out" onClick={() => handleBlockStaff(row?.full_data?.id, `${row?.full_data?.full_name || ""}`.trim() || row?.full_data?.name || "Staff", row?.full_data?.disable_reason)} >{row?.full_data?.is_disabled ? <img src="/svgs/enable.svg" alt="" /> : <img src="/svgs/block.svg" alt="" />}</button></Can>
                             </div>
                         )}
                     />

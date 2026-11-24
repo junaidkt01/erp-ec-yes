@@ -88,7 +88,8 @@ export const sharedContent = { shared_Contents: "/shared-Contents" };
 export const staff = { staffs: "/staff", bulk: "/bulk" };
 
 export const staffAttendance = {
-  staff_attendances: "/staff-attendance",
+  staff_attendances: "/staff-attendances",
+  monthly_report: "/staff-attendances/monthly-report",
 };
 
 export const staffDepartment = {

@@ -54,6 +54,7 @@ import { Toaster } from 'sonner'
 import { OfflineGate } from './components/PWA/OfflineGate'
 import AddStaff from './pages/HR/AddStaff/AddStaff'
 import StaffList from './pages/HR/StaffList/StaffList'
+import StaffAttendance from './pages/HR/StaffAttendance/StaffAttendance'
 import FeesGroup from './pages/Fees/FeesGroup/FeesGroup'
 import { ErrorStatusOverlay } from './components/Loadingoverlay'
 import { useOverlayStore } from './stores/loadingOverlay'
@@ -76,6 +77,7 @@ import UsersAndAccess from './pages/UsersAndAccess/UsersAndAccess'
 import FeesInvoice from './pages/Fees/FeesInvoice/FeesInvoice'
 import FeesType from './pages/Fees/FeesType/FeesType'
 import StudentsAttendanceReport from './pages/StudentsReport/StudentsAttendanceReport/StudentsAttendanceReport'
+import StaffAttendanceReport from './pages/StaffReport/StaffAttendanceReport/StaffAttendanceReport'
 import AcademicYear from './pages/SettingsSection/AcademicYear/AcademicYear'
 import UserProfile from './pages/UserProfile/UserProfile'
 
@@ -203,6 +205,7 @@ function App() {
                   <Route path='/human-resource/add-staff/:staff_id' element={<AddStaff />} />
                   <Route path='/human-resource/staff-list' element={<StaffList />} />
                   <Route path='/human-resource/profile/:staff_id' element={<StaffProfilePage />} />
+                  <Route path='/human-resource/staff-attendance' element={<StaffAttendance />} />
 
 
                   {/* 7. Behaviour Records */}
@@ -235,6 +238,9 @@ function App() {
 
                   {/* 13. Students Report */}
                   <Route path='/students-report/students-attendance-report' element={<StudentsAttendanceReport />} />
+
+                  {/* 14. Staff Report */}
+                  <Route path='/staff-report/staff-attendance-report' element={<StaffAttendanceReport />} />
 
                 </Route>
 

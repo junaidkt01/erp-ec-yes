@@ -5,30 +5,29 @@ import Profile from "../../Profile/Profile"
 import { useState } from "react";
 import LoadingOverlay from "../../../components/Loadingoverlay";
 import { useFetchOneStaff } from "../../../hooks/useStaff";
+// import { useFetchAllRoles } from "../../../hooks/useRoles";
 
 const StaffProfilePage = () => {
     const { staff_id } = useParams();
     const { data: staff, isLoading: staffLoading } = useFetchOneStaff(staff_id || "")
+    // const { data: roles = [] } = useFetchAllRoles();
     console.log("staff: 1", staff, staff_id);
 
+    // const roleName = staff?.data?.role || roles.find((r) => r.id === staff?.data?.role_id)?.display_name || roles.find((r) => r.id === staff?.data?.role_id)?.name || "N/A";
 
     const details = [
-        { label: "Staff ID", value: staff?.data?.id || "N/A" },
-        { label: "Name", value: `${staff?.data?.class?.first_name || "N/A"} ${staff?.data?.section?.second_name || "N/A"}` },
-        { label: "Roll", value: staff?.data?.name || "N/A" },
-        { label: "Basic Salary", value: staff?.data?.basic_salary || "N/A" },
+        { label: "Staff ID", value: staff?.data?.staff_code || "N/A" },
+        // { label: "Name", value: `${staff?.data?.class?.first_name || "N/A"} ${staff?.data?.section?.second_name || "N/A"}` },
+        { label: "Role", value: staff?.data?.role || "N/A" },
+        // { label: "Basic Salary", value: staff?.data?.basic_salary || "N/A" },
         { label: "Designation", value: staff?.data?.designation || "N/A" },
     ];
 
     const tabs = [
         "Profile",
-        "Leave",
-        "Exam",
-        "Document",
-        "Record",
-        "Timeline",
-        "Student Attendance",
-        "Subject Attendance",
+        // "Edit Profile",
+        "Change Password",
+        // "Next Perieds",
     ];
 
     const dobValue = staff?.data?.dob || staff?.data?.date_of_birth;
@@ -70,6 +69,8 @@ const StaffProfilePage = () => {
         { label: "Date Of Birth", value: formatDateSafe(dobValue) },
         { label: "Age", value: calculateAge(dobValue) },
         { label: "Category", value: staff?.data?.category || "N/A" },
+        { label: "Basic Salary", value: staff?.data?.basic_salary || "N/A" },
+        // { label: "Role", value: staff?.data?.role },
         { label: "Religion", value: staff?.data?.religion || "N/A" },
         { label: "Phone Number", value: staff?.data?.phone || "N/A" },
         { label: "Email Address", value: staff?.data?.email || "N/A" },

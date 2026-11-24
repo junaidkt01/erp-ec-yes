@@ -13,8 +13,8 @@ export interface Staff {
   user_id: number | null;
 
   name: string | null;
-  first_name: string | null;
-  last_name: string | null;
+  full_name: string | null;
+  // last_name: string | null;
 
   staff_code: string | null;
   category: string | null;
@@ -26,6 +26,7 @@ export interface Staff {
   department_id: number | null;
 
   role: string | null;
+  role_id: number | null;
   staff_no: string | null;
 
   date_of_joining: string | null;
@@ -52,6 +53,7 @@ export interface Staff {
 export interface StaffFilters {
   search?: string;
   role?: string;
+  role_id?: number | string | null;
   category?: string;
   department_id?: number | string;
 }
@@ -100,6 +102,8 @@ export const useFetchOneStaff = (id?: string | number) => {
 
 // Add Staff api
 export interface CreateStaffPayload {
+  role_id?: number | null;
+  role?: string | null;
   [key: string]: any;
 }
 
@@ -125,6 +129,8 @@ export const useAddStaff = () => {
 
 // Update Staff api
 export interface UpdateStaffPayload {
+  role_id?: number | null;
+  role?: string | null;
   [key: string]: any;
 }
 
@@ -226,8 +232,8 @@ export const useBlockStaff = () => {
 // Bulk Staff Upload API
 export interface BulkStaffItem {
   staff_code?: string;
-  first_name: string;
-  last_name?: string;
+  full_name: string;
+  // last_name?: string;
   email?: string;
   phone?: string;
   role?: string;

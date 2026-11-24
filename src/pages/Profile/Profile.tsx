@@ -6,7 +6,7 @@ import StudentAttendanceReport from "./components/StudentAttendanceReport/Studen
 
 const Profile = ({ type, data, details, tabs, profileDetails, activeTab, setActiveTab }: any) => {
     const navigate = useNavigate();
-    console.log("data: 001", data)
+    console.log("data: 001", data);
 
     const getPhotoUrl = (photoPath?: string) => {
         if (!photoPath) return "/user-square.svg";
@@ -123,8 +123,8 @@ const Profile = ({ type, data, details, tabs, profileDetails, activeTab, setActi
 
                     {type !== "admin" && <div className="profile-details-body profile-details-section">
                         <div className="profile-info-head" >
-                            <p>Student Info</p>
-                            <button onClick={() => navigate(`/student-info/add-student/${data?.data?.id}`)} >
+                            <p>{type === "student" ? "Student Info" : "Staff Info"}</p>
+                            <button onClick={() => navigate(type === "student" ? `/student-info/add-student/${data?.data?.id}` : `/human-resource/add-staff/${data?.data?.id}`)} >
                                 <img src="/svgs/edit-icon.svg" alt="" />
                                 <span>Edit Details</span>
                             </button>
@@ -223,7 +223,7 @@ const Profile = ({ type, data, details, tabs, profileDetails, activeTab, setActi
 
                                 {activeTab === "Parents" && (() => {
                                     const p = data?.data?.parents || data?.parents || {};
-                                    console.log("p: ",p)
+                                    console.log("p: ", p)
                                     return (
                                         <div className="details-list">
                                             <div className="detail-row">

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { PrimaryButton, SecondaryButton } from "../../../components/Buttons/Buttons"
 import { InputField } from "../../../components/InputFields/InputFields"
 import PopupScreen from "../../../components/PopupScreen/PopupScreen"
@@ -25,6 +25,22 @@ const AddStaff = () => {
     const { data: staff, isLoading: staffLoading } = useFetchOneStaff(staff_id || "")
     const { options: roleOptions } = useRoleOptions();
 
+    const filteredRoleOptions = useMemo(() => {
+        return roleOptions
+            .filter((item) => {
+                const val = String(item.value || "").toLowerCase();
+                return val !== "parent" && val !== "student" && val !== "super-admin";
+            })
+            .map((item) => ({
+                label: item.label,
+                value: item.id,
+                name: item.value,
+                id: item.id,
+            }));
+    }, [roleOptions]);
+
+    console.log("staff: 123",staff)
+
     const [selectedInputTitleTab, setSelectedInputTitleTab] = useState(addStaffsTabs[0]);
     const [readyToSubmit, setReadyToSubmit] = useState(false);
     const [errors, setErrors] = useState<any>({});
@@ -46,11 +62,12 @@ const AddStaff = () => {
         category: "",
         email: "",
         role: "",
+        role_id: null as number | null,
         staff_no: "",
         phone: "",
         designation: "",
-        first_name: "",
-        last_name: "",
+        full_name: "",
+        // last_name: "",
         father_name: "",
         mother_name: "",
         gender: "",
@@ -122,17 +139,27 @@ const AddStaff = () => {
         setPhotoPreview(data.photo ? `${BASE_URL}/public/${data.photo}` : null);
         setPhotoRemoved(false);
 
+        const rawRoleId = data.role_id !== undefined && data.role_id !== null && data.role_id !== "" ? Number(data.role_id) : null;
+        const matchedRole = roleOptions.find((r) =>
+            (rawRoleId !== null && r.id === rawRoleId) ||
+            (data.role && (r.value === data.role || r.raw?.name === data.role || r.label === data.role))
+        );
+
+        const finalRoleId = rawRoleId ?? (matchedRole?.id ? Number(matchedRole.id) : null);
+        const finalRoleName = String(data.role || matchedRole?.raw?.name || matchedRole?.value || "");
+
         setFormData((prev) => ({
             ...prev,
             staff_code: String(data.staff_code || ""),
             category: String(data.category || ""),
             email: String(data.email || ""),
-            role: String(data.role || ""),
+            role: finalRoleName,
+            role_id: finalRoleId,
             staff_no: String(data.staff_no || ""),
             phone: String(data.phone || ""),
             designation: String(data.designation || ""),
-            first_name: String(data.first_name || ""),
-            last_name: String(data.last_name || ""),
+            full_name: String(data.full_name || ""),
+            // last_name: String(data.last_name || ""),
             father_name: String(data.father_name || ""),
             mother_name: String(data.mother_name || ""),
             gender: String(data.gender || ""),
@@ -159,7 +186,22 @@ const AddStaff = () => {
             contract_type: String(data.contract_type || ""),
             location: String(data.location || ""),
         }));
-    }, [staff, staff_id]);
+    }, [staff, staff_id, roleOptions]);
+
+    useEffect(() => {
+        if (!roleOptions || roleOptions.length === 0) return;
+        if (formData.role_id !== null && formData.role_id !== undefined && !formData.role) {
+            const matched = roleOptions.find((r) => r.id === Number(formData.role_id));
+            if (matched) {
+                setFormData((prev) => ({ ...prev, role: String(matched.raw?.name || matched.value || matched.label) }));
+            }
+        } else if ((formData.role_id === null || formData.role_id === undefined) && formData.role) {
+            const matched = roleOptions.find((r) => r.value === formData.role || r.raw?.name === formData.role || r.label === formData.role);
+            if (matched?.id) {
+                setFormData((prev) => ({ ...prev, role_id: Number(matched.id) }));
+            }
+        }
+    }, [formData.role, formData.role_id, roleOptions]);
 
     const handleChange = (value: any, name?: string) => {
         setErrors((prev: any) => ({ ...prev, [name || value?.target?.name]: undefined }));
@@ -218,11 +260,17 @@ const AddStaff = () => {
         payload.append("category", formData?.category);
         payload.append("email", formData?.email);
         payload.append("role", formData?.role);
+
+        const roleIdToSubmit = formData?.role_id ?? roleOptions.find((r) => r.value === formData?.role || r.raw?.name === formData?.role || r.label === formData?.role)?.id;
+        if (roleIdToSubmit !== null && roleIdToSubmit !== undefined) {
+            payload.append("role_id", String(roleIdToSubmit));
+        }
+
         payload.append("staff_no", String(formData?.staff_no));
         payload.append("phone", formData?.phone);
         payload.append("designation", String(formData?.designation));
-        payload.append("first_name", formData?.first_name);
-        payload.append("last_name", formData?.last_name);
+        payload.append("full_name", formData?.full_name);
+        // payload.append("last_name", formData?.last_name);
         payload.append("father_name", formData?.father_name);
         payload.append("mother_name", formData?.mother_name);
         payload.append("gender", formData?.gender);
@@ -368,23 +416,23 @@ const AddStaff = () => {
                                     <div className="student_content_to_submit">
                                         <div>
                                             <p className="title" >Role</p>
-                                            <p className="value" >{formData?.role || "N/A"}</p>
+                                            <p className="value" >{formData?.role || filteredRoleOptions.find((item) => item.id === formData?.role_id)?.label || "N/A"}</p>
                                         </div>
                                         <div>
                                             <p className="title" >Designation</p>
                                             <p className="value" >{formData?.designation || "N/A"}</p>
                                         </div>
                                         <div>
-                                            <p className="title" >First Name</p>
-                                            <p className="value" >{formData?.first_name || "N/A"}</p>
+                                            <p className="title" >Full Name</p>
+                                            <p className="value" >{formData?.full_name || "N/A"}</p>
                                         </div>
                                     </div>
-                                    <div className="student_content_to_submit">
+                                    {/* <div className="student_content_to_submit">
                                         <div>
                                             <p className="title" >Last Name</p>
                                             <p className="value" >{formData?.last_name || "N/A"}</p>
                                         </div>
-                                    </div>
+                                    </div> */}
                                 </div>
                             </div>
 
@@ -440,12 +488,25 @@ const AddStaff = () => {
                                         <CustomSelect value={formData?.category} label="Category" placeholder="Select category" options={STAFF_CATEGORY_OPTIONS} onChange={(val) => setFormData((prev: any) => ({ ...prev, category: val }))} />
                                     </div>
                                     <div className="body_section" >
-                                        <CustomSelect value={formData?.role} label="Role" placeholder="Select role" options={roleOptions.filter((item) => item.value !== "parent" && item.value !== "student" && item.value !== "super-admin")} onChange={(val) => setFormData((prev: any) => ({ ...prev, role: val }))} />
+                                        <CustomSelect
+                                            value={formData?.role_id ?? (filteredRoleOptions.find((item) => item.name === formData?.role || item.label === formData?.role)?.value ?? "")}
+                                            label="Role"
+                                            placeholder="Select role"
+                                            options={filteredRoleOptions}
+                                            onChange={(val) => {
+                                                const selected = filteredRoleOptions.find((item) => item.value == val || item.id == val);
+                                                setFormData((prev: any) => ({
+                                                    ...prev,
+                                                    role_id: selected ? Number(selected.id) : (val ? Number(val) : null),
+                                                    role: selected ? String(selected.name) : "",
+                                                }));
+                                            }}
+                                        />
                                         <InputField type="text" label="Designation" placeHolder="Enter designation" name="designation" value={formData?.designation} onChange={handleChange} />
-                                        <InputField error={errors.first_name} name="first_name" value={formData?.first_name} onChange={handleChange} type="text" label="First Name" placeHolder="Enter first name" />
+                                        <InputField error={errors.full_name} name="full_name" value={formData?.full_name} onChange={handleChange} type="text" label="Full Name" placeHolder="Enter full name" />
                                     </div>
                                     <div className="body_section" >
-                                        <InputField name="last_name" value={formData?.last_name} onChange={handleChange} type="text" label="Last Name" placeHolder="Enter last name" />
+                                        {/* <InputField name="last_name" value={formData?.last_name} onChange={handleChange} type="text" label="Last Name" placeHolder="Enter last name" /> */}
                                         <InputField name="father_name" value={formData?.father_name} onChange={handleChange} type="text" label="Father Name" placeHolder="Enter father name" />
                                         <InputField name="mother_name" value={formData?.mother_name} onChange={handleChange} type="text" label="Mother Name" placeHolder="Enter mother name" />
                                     </div>

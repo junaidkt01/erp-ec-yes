@@ -134,14 +134,40 @@ export function flattenClassSubjectResponse(rawData: any[]): ClassSubjectRow[] {
   return rows;
 }
 
+export interface ClassSubjectFilterParams {
+  class_id?: number | string;
+  section_id?: number | string;
+  subject_id?: number | string;
+  teacher_id?: number | string;
+  academic_year_id?: number | string;
+  page?: number;
+  search?: string;
+}
+
 // Fetch All ClassSubjects
-export const useFetchAllClassSubjects = (page?: number, search?: string) => {
+export const useFetchAllClassSubjects = (
+  filtersOrPage?: ClassSubjectFilterParams | number,
+  searchArg?: string
+) => {
+  const isObject = typeof filtersOrPage === "object" && filtersOrPage !== null;
+  const filterParams: ClassSubjectFilterParams = isObject
+    ? (filtersOrPage as ClassSubjectFilterParams)
+    : {
+        page: typeof filtersOrPage === "number" ? filtersOrPage : undefined,
+        search: searchArg,
+      };
+
   return useQuery<ClassSubjectRow[]>({
-    queryKey: [...CLASS_SUBJECTS_KEY, page, search],
+    queryKey: [...CLASS_SUBJECTS_KEY, filterParams],
     queryFn: async () => {
-      const params: any = {};
-      if (page) params.page = page;
-      if (search) params.search = search;
+      const params: Record<string, any> = {};
+      if (filterParams.page) params.page = filterParams.page;
+      if (filterParams.search) params.search = filterParams.search;
+      if (filterParams.class_id) params.class_id = Number(filterParams.class_id);
+      if (filterParams.section_id) params.section_id = Number(filterParams.section_id);
+      if (filterParams.subject_id) params.subject_id = Number(filterParams.subject_id);
+      if (filterParams.teacher_id) params.teacher_id = Number(filterParams.teacher_id);
+      if (filterParams.academic_year_id) params.academic_year_id = Number(filterParams.academic_year_id);
 
       const res = await axiosInstance.get(
         `${classSubject.class_subjects || classSubject.class_subject}`,
@@ -166,6 +192,42 @@ export const useAssignClassSubject = () => {
         payload
       );
       return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: CLASS_SUBJECTS_KEY,
+      });
+    },
+  });
+};
+
+export interface UpdateClassSubjectPayload {
+  id: number | string;
+  class_id?: number;
+  section_id?: number | null;
+  subject_id?: number;
+  teacher_id?: number;
+  academic_year_id?: number | null;
+}
+
+// Update existing ClassSubject (PUT /api/class-subjects/{id})
+export const useUpdateClassSubject = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: UpdateClassSubjectPayload) => {
+      const { id, ...data } = payload;
+      const endpoint = `${classSubject.class_subjects || classSubject.class_subject}/${id}`;
+      try {
+        const res = await axiosInstance.put(endpoint, data);
+        return res.data;
+      } catch (err: any) {
+        if (err?.response?.status === 405) {
+          const res = await axiosInstance.post(endpoint, data);
+          return res.data;
+        }
+        throw err;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({

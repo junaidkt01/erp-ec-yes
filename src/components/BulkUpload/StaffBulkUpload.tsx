@@ -6,6 +6,7 @@ import DataTable, { type Column } from "../DataTable/DataTable";
 import InputCheckbox from "../InputCheckbox/InputCheckbox";
 import { toast } from "sonner";
 import { useBulkAddStaff } from "../../hooks/useStaff";
+import { useFetchAllRoles } from "../../hooks/useRoles";
 import { formatOptionInstruction, GENDER_OPTIONS, STAFF_CATEGORY_OPTIONS } from "../../utils/studentOptions";
 import { useTranslation } from "../../i18n/LanguageContext";
 
@@ -121,6 +122,7 @@ const StaffBulkUpload = ({ onClick }: { onClick: () => void }) => {
     const [selectedRows, setSelectedRows] = useState<number[]>([]);
 
     const { mutate: bulkAddStaff, isPending } = useBulkAddStaff();
+    const { data: roles = [] } = useFetchAllRoles();
 
     const handleDownloadSampleExcel = async () => {
         const sampleRow: Record<string, string> = {
@@ -298,6 +300,12 @@ const StaffBulkUpload = ({ onClick }: { onClick: () => void }) => {
         const mapped = rawData.map((row, i) => {
             const get = (f: string) => row[mapping[f]?.column];
 
+            const roleStr = get("role") || "Teacher";
+            const matchedRole = roles.find((r) =>
+                r.name?.toLowerCase() === String(roleStr).toLowerCase() ||
+                r.display_name?.toLowerCase() === String(roleStr).toLowerCase()
+            );
+
             return {
                 _index: i,
                 _isDuplicate: false,
@@ -305,7 +313,8 @@ const StaffBulkUpload = ({ onClick }: { onClick: () => void }) => {
                 staff_code: String(get("staff_code") ?? `STF${i + 1}`),
                 full_name: get("full_name") || `Staff`,
                 category: get("category") || "Teacher",
-                role: get("role") || "Teacher",
+                role: roleStr,
+                role_id: matchedRole ? matchedRole.id : null,
                 designation: get("designation") || "",
                 email: String(get("email") ?? ""),
                 phone: String(get("phone") ?? ""),
