@@ -240,4 +240,53 @@
             }
         }
     }
+
+    // ==========================
+    // EVENT DETAILS VIEW (Design Hierarchy from Calendar Event Popup)
+    // ==========================
+    .event_details_view {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 24px 20px;
+        padding: 8px 0;
+
+        .detail_item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+
+            .label {
+                font-size: 15px;
+                font-weight: 600;
+                color: #8b8fa3;
+                line-height: 1.2;
+            }
+
+            .value {
+                font-size: 14px;
+                font-weight: 400;
+                color: #212121;
+                line-height: 1.5;
+                word-break: break-word;
+
+                a {
+                    color: #605dec;
+                    text-decoration: underline;
+                }
+            }
+
+            &.full_width {
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        @media (max-width: 480px) {
+            grid-template-columns: 1fr;
+        }
+    }
 }

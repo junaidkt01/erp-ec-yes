@@ -81,6 +81,9 @@ import StudentsAttendanceReport from './pages/StudentsReport/StudentsAttendanceR
 import StaffAttendanceReport from './pages/StaffReport/StaffAttendanceReport/StaffAttendanceReport'
 import AcademicYear from './pages/SettingsSection/AcademicYear/AcademicYear'
 import UserProfile from './pages/UserProfile/UserProfile'
+import TeacherClasses from './pages/Teacher/TeacherClasses/TeacherClasses'
+import TeacherSubjects from './pages/Teacher/TeacherSubjects/TeacherSubjects'
+import TeacherPeriods from './pages/Teacher/TeacherPeriods/TeacherPeriods'
 
 // import Snowfall from './components/Snowfall'
 
@@ -256,6 +259,11 @@ function App() {
 
                   {/* 14. Staff Report */}
                   <Route path='/staff-report/staff-attendance-report' element={<StaffAttendanceReport />} />
+
+                  {/* 15. Teacher Views */}
+                  <Route path='/teacher/classes' element={<TeacherClasses />} />
+                  <Route path='/teacher/subjects' element={<TeacherSubjects />} />
+                  <Route path='/teacher/next-periods' element={<TeacherPeriods />} />
 
                 </Route>
 

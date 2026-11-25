@@ -349,22 +349,13 @@ const ProfileMenu = () => {
                 </div>
                 <div onClick={() => {
                     navigate(`/profile-page/user/${data?.user?.id}`)
-                    // if (data?.user.roles[0].name === "admin") {
-                    //     navigate(`/admin-info/profile/${data?.user?.id}`)
-                    // } else if (data?.user.roles[0].name === "parent") {
-                    //     navigate(`/parent-info/profile/${data?.user?.id}`)
-                    // } else if (data?.user.roles[0].name === "teacher") {
-                    //     navigate(`/human-resource/profile/${data?.user?.id}`)
-                    // } else if (data?.user.roles[0].name === "student") {
-                    //     navigate(`/student-info/profile/${data?.user?.id}`)
-                    // }
                 }} style={{ cursor: "pointer" }}>
                     <p className="email">{data?.user?.name}</p>
                     <span className="role">{data?.user?.roles[0]?.name}</span>
                 </div>
-                <span className="settings">
+                {/* <span className="settings">
                     <img src="/header_icons/profile_settings.svg" alt="profile settings" />
-                </span>
+                </span> */}
             </div>
 
             {/* Menu */}
