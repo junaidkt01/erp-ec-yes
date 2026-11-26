@@ -206,5 +206,11 @@ export const dormitory = {
   roomTypes: "/room-types",
 };
 
+export const library = {
+  books: "/books",
+  bookCategories: "/book-categories",
+  bookDetail: (id: number | string) => `/books/${id}`,
+};
+
 
 

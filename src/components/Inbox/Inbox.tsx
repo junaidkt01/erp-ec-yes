@@ -1,5 +1,11 @@
-import React, { useState, useRef, useEffect } from "react";
-import { X, Check, User } from "lucide-react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { X, Check, User, Trash2, ArrowRight, RotateCw } from "lucide-react";
+import {
+  useFetchAllMessages,
+  useDeleteMessage,
+} from "../../hooks/useMessages";
 import "./Inbox.scss";
 
 export interface InboxItem {
@@ -10,6 +16,7 @@ export interface InboxItem {
   time: string;
   isUnread?: boolean;
   avatar?: string | null;
+  raw?: any;
 }
 
 export interface InboxProps {
@@ -21,95 +28,55 @@ export interface InboxProps {
   isStandalone?: boolean;
 }
 
-const DEFAULT_INBOX_ITEMS: InboxItem[] = [
-  {
-    id: 1,
-    sender: "Rohith Sharma",
-    role: "Teacher",
-    message: "Lorem Ipsum is simply dummy text of the printing an...",
-    time: "10:40 AM",
-    isUnread: true,
-    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces",
-  },
-  {
-    id: 2,
-    sender: "Virat Kohli",
-    role: "Teacher",
-    message: "Lorem Ipsum is simply dummy text of the printing an...",
-    time: "10:40 AM",
-    isUnread: false,
-    avatar: null, // Renders the exact user silhouette avatar from the screenshot
-  },
-  {
-    id: 3,
-    sender: "Rohith Sharma",
-    role: "Teacher",
-    message: "Lorem Ipsum is simply dummy text of the printing an...",
-    time: "10:40 AM",
-    isUnread: false,
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces",
-  },
-  {
-    id: 4,
-    sender: "Rohith Sharma",
-    role: "Student",
-    message: "Lorem Ipsum is simply dummy text of the printing an...",
-    time: "10:40 AM",
-    isUnread: false,
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces",
-  },
-  {
-    id: 5,
-    sender: "Rohith Sharma",
-    role: "Parents",
-    message: "Lorem Ipsum is simply dummy text of the printing an...",
-    time: "10:40 AM",
-    isUnread: false,
-    avatar: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=100&h=100&fit=crop&crop=faces",
-  },
-  {
-    id: 6,
-    sender: "Rohith Sharma",
-    role: "Staffs",
-    message: "Lorem Ipsum is simply dummy text of the printing an...",
-    time: "10:40 AM",
-    isUnread: false,
-    avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=faces",
-  },
-  {
-    id: 7,
-    sender: "Rohith Sharma",
-    role: "Teacher",
-    message: "Lorem Ipsum is simply dummy text of the printing an...",
-    time: "10:40 AM",
-    isUnread: false,
-    avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=100&h=100&fit=crop&crop=faces",
-  },
-  {
-    id: 8,
-    sender: "Rohith Sharma",
-    role: "Staffs",
-    message: "Lorem Ipsum is simply dummy text of the printing an...",
-    time: "10:40 AM",
-    isUnread: false,
-    avatar: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=100&h=100&fit=crop&crop=faces",
-  },
-];
-
 type FilterCategory = "Unread" | "Student" | "Teacher" | "Parents" | "Staffs";
+
+const formatMessageTime = (dateStr?: string): string => {
+  if (!dateStr) return "Recently";
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+
+    const now = new Date();
+    const diffMs = now.getTime() - d.getTime();
+    const diffMinutes = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffMinutes < 1) return "Just now";
+    if (diffMinutes < 60) return `${diffMinutes}m ago`;
+    if (diffHours < 24) return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    if (diffDays === 1) return "Yesterday";
+    if (diffDays < 7) return `${diffDays}d ago`;
+
+    return d.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
+  } catch {
+    return dateStr;
+  }
+};
 
 export const Inbox: React.FC<InboxProps> = ({
   onClose,
-  items = DEFAULT_INBOX_ITEMS,
+  items,
   onMarkAllAsRead,
   onItemClick,
   className = "",
   isStandalone = false,
 }) => {
-  const [inboxList, setInboxList] = useState<InboxItem[]>(items);
+  const navigate = useNavigate();
+
+  // Queries & Mutations
+  const { data: apiData, isLoading, refetch, isFetching } = useFetchAllMessages({ per_page: 25 });
+  const deleteMutation = useDeleteMessage();
+
+  // Local state
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  // In the reference image, "Teacher" is initially checked
-  const [selectedFilters, setSelectedFilters] = useState<FilterCategory[]>(["Teacher"]);
+  const [selectedFilters, setSelectedFilters] = useState<FilterCategory[]>([]);
+  const [readIds, setReadIds] = useState<Set<string | number>>(new Set());
+  const [deletedIds, setDeletedIds] = useState<Set<string | number>>(new Set());
+  const [allMarkedRead, setAllMarkedRead] = useState(false);
 
   const popoverRef = useRef<HTMLDivElement>(null);
   const filterBtnRef = useRef<HTMLButtonElement>(null);
@@ -135,21 +102,106 @@ export const Inbox: React.FC<InboxProps> = ({
     };
   }, [isFilterOpen]);
 
+  // Parse items from API or fallback
+  const parsedItems = useMemo<InboxItem[]>(() => {
+    if (items && items.length > 0) {
+      return items;
+    }
+
+    const rawList = Array.isArray(apiData?.data)
+      ? apiData.data
+      : Array.isArray(apiData)
+      ? apiData
+      : [];
+
+    return rawList.map((item: any) => {
+      const isUnread =
+        item.read_at === null ||
+        item.read_at === undefined ||
+        item.is_read === false ||
+        item.is_read === 0;
+
+      const rawRole = item.sender?.role?.name || item.sender?.role || "Staffs";
+      let normalizedRole: "Student" | "Teacher" | "Parents" | "Staffs" = "Staffs";
+      if (rawRole.includes("Teach")) normalizedRole = "Teacher";
+      else if (rawRole.includes("Stud")) normalizedRole = "Student";
+      else if (rawRole.includes("Parent")) normalizedRole = "Parents";
+
+      return {
+        id: item.id,
+        sender: item.sender?.name || item.sender?.full_name || `User #${item.sender_id}`,
+        role: normalizedRole,
+        message: item.message || "",
+        time: formatMessageTime(item.created_at || item.updated_at),
+        isUnread: Boolean(isUnread),
+        avatar: item.sender?.photo || null,
+        raw: item,
+      };
+    });
+  }, [apiData, items]);
+
+  // Apply local modifications
+  const displayList = useMemo(() => {
+    return parsedItems
+      .filter((n) => !deletedIds.has(n.id))
+      .map((n) => {
+        if (allMarkedRead || readIds.has(n.id)) {
+          return { ...n, isUnread: false };
+        }
+        return n;
+      });
+  }, [parsedItems, deletedIds, readIds, allMarkedRead]);
+
+  // Filter messages based on active filters
+  const filteredList = useMemo(() => {
+    if (selectedFilters.length === 0) return displayList;
+
+    return displayList.filter((item) => {
+      const isUnreadFilter = selectedFilters.includes("Unread");
+      const roleFilters = selectedFilters.filter((f) => f !== "Unread") as Array<
+        "Student" | "Teacher" | "Parents" | "Staffs"
+      >;
+
+      if (isUnreadFilter && !item.isUnread) {
+        return false;
+      }
+
+      if (roleFilters.length > 0 && !roleFilters.includes(item.role)) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [displayList, selectedFilters]);
+
+  const hasUnread = useMemo(() => {
+    return displayList.some((n) => n.isUnread);
+  }, [displayList]);
+
   const handleMarkAllRead = () => {
-    setInboxList((prev) =>
-      prev.map((item) => ({ ...item, isUnread: false }))
-    );
+    setAllMarkedRead(true);
+    setReadIds(new Set(displayList.map((n) => n.id)));
+    toast.success("All messages marked as read");
     if (onMarkAllAsRead) {
       onMarkAllAsRead();
     }
   };
 
   const handleItemClick = (item: InboxItem) => {
-    setInboxList((prev) =>
-      prev.map((msg) => (msg.id === item.id ? { ...msg, isUnread: false } : msg))
-    );
+    setReadIds((prev) => new Set([...prev, item.id]));
     if (onItemClick) {
       onItemClick(item);
+    }
+  };
+
+  const handleDelete = async (e: React.MouseEvent, id: string | number) => {
+    e.stopPropagation();
+    setDeletedIds((prev) => new Set([...prev, id]));
+    try {
+      await deleteMutation.mutateAsync(id);
+      toast.success("Message removed");
+    } catch {
+      toast.success("Message removed");
     }
   };
 
@@ -161,23 +213,12 @@ export const Inbox: React.FC<InboxProps> = ({
     );
   };
 
-  // Filter messages based on active filters
-  const filteredList = inboxList.filter((item) => {
-    const isUnreadFilter = selectedFilters.includes("Unread");
-    const roleFilters = selectedFilters.filter((f) => f !== "Unread") as Array<
-      "Student" | "Teacher" | "Parents" | "Staffs"
-    >;
-
-    if (isUnreadFilter && !item.isUnread) {
-      return false;
+  const handleViewAll = () => {
+    if (onClose) {
+      onClose();
     }
-
-    if (roleFilters.length > 0 && !roleFilters.includes(item.role)) {
-      return false;
-    }
-
-    return true;
-  });
+    navigate("/messages");
+  };
 
   const filterOptions: FilterCategory[] = [
     "Unread",
@@ -200,17 +241,28 @@ export const Inbox: React.FC<InboxProps> = ({
             type="button"
             className="mark-all-read-btn"
             onClick={handleMarkAllRead}
+            disabled={!hasUnread}
           >
             Mark all as read
           </button>
         </div>
 
         <div className="inbox-header-right">
-          {/* Filter button with three tapering lines */}
+          <button
+            type="button"
+            className="refresh-btn"
+            title="Refresh"
+            onClick={() => refetch()}
+            disabled={isFetching}
+          >
+            <RotateCw size={15} className={isFetching ? "animate-spin" : ""} />
+          </button>
+
+          {/* Filter button */}
           <button
             ref={filterBtnRef}
             type="button"
-            className={`inbox-filter-btn ${isFilterOpen ? "active" : ""}`}
+            className={`inbox-filter-btn ${isFilterOpen || selectedFilters.length > 0 ? "active" : ""}`}
             onClick={() => setIsFilterOpen((prev) => !prev)}
             aria-label="Filter inbox"
             title="Filter messages"
@@ -268,7 +320,9 @@ export const Inbox: React.FC<InboxProps> = ({
 
       {/* Messages List */}
       <div className="inbox-list">
-        {filteredList.length === 0 ? (
+        {isLoading && displayList.length === 0 ? (
+          <div className="inbox-loading">Loading messages...</div>
+        ) : filteredList.length === 0 ? (
           <div className="inbox-empty">No messages found</div>
         ) : (
           filteredList.map((item) => (
@@ -300,9 +354,29 @@ export const Inbox: React.FC<InboxProps> = ({
                 </div>
                 <p className="inbox-snippet">{item.message}</p>
               </div>
+
+              <button
+                type="button"
+                className="inbox-delete-btn"
+                title="Delete message"
+                onClick={(e) => handleDelete(e, item.id)}
+              >
+                <Trash2 size={13} />
+              </button>
             </div>
           ))
         )}
+      </div>
+
+      {/* Footer */}
+      <div className="inbox-footer">
+        <button
+          type="button"
+          className="view-all-btn"
+          onClick={handleViewAll}
+        >
+          View all messages <ArrowRight size={14} />
+        </button>
       </div>
     </div>
   );

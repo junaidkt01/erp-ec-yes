@@ -98,6 +98,14 @@ import ExamAttendance from './pages/Examination/ExamAttendance/ExamAttendance'
 import MarkRegister from './pages/Examination/MarkRegister/MarkRegister'
 import MarkGrade from './pages/Examination/MarkGrade/MarkGrade'
 import SendMarksBySms from './pages/Examination/SendMarksBySms/SendMarksBySms'
+import NotificationsPage from './pages/Notifications/NotificationsPage'
+import MessagesPage from './pages/Messages/MessagesPage'
+import BookList from './pages/Library/BookList/BookList'
+import AddBook from './pages/Library/AddBook/AddBook'
+import BookCategories from './pages/Library/BookCategories/BookCategories'
+import AddMember from './pages/Library/AddMember/AddMember'
+import IssueReturnBook from './pages/Library/IssueReturnBook/IssueReturnBook'
+import AllIssuedBook from './pages/Library/AllIssuedBook/AllIssuedBook'
 
 // import Snowfall from './components/Snowfall'
 
@@ -303,6 +311,30 @@ function App() {
                   <Route path='/examination/marks-grade' element={<MarkGrade />} />
                   <Route path='/examination/send-marks-by-sms' element={<SendMarksBySms />} />
                   <Route path='/examination/send-marks-sms' element={<SendMarksBySms />} />
+
+                  {/* 19. Notifications */}
+                  <Route path='/notifications' element={<NotificationsPage />} />
+                  <Route path='/notifications-list' element={<NotificationsPage />} />
+
+                  {/* 20. Messages / Inbox */}
+                  <Route path='/messages' element={<MessagesPage />} />
+                  <Route path='/messages-list' element={<MessagesPage />} />
+                  <Route path='/inbox' element={<MessagesPage />} />
+
+                  {/* 21. Library */}
+                  <Route path='/library' element={<BookList />} />
+                  <Route path='/library/book-list' element={<BookList />} />
+                  <Route path='/library/books' element={<BookList />} />
+                  <Route path='/library/add-book' element={<AddBook />} />
+                  <Route path='/library/add-book/:id' element={<AddBook />} />
+                  <Route path='/library/book-categories' element={<BookCategories />} />
+                  <Route path='/library/categories' element={<BookCategories />} />
+                  <Route path='/library/add-member' element={<AddMember />} />
+                  <Route path='/library/members' element={<AddMember />} />
+                  <Route path='/library/issue-return-book' element={<IssueReturnBook />} />
+                  <Route path='/library/issue-books' element={<IssueReturnBook />} />
+                  <Route path='/library/all-issued-book' element={<AllIssuedBook />} />
+                  <Route path='/library/all-issued-books' element={<AllIssuedBook />} />
                 </Route>
 
                 {/* Error page */}

@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
-import { Trash2, Plus, Save } from "lucide-react";
+import { Trash2, Plus, Save, ChevronDown, ChevronUp } from "lucide-react";
 import TableWrapper from "../../../components/TableWrapper";
 import DataTable, { type Column } from "../../../components/DataTable/DataTable";
 import PopupScreen from "../../../components/PopupScreen/PopupScreen";
@@ -10,13 +10,16 @@ import { PrimaryButton, SecondaryButton } from "../../../components/Buttons/Butt
 import { useFetchAllStudentClasses } from "../../../hooks/useStudentClass";
 import { useFetchAllSections } from "../../../hooks/useSections";
 import { useFetchAllSubjects } from "../../../hooks/useSubject";
+import { useFetchAllStaff } from "../../../hooks/useStaff";
 import {
   useFetchAllExamTypes,
   useFetchAllExamSetups,
   useAddExamSetup,
   useUpdateExamSetup,
   useDeleteExamSetup,
+  useAddExamSchedule,
 } from "../../../hooks/useExamination";
+import "./ExamSetup.scss";
 
 interface MarkDistributionRow {
   id: number | string;
@@ -37,6 +40,12 @@ interface ExamListItem {
 const defaultExamList: ExamListItem[] = [
   { id: 1, exam_title: "First Term Physics", class_and_section: "5 B", subject: "Physics", total_marks: 100, mark_distribution: "Written: 50\nPractical: 50" },
   { id: 2, exam_title: "First Term Chemistry", class_and_section: "5 B", subject: "Chemistry", total_marks: 100, mark_distribution: "Written: 60\nPractical: 40" },
+  { id: 3, exam_title: "First Term Biology", class_and_section: "5 B", subject: "Biology", total_marks: 100, mark_distribution: "Written: 70\nPractical: 30" },
+];
+
+const defaultDistributions: MarkDistributionRow[] = [
+  { id: 1, title: "Written", mark: 50 },
+  { id: 2, title: "Practical", mark: 50 },
 ];
 
 const ITEMS_PER_PAGE = 10;
@@ -45,69 +54,110 @@ const ExamSetup: React.FC = () => {
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalStep, setModalStep] = useState<"initial" | "configure">("initial");
   const [editingId, setEditingId] = useState<number | string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<any>(null);
 
-  // Data queries
+  // Queries
   const { data: apiData } = useFetchAllExamSetups({ page, per_page: ITEMS_PER_PAGE, search: searchTerm });
   const { data: classesData } = useFetchAllStudentClasses();
   const { data: sectionsData } = useFetchAllSections();
   const { data: subjectsData } = useFetchAllSubjects();
   const { data: examTypesData } = useFetchAllExamTypes();
+  const { data: staffData } = useFetchAllStaff(1);
 
   const addSetupMutation = useAddExamSetup();
   const updateSetupMutation = useUpdateExamSetup();
   const deleteSetupMutation = useDeleteExamSetup();
+  const addScheduleMutation = useAddExamSchedule();
 
   // Form states
   const [examSystem, setExamSystem] = useState<"Single Exam" | "Multi Exam">("Single Exam");
-  const [examTitle, setExamTitle] = useState("");
-  const [examMark, setExamMark] = useState("100");
-  const [passMark, setPassMark] = useState("33");
-  const [selectedExamTypeId, setSelectedExamTypeId] = useState<string | number>("");
-  const [multiExamTypes, setMultiExamTypes] = useState<string[]>(["First Term"]);
+  const [selectedExamTypeId, setSelectedExamTypeId] = useState<string | number>("1");
+  const [selectedMultiExamTypes, setSelectedMultiExamTypes] = useState<string[]>(["First Term"]);
+  const [isExamTypeDropdownOpen, setIsExamTypeDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
   const [selectedClass, setSelectedClass] = useState("5");
   const [selectedSection, setSelectedSection] = useState("2");
   const [selectedSubject, setSelectedSubject] = useState("3");
-  const [selectedTeacherId] = useState<string | number>("10");
+  const [examMark, setExamMark] = useState("100");
+  const [passMark] = useState("33");
 
   // Mark distributions
-  const [markDistributions, setMarkDistributions] = useState<MarkDistributionRow[]>([
-    { id: 1, title: "Written", mark: 50 },
-    { id: 2, title: "Practical", mark: 50 },
-  ]);
+  const [markDistributions, setMarkDistributions] = useState<MarkDistributionRow[]>(defaultDistributions);
 
-  // Options formatting
+  // Schedule create fields
+  const [scheduleTeacher, setScheduleTeacher] = useState("10");
+  const [scheduleDate, setScheduleDate] = useState("2026-11-20");
+  const [scheduleStartTime, setScheduleStartTime] = useState("09:00");
+  const [scheduleEndTime, setScheduleEndTime] = useState("09:45");
+  const [scheduleRoom, setScheduleRoom] = useState("235432");
+
+  // Close multi-select on click outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setIsExamTypeDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Options
   const classOptions = useMemo(() => {
     const raw = Array.isArray(classesData?.data) ? classesData.data : Array.isArray(classesData) ? classesData : [];
-    if (raw.length === 0) return [{ label: "Class 5", value: "5" }, { label: "Class 6", value: "6" }];
+    if (raw.length === 0) return [{ label: "5", value: "5" }, { label: "6", value: "6" }, { label: "7", value: "7" }];
     return raw.map((c: any) => ({ label: c.name || `Class ${c.id}`, value: String(c.id) }));
   }, [classesData]);
 
   const sectionOptions = useMemo(() => {
     const raw = Array.isArray(sectionsData?.data) ? sectionsData.data : Array.isArray(sectionsData) ? sectionsData : [];
-    if (raw.length === 0) return [{ label: "Section A", value: "1" }, { label: "Section B", value: "2" }];
+    if (raw.length === 0) return [{ label: "A", value: "1" }, { label: "B", value: "2" }];
     return raw.map((s: any) => ({ label: s.name || `Section ${s.id}`, value: String(s.id) }));
   }, [sectionsData]);
 
   const subjectOptions = useMemo(() => {
     const raw = Array.isArray(subjectsData?.data) ? subjectsData.data : Array.isArray(subjectsData) ? subjectsData : [];
-    if (raw.length === 0) return [{ label: "Physics", value: "3" }, { label: "Chemistry", value: "4" }];
+    if (raw.length === 0) return [{ label: "Physics", value: "3" }, { label: "Chemistry", value: "4" }, { label: "Biology", value: "5" }];
     return raw.map((sub: any) => ({ label: sub.name || `Subject ${sub.id}`, value: String(sub.id) }));
   }, [subjectsData]);
 
   const examTypeOptions = useMemo(() => {
     const raw = Array.isArray(examTypesData?.data) ? examTypesData.data : Array.isArray(examTypesData) ? examTypesData : [];
-    if (raw.length === 0) return [{ label: "First Term", value: "1" }, { label: "Second Term", value: "2" }];
+    if (raw.length === 0) return [
+      { label: "First Term", value: "1" },
+      { label: "Second Term", value: "2" },
+      { label: "Third Term", value: "3" }
+    ];
     return raw.map((t: any) => ({ label: t.name, value: String(t.id) }));
   }, [examTypesData]);
 
+  const teacherOptions = useMemo(() => {
+    const raw = Array.isArray(staffData?.data) ? staffData.data : Array.isArray(staffData) ? staffData : [];
+    if (raw.length === 0) return [
+      { label: "Jhon Martin", value: "10" },
+      { label: "Robert Smith", value: "11" },
+      { label: "Sarah Connor", value: "12" }
+    ];
+    return raw.map((s: any) => ({
+      label: s.full_name || `${s.first_name || ""} ${s.last_name || ""}`.trim() || `Staff #${s.id}`,
+      value: String(s.id)
+    }));
+  }, [staffData]);
+
+  // Total marks calculation
+  const calculatedDistributionTotal = useMemo(() => {
+    return markDistributions.reduce((acc, row) => acc + (Number(row.mark) || 0), 0);
+  }, [markDistributions]);
+
+  // List data formatting
   const rawList: ExamListItem[] = useMemo(() => {
     if (apiData?.data && Array.isArray(apiData.data)) {
       return apiData.data.map((item: any) => ({
         id: item.id,
         exam_title: item.exam_title || item.title || "Exam",
-        class_and_section: `${item.class?.name || item.class_id || ""} ${item.section?.name || item.section_id || ""}`,
+        class_and_section: `${item.class?.name || item.class_id || ""} ${item.section?.name || item.section_id || ""}`.trim() || "-",
         subject: item.subject?.name || item.subject_id || "-",
         total_marks: item.total_mark || item.total_marks || 100,
         mark_distribution: Array.isArray(item.mark_distributions)
@@ -159,50 +209,95 @@ const ExamSetup: React.FC = () => {
 
   const handleOpenAddModal = () => {
     setEditingId(null);
-    setExamTitle("");
     setExamSystem("Single Exam");
+    setSelectedExamTypeId("1");
+    setSelectedMultiExamTypes(["First Term"]);
+    setSelectedClass("5");
+    setSelectedSection("2");
+    setSelectedSubject("3");
     setExamMark("100");
-    setPassMark("33");
-    setModalStep("initial");
+    setMarkDistributions([
+      { id: 1, title: "Written", mark: 50 },
+      { id: 2, title: "Practical", mark: 50 },
+    ]);
+    setScheduleTeacher("10");
+    setScheduleDate("2026-11-20");
+    setScheduleStartTime("09:00");
+    setScheduleEndTime("09:45");
+    setScheduleRoom("235432");
     setIsModalOpen(true);
   };
 
   const handleOpenEditModal = (item: any) => {
     setEditingId(item.id);
-    setExamTitle(item.exam_title || item.title || "");
-    setExamMark(String(item.total_marks || item.total_mark || "100"));
-    setModalStep("configure");
+    setExamSystem("Single Exam");
+    setSelectedExamTypeId(String(item.exam_type_id || "1"));
+    setSelectedClass(String(item.class_id || "5"));
+    setSelectedSection(String(item.section_id || "2"));
+    setSelectedSubject(String(item.subject_id || "3"));
+    setExamMark(String(item.total_mark || item.total_marks || "100"));
+    if (Array.isArray(item.mark_distributions) && item.mark_distributions.length > 0) {
+      setMarkDistributions(
+        item.mark_distributions.map((d: any, idx: number) => ({
+          id: idx + 1,
+          title: d.title || "",
+          mark: d.mark || 0,
+        }))
+      );
+    }
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setEditingId(null);
-    setModalStep("initial");
+  };
+
+  const handleResetForm = () => {
+    setSelectedClass("5");
+    setSelectedSection("2");
+    setSelectedSubject("3");
+    setExamMark("100");
+    setMarkDistributions([
+      { id: 1, title: "Written", mark: 50 },
+      { id: 2, title: "Practical", mark: 50 },
+    ]);
+    setScheduleTeacher("10");
+    setScheduleDate("2026-11-20");
+    setScheduleStartTime("09:00");
+    setScheduleEndTime("09:45");
+    setScheduleRoom("235432");
   };
 
   const handleAddDistributionRow = () => {
-    setMarkDistributions((prev) => [...prev, { id: Date.now(), title: "", mark: "" }]);
+    setMarkDistributions((prev) => [
+      ...prev,
+      { id: Date.now(), title: "", mark: "" },
+    ]);
   };
 
   const handleRemoveDistributionRow = (id: number | string) => {
+    if (markDistributions.length <= 1) {
+      toast.info("At least one mark distribution is required");
+      return;
+    }
     setMarkDistributions((prev) => prev.filter((r) => r.id !== id));
   };
 
-  const handleInitialContinue = () => {
-    setModalStep("configure");
-  };
-
   const handleSaveExam = async () => {
+    const selectedTypeName = examTypeOptions.find((t: any) => t.value === String(selectedExamTypeId))?.label || "First Term";
+    const selectedSubName = subjectOptions.find((s: any) => s.value === String(selectedSubject))?.label || "Physics";
+    const generatedTitle = `${selectedTypeName} ${selectedSubName}`;
+
     const payload = {
-      exam_title: examTitle.trim() || "Exam Setup",
+      exam_title: generatedTitle,
       exam_type_id: Number(selectedExamTypeId) || 1,
       class_id: Number(selectedClass) || 5,
       section_id: Number(selectedSection) || 2,
       subject_id: Number(selectedSubject) || 3,
-      teacher_id: Number(selectedTeacherId) || 10,
+      teacher_id: Number(scheduleTeacher) || 10,
       pass_mark: Number(passMark) || 33,
-      total_mark: Number(examMark) || 100,
+      total_mark: Number(examMark) || calculatedDistributionTotal || 100,
       mark_distributions: markDistributions.map((m) => ({
         title: m.title.trim() || "Written",
         mark: Number(m.mark) || 0,
@@ -210,12 +305,34 @@ const ExamSetup: React.FC = () => {
     };
 
     try {
+      let createdExamId: number | string = editingId || 1;
       if (editingId) {
         await updateSetupMutation.mutateAsync({ id: editingId, ...payload });
         toast.success("Exam setup updated successfully");
       } else {
-        await addSetupMutation.mutateAsync(payload);
+        const res = await addSetupMutation.mutateAsync(payload);
+        createdExamId = res?.data?.id || res?.id || 1;
         toast.success("Exam setup created successfully");
+
+        // If in Single Exam mode and schedule details are provided, automatically link exam schedule
+        if (examSystem === "Single Exam" && scheduleDate && scheduleStartTime && scheduleEndTime) {
+          try {
+            await addScheduleMutation.mutateAsync({
+              exam_id: createdExamId,
+              class_id: Number(selectedClass) || 5,
+              section_id: Number(selectedSection) || 2,
+              subject_id: Number(selectedSubject) || 3,
+              teacher_id: Number(scheduleTeacher) || 10,
+              exam_date: scheduleDate,
+              start_time: scheduleStartTime.includes(":") && scheduleStartTime.length === 5 ? `${scheduleStartTime}:00` : scheduleStartTime,
+              end_time: scheduleEndTime.includes(":") && scheduleEndTime.length === 5 ? `${scheduleEndTime}:00` : scheduleEndTime,
+              duration: "45 Minutes",
+              room: scheduleRoom || "235432",
+            });
+          } catch {
+            // Schedule link failure is non-blocking for exam setup
+          }
+        }
       }
       handleCloseModal();
     } catch (err: any) {
@@ -223,10 +340,12 @@ const ExamSetup: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: number | string) => {
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
     try {
-      await deleteSetupMutation.mutateAsync(id);
+      await deleteSetupMutation.mutateAsync(deleteTarget.id);
       toast.success("Exam setup deleted successfully");
+      setDeleteTarget(null);
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "Failed to delete exam setup");
     }
@@ -242,11 +361,67 @@ const ExamSetup: React.FC = () => {
             title={editingId ? "Edit Exam" : "Add Exam"}
             onClick={handleCloseModal}
           >
-            <div className="popup_body" style={{ maxHeight: "80vh", overflowY: "auto" }}>
-              {/* Step 1: Initial Choice (Exam System & Mark) */}
-              {modalStep === "initial" && (
-                <div>
-                  <div className="fields_wrapper" style={{ display: "grid", gap: "16px", marginBottom: "20px" }}>
+            <div className="popup_body">
+              <div className="fields_wrapper">
+                {/* Single Exam Mode */}
+                {examSystem === "Single Exam" ? (
+                  <>
+                    {/* Row 1: Exam System, Exam Type, Class */}
+                    <div className="body_section">
+                      <CustomSelect
+                        label="Exam System"
+                        placeholder="Select exam system"
+                        options={[
+                          { label: "Single Exam", value: "Single Exam" },
+                          { label: "Multi Exam", value: "Multi Exam" },
+                        ]}
+                        value={examSystem}
+                        onChange={(val: any) => setExamSystem(val)}
+                      />
+                      <CustomSelect
+                        label="Exam Type"
+                        placeholder="Select exam type"
+                        options={examTypeOptions}
+                        value={selectedExamTypeId}
+                        onChange={(val: any) => setSelectedExamTypeId(val)}
+                      />
+                      <CustomSelect
+                        label="Class"
+                        placeholder="Select class"
+                        options={classOptions}
+                        value={selectedClass}
+                        onChange={(val: any) => setSelectedClass(val)}
+                      />
+                    </div>
+
+                    {/* Row 2: Section, Subject, Mark */}
+                    <div className="body_section">
+                      <CustomSelect
+                        label="Section"
+                        placeholder="Select section"
+                        options={sectionOptions}
+                        value={selectedSection}
+                        onChange={(val: any) => setSelectedSection(val)}
+                      />
+                      <CustomSelect
+                        label="Subject"
+                        placeholder="Select subject"
+                        options={subjectOptions}
+                        value={selectedSubject}
+                        onChange={(val: any) => setSelectedSubject(val)}
+                      />
+                      <InputField
+                        type="number"
+                        label="Mark"
+                        placeHolder="Enter mark"
+                        value={examMark}
+                        onChange={(e: any) => setExamMark(e?.target?.value || e)}
+                      />
+                    </div>
+                  </>
+                ) : (
+                  /* Multi Exam Mode */
+                  <div className="body_section" style={{ gridTemplateColumns: "1.2fr 1.5fr 1fr 1fr" }}>
                     <CustomSelect
                       label="Exam System"
                       placeholder="Select exam system"
@@ -257,185 +432,221 @@ const ExamSetup: React.FC = () => {
                       value={examSystem}
                       onChange={(val: any) => setExamSystem(val)}
                     />
-                    <InputField
-                      type="number"
-                      label="Exam Mark"
-                      placeHolder="Enter exam mark"
-                      value={examMark}
-                      onChange={(e: any) => setExamMark(e?.target?.value || e)}
-                    />
-                  </div>
 
-                  <div className="buttons">
-                    <SecondaryButton
-                      title="Reset"
-                      onClick={() => {
-                        setExamSystem("Single Exam");
-                        setExamMark("100");
-                      }}
-                    />
-                    <PrimaryButton title="Continue" onClick={handleInitialContinue} />
-                  </div>
-                </div>
-              )}
-
-              {/* Step 2: Configure Single or Multi Exam */}
-              {modalStep === "configure" && (
-                <div>
-                  <div className="fields_wrapper" style={{ display: "grid", gap: "16px" }}>
-                    <div className="body_section" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                      <InputField
-                        type="text"
-                        label="Exam Title"
-                        placeHolder="e.g. First Term Physics"
-                        value={examTitle}
-                        onChange={(e: any) => setExamTitle(e?.target?.value || e)}
-                      />
-                      <CustomSelect
-                        label="Exam System"
-                        options={[
-                          { label: "Single Exam", value: "Single Exam" },
-                          { label: "Multi Exam", value: "Multi Exam" },
-                        ]}
-                        value={examSystem}
-                        onChange={(val: any) => setExamSystem(val)}
-                      />
-                    </div>
-
-                    {examSystem === "Single Exam" ? (
-                      <div className="body_section" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
-                        <CustomSelect
-                          label="Exam Type"
-                          placeholder="Select exam type"
-                          options={examTypeOptions}
-                          value={selectedExamTypeId}
-                          onChange={(val: any) => setSelectedExamTypeId(val)}
-                        />
-                        <CustomSelect
-                          label="Class"
-                          placeholder="Select class"
-                          options={classOptions}
-                          value={selectedClass}
-                          onChange={(val: any) => setSelectedClass(val)}
-                        />
-                        <CustomSelect
-                          label="Section"
-                          placeholder="Select section"
-                          options={sectionOptions}
-                          value={selectedSection}
-                          onChange={(val: any) => setSelectedSection(val)}
-                        />
+                    {/* Custom Multi-Select Dropdown with checkboxes */}
+                    <div className="custom_multi_select" ref={dropdownRef}>
+                      <label className="multi_select_label">Exam Type</label>
+                      <div
+                        className="multi_select_trigger"
+                        onClick={() => setIsExamTypeDropdownOpen((prev) => !prev)}
+                      >
+                        {selectedMultiExamTypes.length === 0 ? (
+                          <span className="placeholder">Select exam type</span>
+                        ) : (
+                          <div className="selected_tags">
+                            {selectedMultiExamTypes.map((type) => (
+                              <span key={type} className="tag">{type}</span>
+                            ))}
+                          </div>
+                        )}
+                        {isExamTypeDropdownOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                       </div>
-                    ) : (
-                      <div>
-                        <label style={{ display: "block", fontSize: "14px", fontWeight: 500, color: "#374151", marginBottom: "6px" }}>Exam Types</label>
-                        <div style={{ border: "1px solid #e2e8f0", borderRadius: "10px", padding: "12px", background: "#f8fafc", display: "flex", gap: "16px" }}>
+
+                      {isExamTypeDropdownOpen && (
+                        <div className="multi_select_menu">
                           {["First Term", "Second Term", "Third Term"].map((term) => (
-                            <label key={term} style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "14px", cursor: "pointer", color: "#334155" }}>
+                            <label key={term} className="multi_select_item">
                               <input
                                 type="checkbox"
-                                checked={multiExamTypes.includes(term)}
+                                checked={selectedMultiExamTypes.includes(term)}
                                 onChange={(e) => {
-                                  if (e.target.checked) setMultiExamTypes((prev) => [...prev, term]);
-                                  else setMultiExamTypes((prev) => prev.filter((t) => t !== term));
+                                  if (e.target.checked) {
+                                    setSelectedMultiExamTypes((prev) => [...prev, term]);
+                                  } else {
+                                    setSelectedMultiExamTypes((prev) => prev.filter((t) => t !== term));
+                                  }
                                 }}
                               />
                               <span>{term}</span>
                             </label>
                           ))}
                         </div>
-                      </div>
-                    )}
-
-                    <div className="body_section" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
-                      <CustomSelect
-                        label="Subject"
-                        placeholder="Select subject"
-                        options={subjectOptions}
-                        value={selectedSubject}
-                        onChange={(val: any) => setSelectedSubject(val)}
-                      />
-                      <InputField
-                        type="number"
-                        label="Total Mark"
-                        placeHolder="Enter total mark"
-                        value={examMark}
-                        onChange={(e: any) => setExamMark(e?.target?.value || e)}
-                      />
-                      <InputField
-                        type="number"
-                        label="Pass Mark"
-                        placeHolder="Enter pass mark"
-                        value={passMark}
-                        onChange={(e: any) => setPassMark(e?.target?.value || e)}
-                      />
+                      )}
                     </div>
+
+                    <CustomSelect
+                      label="Class"
+                      placeholder="Select class"
+                      options={classOptions}
+                      value={selectedClass}
+                      onChange={(val: any) => setSelectedClass(val)}
+                    />
+                    <InputField
+                      type="number"
+                      label="Exam Mark"
+                      placeHolder="Enter mark"
+                      value={examMark}
+                      onChange={(e: any) => setExamMark(e?.target?.value || e)}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Sub-section: Add Mark Distributions */}
+              <div className="sub_section_wrapper">
+                <div className="sub_section_header">
+                  <h3 className="sub_title">Add Mark Distributions</h3>
+                  <button
+                    type="button"
+                    className="add_row_btn"
+                    onClick={handleAddDistributionRow}
+                  >
+                    Add <Plus size={14} />
+                  </button>
+                </div>
+
+                <div className="distribution_table_card">
+                  <div className="dist_header_row">
+                    <span>Exam Title</span>
+                    <span>Exam Mark</span>
+                    <span style={{ textAlign: "center" }}>Actions</span>
                   </div>
 
-                  {/* Mark Distributions */}
-                  <div style={{ marginTop: "20px" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
-                      <h3 style={{ fontSize: "15px", fontWeight: 600, color: "#1e293b" }}>Mark Distributions</h3>
+                  {markDistributions.map((row) => (
+                    <div key={row.id} className="dist_data_row">
+                      <InputField
+                        type="text"
+                        placeHolder="Enter title (e.g. Written)"
+                        value={row.title}
+                        onChange={(e: any) => {
+                          const val = e?.target ? e.target.value : e;
+                          setMarkDistributions((prev) =>
+                            prev.map((r) => (r.id === row.id ? { ...r, title: val } : r))
+                          );
+                        }}
+                      />
+                      <InputField
+                        type="number"
+                        placeHolder="Enter mark"
+                        value={row.mark}
+                        onChange={(e: any) => {
+                          const val = e?.target ? e.target.value : e;
+                          setMarkDistributions((prev) =>
+                            prev.map((r) => (r.id === row.id ? { ...r, mark: val } : r))
+                          );
+                        }}
+                      />
                       <button
                         type="button"
-                        onClick={handleAddDistributionRow}
-                        style={{ background: "#f8fafc", border: "1px solid #e2e8f0", color: "#605dec", borderRadius: "8px", padding: "6px 12px", fontSize: "13px", fontWeight: 500, cursor: "pointer", display: "flex", alignItems: "center", gap: "4px" }}
+                        className="delete_row_btn"
+                        title="Delete"
+                        onClick={() => handleRemoveDistributionRow(row.id)}
                       >
-                        Add <Plus size={14} />
+                        <Trash2 size={16} />
                       </button>
                     </div>
+                  ))}
 
-                    <div style={{ background: "#f8fafc", borderRadius: "12px", padding: "16px", border: "1px solid #f1f5f9" }}>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 40px", gap: "12px", marginBottom: "8px", fontSize: "12px", fontWeight: 600, color: "#64748b" }}>
-                        <span>Title</span>
-                        <span>Mark</span>
-                        <span>Action</span>
-                      </div>
+                  <div className="dist_total_footer">
+                    <span className="total_label">
+                      Total: {calculatedDistributionTotal || examMark || 40}
+                    </span>
+                  </div>
+                </div>
+              </div>
 
-                      {markDistributions.map((row) => (
-                        <div key={row.id} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 40px", gap: "12px", marginBottom: "10px", alignItems: "center" }}>
-                          <InputField
-                            type="text"
-                            placeHolder="Enter title (e.g. Written)"
-                            value={row.title}
-                            onChange={(e: any) => {
-                              const val = e?.target ? e.target.value : e;
-                              setMarkDistributions((prev) => prev.map((r) => r.id === row.id ? { ...r, title: val } : r));
-                            }}
-                          />
-                          <InputField
-                            type="number"
-                            placeHolder="Enter mark"
-                            value={row.mark}
-                            onChange={(e: any) => {
-                              const val = e?.target ? e.target.value : e;
-                              setMarkDistributions((prev) => prev.map((r) => r.id === row.id ? { ...r, mark: val } : r));
-                            }}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveDistributionRow(row.id)}
-                            style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444", display: "flex", justifyContent: "center" }}
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      ))}
-                      <div style={{ marginTop: "12px", fontSize: "13px", fontWeight: 600, color: "#1e293b" }}>Total: {examMark}</div>
-                    </div>
+              {/* Sub-section: Exam Schedule Create (Shown in Single Exam Mode) */}
+              {examSystem === "Single Exam" && (
+                <div className="sub_section_wrapper">
+                  <div className="sub_section_header">
+                    <h3 className="sub_title">Exam Schedule Create</h3>
                   </div>
 
-                  <div className="buttons">
-                    <SecondaryButton title="Back" onClick={() => setModalStep("initial")} />
-                    <PrimaryButton
-                      title={addSetupMutation.isPending || updateSetupMutation.isPending ? "Saving..." : "Save Exam"}
-                      icon={<Save size={16} />}
-                      onClick={handleSaveExam}
-                      disabled={addSetupMutation.isPending || updateSetupMutation.isPending}
-                    />
+                  <div className="schedule_card">
+                    <div className="body_section five_cols">
+                      <CustomSelect
+                        label="Teacher"
+                        placeholder="Select teacher"
+                        options={teacherOptions}
+                        value={scheduleTeacher}
+                        onChange={(val: any) => setScheduleTeacher(val)}
+                      />
+                      <InputField
+                        type="date"
+                        label="Date"
+                        placeHolder="Select date"
+                        value={scheduleDate}
+                        onChange={(e: any) => setScheduleDate(e?.target?.value || e)}
+                      />
+                      <InputField
+                        type="time"
+                        label="Start Time"
+                        placeHolder="Select time"
+                        value={scheduleStartTime}
+                        onChange={(e: any) => setScheduleStartTime(e?.target?.value || e)}
+                      />
+                      <InputField
+                        type="time"
+                        label="End Time"
+                        placeHolder="Select time"
+                        value={scheduleEndTime}
+                        onChange={(e: any) => setScheduleEndTime(e?.target?.value || e)}
+                      />
+                      <InputField
+                        type="text"
+                        label="Room"
+                        placeHolder="Select room"
+                        value={scheduleRoom}
+                        onChange={(e: any) => setScheduleRoom(e?.target?.value || e)}
+                      />
+                    </div>
                   </div>
                 </div>
               )}
+
+              {/* Modal Actions */}
+              <div className="modal_actions">
+                <SecondaryButton
+                  title="Reset"
+                  onClick={handleResetForm}
+                />
+                <PrimaryButton
+                  title={
+                    addSetupMutation.isPending || updateSetupMutation.isPending
+                      ? "Saving..."
+                      : "Save Exam"
+                  }
+                  icon={<Save size={16} />}
+                  onClick={handleSaveExam}
+                  disabled={addSetupMutation.isPending || updateSetupMutation.isPending}
+                />
+              </div>
+            </div>
+          </PopupScreen>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {deleteTarget && (
+          <PopupScreen
+            className="delete_confirm_modal"
+            title="Delete Exam Setup"
+            onClick={() => setDeleteTarget(null)}
+          >
+            <div className="popup_body" style={{ padding: "24px", textAlign: "center" }}>
+              <p style={{ fontSize: "15px", color: "#475569", marginBottom: "24px" }}>
+                Are you sure you want to delete exam setup <strong>"{deleteTarget.exam_title || deleteTarget.title}"</strong>?
+              </p>
+              <div style={{ display: "flex", justifyContent: "center", gap: "16px" }}>
+                <SecondaryButton
+                  title="Cancel"
+                  onClick={() => setDeleteTarget(null)}
+                />
+                <PrimaryButton
+                  title={deleteSetupMutation.isPending ? "Deleting..." : "Confirm Delete"}
+                  onClick={handleConfirmDelete}
+                  disabled={deleteSetupMutation.isPending}
+                />
+              </div>
             </div>
           </PopupScreen>
         )}
@@ -473,7 +684,7 @@ const ExamSetup: React.FC = () => {
                   type="button"
                   className="delete_btn hvr_zm_out"
                   title="Delete"
-                  onClick={() => handleDelete(row.full_data?.id || row.id)}
+                  onClick={() => setDeleteTarget(row.full_data || row)}
                 >
                   <img src="/svgs/delete.svg" alt="Delete" />
                 </button>

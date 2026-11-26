@@ -11,6 +11,8 @@ import { useTranslation } from "../i18n/LanguageContext"
 import { LANGUAGES } from "../i18n/translations"
 import { useSidebarStore } from "../stores/sidebarStore"
 import { BASE_URL } from "../api/endpoints"
+import { useFetchAllNotifications } from "../hooks/useNotifications"
+import { useFetchAllMessages } from "../hooks/useMessages"
 import Notifications from "./Notifications"
 import Inbox from "./Inbox"
 
@@ -42,6 +44,18 @@ const Header = () => {
 
     const { data: authData } = useAuth();
     const userPhoto = getPhotoUrl(authData?.user?.photo);
+
+    const { data: notifData } = useFetchAllNotifications({ per_page: 20 });
+    const unreadNotifsCount = useMemo(() => {
+        const list = Array.isArray(notifData?.data) ? notifData.data : Array.isArray(notifData) ? notifData : [];
+        return list.filter((n: any) => n.read_at === null || n.is_read === false).length;
+    }, [notifData]);
+
+    const { data: messagesData } = useFetchAllMessages({ per_page: 20 });
+    const unreadMessagesCount = useMemo(() => {
+        const list = Array.isArray(messagesData?.data) ? messagesData.data : Array.isArray(messagesData) ? messagesData : [];
+        return list.filter((m: any) => m.read_at === null || m.is_read === false).length;
+    }, [messagesData]);
 
     const debouncedSearch = useDebounce(searchTerm, 500);
 
@@ -140,10 +154,34 @@ const Header = () => {
                             setIsInboxOpen(false);
                             setIsProfile(false);
                         }}
-                        style={{ cursor: "pointer" }}
+                        style={{ cursor: "pointer", position: "relative" }}
                         title="Notifications"
                     >
                         <img className="hvr_zm_in" src="/header_icons/notification.svg" alt="Notifications" />
+                        {unreadNotifsCount > 0 && (
+                            <span
+                                style={{
+                                    position: "absolute",
+                                    top: "-2px",
+                                    right: "-2px",
+                                    backgroundColor: "#ef4444",
+                                    color: "#ffffff",
+                                    fontSize: "10px",
+                                    fontWeight: 700,
+                                    borderRadius: "50%",
+                                    minWidth: "16px",
+                                    height: "16px",
+                                    padding: "0 3px",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    lineHeight: 1,
+                                    border: "1.5px solid #ffffff",
+                                }}
+                            >
+                                {unreadNotifsCount > 9 ? "9+" : unreadNotifsCount}
+                            </span>
+                        )}
                     </div>
 
                     <div
@@ -153,10 +191,34 @@ const Header = () => {
                             setIsNotificationOpen(false);
                             setIsProfile(false);
                         }}
-                        style={{ cursor: "pointer" }}
+                        style={{ cursor: "pointer", position: "relative" }}
                         title="Inbox"
                     >
                         <img className="hvr_zm_in" src="/header_icons/messages.svg" alt="Inbox" />
+                        {unreadMessagesCount > 0 && (
+                            <span
+                                style={{
+                                    position: "absolute",
+                                    top: "-2px",
+                                    right: "-2px",
+                                    backgroundColor: "#605dec",
+                                    color: "#ffffff",
+                                    fontSize: "10px",
+                                    fontWeight: 700,
+                                    borderRadius: "50%",
+                                    minWidth: "16px",
+                                    height: "16px",
+                                    padding: "0 3px",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    lineHeight: 1,
+                                    border: "1.5px solid #ffffff",
+                                }}
+                            >
+                                {unreadMessagesCount > 9 ? "9+" : unreadMessagesCount}
+                            </span>
+                        )}
                     </div>
 
                     <div
