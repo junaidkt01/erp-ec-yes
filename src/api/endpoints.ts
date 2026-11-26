@@ -184,3 +184,10 @@ export const userActivity = {
   user_activities: "/user-activities",
 };
 
+export const transport = {
+  routes: "/routes",
+  vehicles: "/vehicles",
+  assignVehicles: "/assign-vehicles",
+};
+
+

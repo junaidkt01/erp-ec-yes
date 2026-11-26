@@ -8,17 +8,13 @@ import { InputField } from "../../../components/InputFields/InputFields";
 import { CustomSelect } from "../../../components/InputFields/CustomSelect";
 import { PrimaryButton, SecondaryButton } from "../../../components/Buttons/Buttons";
 import { useFetchAllStaff } from "../../../hooks/useStaff";
-
-export interface VehicleItem {
-  id: number | string;
-  vehicle_no: string;
-  model_no: string;
-  year_made: string | number;
-  driver_id?: number | string;
-  driver_name: string;
-  driver_phone: string;
-  note?: string;
-}
+import {
+  useFetchAllVehicles,
+  useAddVehicle,
+  useUpdateVehicle,
+  useDeleteVehicle,
+  type VehicleItem,
+} from "../../../hooks/useTransport";
 
 const initialFormState = {
   vehicle_no: "",
@@ -30,82 +26,24 @@ const initialFormState = {
   note: "",
 };
 
-const ITEMS_PER_PAGE = 6;
-
-// Initial sample data matching the screenshot
-const defaultVehicles: VehicleItem[] = [
-  {
-    id: 1,
-    vehicle_no: "Test Vehicle 23232",
-    model_no: "Test Model 4343433",
-    year_made: "2007",
-    driver_name: "Jhon Martin",
-    driver_phone: "7037373929",
-    note: "",
-  },
-  {
-    id: 2,
-    vehicle_no: "Test Vehicle 23232",
-    model_no: "Test Model 4343433",
-    year_made: "2007",
-    driver_name: "Jhon Martin",
-    driver_phone: "7037373929",
-    note: "",
-  },
-  {
-    id: 3,
-    vehicle_no: "Test Vehicle 23232",
-    model_no: "Test Model 4343433",
-    year_made: "2007",
-    driver_name: "Jhon Martin",
-    driver_phone: "7037373929",
-    note: "",
-  },
-  {
-    id: 4,
-    vehicle_no: "Test Vehicle 23232",
-    model_no: "Test Model 4343433",
-    year_made: "2007",
-    driver_name: "Jhon Martin",
-    driver_phone: "7037373929",
-    note: "",
-  },
-  {
-    id: 5,
-    vehicle_no: "Test Vehicle 23232",
-    model_no: "Test Model 4343433",
-    year_made: "2007",
-    driver_name: "Jhon Martin",
-    driver_phone: "7037373929",
-    note: "",
-  },
-  {
-    id: 6,
-    vehicle_no: "Test Vehicle 23232",
-    model_no: "Test Model 4343433",
-    year_made: "2007",
-    driver_name: "Jhon Martin",
-    driver_phone: "7037373929",
-    note: "",
-  },
-];
+const ITEMS_PER_PAGE = 10;
 
 const Vehicles: React.FC = () => {
-  // Fetch drivers from staff API by driver role
+  // Fetch drivers from staff API
   const { data: staffData } = useFetchAllStaff(1, { role: "Driver" });
-
-  const [vehicles, setVehicles] = useState<VehicleItem[]>(() => {
-    try {
-      const saved = localStorage.getItem("vehicles_data");
-      if (saved) return JSON.parse(saved);
-    } catch {
-      // fallback
-    }
-    return defaultVehicles;
-  });
 
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
+
+  // Transport API hooks
+  const { data: apiData } = useFetchAllVehicles({
+    page,
+    per_page: ITEMS_PER_PAGE,
+    search: searchTerm || undefined,
+  });
+  const addVehicleMutation = useAddVehicle();
+  const updateVehicleMutation = useUpdateVehicle();
+  const deleteVehicleMutation = useDeleteVehicle();
 
   // Modal and form states
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -126,52 +64,46 @@ const Vehicles: React.FC = () => {
       ? staffData
       : [];
 
-    // Filter staff who have driver role or designation
-    const drivers = rawStaff.filter((s: any) => {
-      const roleStr = String(s.role || s.role_name || "").toLowerCase();
-      const desigStr = String(s.designation || "").toLowerCase();
-      return roleStr.includes("driver") || desigStr.includes("driver");
-    });
-
-    const activeList = drivers.length > 0 ? drivers : rawStaff;
-
-    const mapped = activeList.map((d: any) => ({
-      label: `${d.full_name || d.name || "Driver"} (${d.phone || "No phone"})`,
+    const mapped = rawStaff.map((d: any) => ({
+      label: `${d.full_name || d.name || "Staff"} (${d.phone || d.mobile_no || "No phone"})`,
       value: d.id,
       driver_name: d.full_name || d.name || "Driver",
-      driver_phone: d.phone || "",
+      driver_phone: d.phone || d.mobile_no || "",
     }));
-
-    // Fallback sample drivers if no staff loaded yet
-    if (mapped.length === 0) {
-      return [
-        {
-          label: "Jhon Martin (7037373929)",
-          value: "sample-1",
-          driver_name: "Jhon Martin",
-          driver_phone: "7037373929",
-        },
-        {
-          label: "Robert Smith (9876543210)",
-          value: "sample-2",
-          driver_name: "Robert Smith",
-          driver_phone: "9876543210",
-        },
-      ];
-    }
 
     return mapped;
   }, [staffData]);
 
-  // Sync to local storage for quick preview
-  const updateVehicleList = (newList: VehicleItem[]) => {
-    setVehicles(newList);
-    try {
-      localStorage.setItem("vehicles_data", JSON.stringify(newList));
-    } catch {
-      // ignore
-    }
-  };
+  // Extract raw list of vehicles
+  const rawList: VehicleItem[] = useMemo(() => {
+    if (!apiData) return [];
+    if (Array.isArray(apiData)) return apiData;
+    if (Array.isArray(apiData.data)) return apiData.data;
+    if (Array.isArray(apiData.data?.data)) return apiData.data.data;
+    return [];
+  }, [apiData]);
+
+  // Client-side fallback filtering
+  const filteredList = useMemo(() => {
+    if (!searchTerm.trim()) return rawList;
+    const q = searchTerm.trim().toLowerCase();
+    return rawList.filter((item) => {
+      const matchVehicle = (item.vehicle_no || "").toLowerCase().includes(q);
+      const matchModel = (item.vehicle_model || item.model_no || "").toLowerCase().includes(q);
+      const matchYear = String(item.year_made || "").toLowerCase().includes(q);
+      const matchDriver = (item.driver_name || "").toLowerCase().includes(q);
+      const matchPhone = (item.driver_contact || item.driver_phone || "").toLowerCase().includes(q);
+      return matchVehicle || matchModel || matchYear || matchDriver || matchPhone;
+    });
+  }, [rawList, searchTerm]);
+
+  // Pagination calculation
+  const totalPages = useMemo(() => {
+    if (apiData?.data?.last_page) return apiData.data.last_page;
+    if (apiData?.last_page) return apiData.last_page;
+    if (apiData?.meta?.last_page) return apiData.meta.last_page;
+    return Math.max(1, Math.ceil(filteredList.length / ITEMS_PER_PAGE));
+  }, [apiData, filteredList.length]);
 
   const columns: Column[] = [
     { key: "vehicle_no", title: "Vehicle No" },
@@ -181,39 +113,26 @@ const Vehicles: React.FC = () => {
     { key: "driver_phone", title: "Driver Phone Number" },
   ];
 
-  // Search filter
-  const filteredList = useMemo(() => {
-    if (!searchTerm.trim()) return vehicles;
-    const q = searchTerm.trim().toLowerCase();
-    return vehicles.filter((item) => {
-      const matchVehicle = (item.vehicle_no || "").toLowerCase().includes(q);
-      const matchModel = (item.model_no || "").toLowerCase().includes(q);
-      const matchYear = String(item.year_made || "").toLowerCase().includes(q);
-      const matchDriver = (item.driver_name || "").toLowerCase().includes(q);
-      const matchPhone = (item.driver_phone || "").toLowerCase().includes(q);
-      return matchVehicle || matchModel || matchYear || matchDriver || matchPhone;
-    });
-  }, [vehicles, searchTerm]);
-
-  const totalPages = useMemo(() => {
-    return Math.max(1, Math.ceil(filteredList.length / ITEMS_PER_PAGE));
-  }, [filteredList.length]);
-
   // Paginated table data
   const tableData = useMemo(() => {
-    const startIndex = (page - 1) * ITEMS_PER_PAGE;
-    const paginated = filteredList.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+    const isBackendPaginated = Boolean(
+      apiData?.data?.last_page || apiData?.last_page || apiData?.meta?.last_page
+    );
 
-    return paginated.map((item) => ({
+    const itemsToDisplay = isBackendPaginated
+      ? filteredList
+      : filteredList.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+
+    return itemsToDisplay.map((item) => ({
       id: item.id,
       vehicle_no: item.vehicle_no || "-",
-      model_no: item.model_no || "-",
+      model_no: item.vehicle_model || item.model_no || "-",
       year_made: item.year_made || "-",
       driver_name: item.driver_name || "-",
-      driver_phone: item.driver_phone || "-",
+      driver_phone: item.driver_contact || item.driver_phone || "-",
       full_data: item,
     }));
-  }, [filteredList, page]);
+  }, [apiData, filteredList, page]);
 
   // Open add modal
   const handleOpenAddModal = () => {
@@ -228,11 +147,11 @@ const Vehicles: React.FC = () => {
     setEditingVehicle(item);
     setFormData({
       vehicle_no: item.vehicle_no || "",
-      model_no: item.model_no || "",
+      model_no: item.vehicle_model || item.model_no || "",
       year_made: String(item.year_made || ""),
-      driver_id: item.driver_id || "",
+      driver_id: item.driver_id ?? "",
       driver_name: item.driver_name || "",
-      driver_phone: item.driver_phone || "",
+      driver_phone: item.driver_contact || item.driver_phone || "",
       note: item.note || "",
     });
     setErrors({});
@@ -247,53 +166,62 @@ const Vehicles: React.FC = () => {
     setErrors({});
   };
 
-  // Form submission (placeholder state update, APIs can be plugged in later)
-  const handleSubmit = (e?: React.FormEvent) => {
+  // Validation
+  const validateForm = () => {
+    const newErrors: { [key: string]: string } = {};
+    if (!formData.vehicle_no.trim()) {
+      newErrors.vehicle_no = "Vehicle number is required";
+    }
+    if (!formData.model_no.trim()) {
+      newErrors.model_no = "Vehicle model is required";
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Form submission
+  const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+    if (!validateForm()) return;
 
     const selectedDriver = driverOptions.find(
       (d) => String(d.value) === String(formData.driver_id)
     );
 
-    const driverName = selectedDriver
-      ? selectedDriver.driver_name
-      : formData.driver_name || "Jhon Martin";
-    const driverPhone = selectedDriver
-      ? selectedDriver.driver_phone
-      : formData.driver_phone || "7037373929";
+    const driverName = selectedDriver ? selectedDriver.driver_name : formData.driver_name || undefined;
+    const driverPhone = selectedDriver ? selectedDriver.driver_phone : formData.driver_phone || undefined;
+    const driverIdNum = formData.driver_id ? Number(formData.driver_id) || undefined : undefined;
 
-    if (editingVehicle) {
-      const updated = vehicles.map((v) =>
-        v.id === editingVehicle.id
-          ? {
-              ...v,
-              vehicle_no: formData.vehicle_no || v.vehicle_no,
-              model_no: formData.model_no || v.model_no,
-              year_made: formData.year_made || v.year_made,
-              driver_id: formData.driver_id,
-              driver_name: driverName,
-              driver_phone: driverPhone,
-              note: formData.note,
-            }
-          : v
-      );
-      updateVehicleList(updated);
-      toast.success("Vehicle updated successfully");
-    } else {
-      const newVehicle: VehicleItem = {
-        id: Date.now(),
-        vehicle_no: formData.vehicle_no || "Test Vehicle",
-        model_no: formData.model_no || "Test Model",
-        year_made: formData.year_made || "2024",
-        driver_id: formData.driver_id,
-        driver_name: driverName,
-        driver_phone: driverPhone,
-        note: formData.note,
-      };
-      updateVehicleList([newVehicle, ...vehicles]);
-      toast.success("Vehicle added successfully");
+    try {
+      if (editingVehicle) {
+        await updateVehicleMutation.mutateAsync({
+          id: editingVehicle.id,
+          vehicle_no: formData.vehicle_no.trim(),
+          vehicle_model: formData.model_no.trim(),
+          year_made: formData.year_made.trim(),
+          driver_id: driverIdNum,
+          driver_name: driverName,
+          driver_contact: driverPhone,
+          note: formData.note.trim() || undefined,
+        });
+        toast.success("Vehicle updated successfully");
+      } else {
+        await addVehicleMutation.mutateAsync({
+          vehicle_no: formData.vehicle_no.trim(),
+          vehicle_model: formData.model_no.trim(),
+          year_made: formData.year_made.trim(),
+          driver_id: driverIdNum,
+          driver_name: driverName,
+          driver_contact: driverPhone,
+          note: formData.note.trim() || undefined,
+        });
+        toast.success("Vehicle added successfully");
+      }
+      handleCloseModal();
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || err?.message || "Failed to save vehicle";
+      toast.error(msg);
     }
-    handleCloseModal();
   };
 
   // Delete handlers
@@ -305,15 +233,19 @@ const Vehicles: React.FC = () => {
     setDeleteTarget(null);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (!deleteTarget) return;
-    const updated = vehicles.filter((v) => v.id !== deleteTarget.id);
-    updateVehicleList(updated);
-    toast.success("Vehicle deleted successfully");
-    setDeleteTarget(null);
+    try {
+      await deleteVehicleMutation.mutateAsync(deleteTarget.id);
+      toast.success("Vehicle deleted successfully");
+      setDeleteTarget(null);
 
-    if (page > 1 && (page - 1) * ITEMS_PER_PAGE >= updated.length) {
-      setPage(page - 1);
+      if (page > 1 && tableData.length <= 1) {
+        setPage(page - 1);
+      }
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || err?.message || "Failed to delete vehicle";
+      toast.error(msg);
     }
   };
 
@@ -340,6 +272,7 @@ const Vehicles: React.FC = () => {
                     onChange={(e: any) => {
                       const val = e?.target ? e.target.value : e;
                       setFormData((prev) => ({ ...prev, vehicle_no: val }));
+                      if (errors.vehicle_no) setErrors((prev) => ({ ...prev, vehicle_no: "" }));
                     }}
                   />
 
@@ -352,6 +285,7 @@ const Vehicles: React.FC = () => {
                     onChange={(e: any) => {
                       const val = e?.target ? e.target.value : e;
                       setFormData((prev) => ({ ...prev, model_no: val }));
+                      if (errors.model_no) setErrors((prev) => ({ ...prev, model_no: "" }));
                     }}
                   />
                 </div>
@@ -361,12 +295,13 @@ const Vehicles: React.FC = () => {
                   <InputField
                     type="text"
                     label="Year Made"
-                    placeHolder="Enter year"
+                    placeHolder="Enter year (e.g. 2024)"
                     value={formData.year_made}
                     error={errors.year_made}
                     onChange={(e: any) => {
                       const val = e?.target ? e.target.value : e;
                       setFormData((prev) => ({ ...prev, year_made: val }));
+                      if (errors.year_made) setErrors((prev) => ({ ...prev, year_made: "" }));
                     }}
                   />
 
@@ -416,9 +351,16 @@ const Vehicles: React.FC = () => {
                   }
                 />
                 <PrimaryButton
-                  title={editingVehicle ? "Update Vehicle" : "Save Vehicle"}
+                  title={
+                    addVehicleMutation.isPending || updateVehicleMutation.isPending
+                      ? "Saving..."
+                      : editingVehicle
+                      ? "Update Vehicle"
+                      : "Save Vehicle"
+                  }
                   icon={<Save size={16} />}
                   onClick={handleSubmit}
+                  disabled={addVehicleMutation.isPending || updateVehicleMutation.isPending}
                 />
               </div>
             </div>
@@ -441,13 +383,11 @@ const Vehicles: React.FC = () => {
               </div>
 
               <div className="buttons">
-                <SecondaryButton
-                  onClick={handleCancelDelete}
-                  title="Cancel"
-                />
+                <SecondaryButton onClick={handleCancelDelete} title="Cancel" />
                 <PrimaryButton
                   onClick={handleConfirmDelete}
-                  title="Delete"
+                  title={deleteVehicleMutation.isPending ? "Deleting..." : "Delete"}
+                  disabled={deleteVehicleMutation.isPending}
                 />
               </div>
             </div>

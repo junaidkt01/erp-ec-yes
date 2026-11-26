@@ -6,66 +6,71 @@ import DataTable, { type Column } from "../../../components/DataTable/DataTable"
 import PopupScreen from "../../../components/PopupScreen/PopupScreen";
 import { InputField } from "../../../components/InputFields/InputFields";
 import { PrimaryButton, SecondaryButton } from "../../../components/Buttons/Buttons";
-
-export interface VehicleRouteItem {
-  id: number | string;
-  route_title: string;
-  fare: number | string;
-}
+import {
+  useFetchAllRoutes,
+  useAddRoute,
+  useUpdateRoute,
+  useDeleteRoute,
+  type RouteItem,
+} from "../../../hooks/useTransport";
 
 const initialFormState = {
   route_title: "",
   fare: "",
 };
 
-const ITEMS_PER_PAGE = 5;
-
-// Sample initial data matching the screenshot
-const defaultRoutes: VehicleRouteItem[] = [
-  { id: 1, route_title: "Test Route", fare: 200 },
-  { id: 2, route_title: "Test Route", fare: 200 },
-  { id: 3, route_title: "Test Route", fare: 200 },
-  { id: 4, route_title: "Test Route", fare: 200 },
-  { id: 5, route_title: "Test Route", fare: 200 },
-  { id: 6, route_title: "North Campus Express", fare: 250 },
-  { id: 7, route_title: "South City Route", fare: 180 },
-  { id: 8, route_title: "East Metro Connector", fare: 220 },
-  { id: 9, route_title: "West Suburb Shuttle", fare: 300 },
-  { id: 10, route_title: "Central Ring Road", fare: 150 },
-];
+const ITEMS_PER_PAGE = 10;
 
 const VehicleRoutes: React.FC = () => {
-  const [routes, setRoutes] = useState<VehicleRouteItem[]>(() => {
-    try {
-      const saved = localStorage.getItem("vehicle_routes_data");
-      if (saved) return JSON.parse(saved);
-    } catch {
-      // fallback
-    }
-    return defaultRoutes;
-  });
-
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
 
+  // Transport API hooks
+  const { data: apiData } = useFetchAllRoutes({
+    page,
+    per_page: ITEMS_PER_PAGE,
+    search: searchTerm || undefined,
+  });
+  const addRouteMutation = useAddRoute();
+  const updateRouteMutation = useUpdateRoute();
+  const deleteRouteMutation = useDeleteRoute();
+
   // Modal and form states
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingRoute, setEditingRoute] = useState<VehicleRouteItem | null>(null);
+  const [editingRoute, setEditingRoute] = useState<RouteItem | null>(null);
   const [formData, setFormData] = useState(initialFormState);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   // Delete confirmation modal state
-  const [deleteTarget, setDeleteTarget] = useState<VehicleRouteItem | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<RouteItem | null>(null);
 
-  // Sync to local storage for persistence
-  const updateRouteList = (newList: VehicleRouteItem[]) => {
-    setRoutes(newList);
-    try {
-      localStorage.setItem("vehicle_routes_data", JSON.stringify(newList));
-    } catch {
-      // ignore
-    }
-  };
+  // Extract raw list from response
+  const rawList: RouteItem[] = useMemo(() => {
+    if (!apiData) return [];
+    if (Array.isArray(apiData)) return apiData;
+    if (Array.isArray(apiData.data)) return apiData.data;
+    if (Array.isArray(apiData.data?.data)) return apiData.data.data;
+    return [];
+  }, [apiData]);
+
+  // Client-side fallback filtering if server returns full collection
+  const filteredList = useMemo(() => {
+    if (!searchTerm.trim()) return rawList;
+    const q = searchTerm.trim().toLowerCase();
+    return rawList.filter((item) => {
+      const title = (item.title || item.route_title || "").toLowerCase();
+      const fare = String(item.fare || "").toLowerCase();
+      return title.includes(q) || fare.includes(q);
+    });
+  }, [rawList, searchTerm]);
+
+  // Pagination calculation
+  const totalPages = useMemo(() => {
+    if (apiData?.data?.last_page) return apiData.data.last_page;
+    if (apiData?.last_page) return apiData.last_page;
+    if (apiData?.meta?.last_page) return apiData.meta.last_page;
+    return Math.max(1, Math.ceil(filteredList.length / ITEMS_PER_PAGE));
+  }, [apiData, filteredList.length]);
 
   const columns: Column[] = [
     { key: "sl", title: "SL" },
@@ -73,34 +78,27 @@ const VehicleRoutes: React.FC = () => {
     { key: "fare", title: "Fare (₹)" },
   ];
 
-  // Search filter
-  const filteredList = useMemo(() => {
-    if (!searchTerm.trim()) return routes;
-    const q = searchTerm.trim().toLowerCase();
-    return routes.filter((item) => {
-      const matchTitle = (item.route_title || "").toLowerCase().includes(q);
-      const matchFare = String(item.fare || "").toLowerCase().includes(q);
-      return matchTitle || matchFare;
-    });
-  }, [routes, searchTerm]);
-
-  const totalPages = useMemo(() => {
-    return Math.max(1, Math.ceil(filteredList.length / ITEMS_PER_PAGE));
-  }, [filteredList.length]);
-
   // Paginated table data
   const tableData = useMemo(() => {
-    const startIndex = (page - 1) * ITEMS_PER_PAGE;
-    const paginated = filteredList.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+    // If backend already paginated
+    const isBackendPaginated = Boolean(
+      apiData?.data?.last_page || apiData?.last_page || apiData?.meta?.last_page
+    );
 
-    return paginated.map((item, index) => ({
+    const itemsToDisplay = isBackendPaginated
+      ? filteredList
+      : filteredList.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+
+    const startIndex = (page - 1) * ITEMS_PER_PAGE;
+
+    return itemsToDisplay.map((item, index) => ({
       id: item.id,
       sl: startIndex + index + 1,
-      route_title: item.route_title || "-",
-      fare: `₹ ${item.fare}`,
+      route_title: item.title || item.route_title || "-",
+      fare: item.fare !== undefined && item.fare !== null ? `₹ ${item.fare}` : "-",
       full_data: item,
     }));
-  }, [filteredList, page]);
+  }, [apiData, filteredList, page]);
 
   // Open add modal
   const handleOpenAddModal = () => {
@@ -111,11 +109,11 @@ const VehicleRoutes: React.FC = () => {
   };
 
   // Open edit modal
-  const handleOpenEditModal = (item: VehicleRouteItem) => {
+  const handleOpenEditModal = (item: RouteItem) => {
     setEditingRoute(item);
     setFormData({
-      route_title: item.route_title || "",
-      fare: String(item.fare || ""),
+      route_title: item.title || item.route_title || "",
+      fare: String(item.fare ?? ""),
     });
     setErrors({});
     setIsModalOpen(true);
@@ -145,36 +143,34 @@ const VehicleRoutes: React.FC = () => {
   };
 
   // Submit create or update
-  const handleSubmit = (e?: React.FormEvent) => {
+  const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!validateForm()) return;
 
-    if (editingRoute) {
-      const updated = routes.map((r) =>
-        r.id === editingRoute.id
-          ? {
-              ...r,
-              route_title: formData.route_title.trim(),
-              fare: Number(formData.fare),
-            }
-          : r
-      );
-      updateRouteList(updated);
-      toast.success("Route updated successfully");
-    } else {
-      const newRoute: VehicleRouteItem = {
-        id: Date.now(),
-        route_title: formData.route_title.trim(),
-        fare: Number(formData.fare),
-      };
-      updateRouteList([newRoute, ...routes]);
-      toast.success("Route added successfully");
+    try {
+      if (editingRoute) {
+        await updateRouteMutation.mutateAsync({
+          id: editingRoute.id,
+          title: formData.route_title.trim(),
+          fare: Number(formData.fare),
+        });
+        toast.success("Route updated successfully");
+      } else {
+        await addRouteMutation.mutateAsync({
+          title: formData.route_title.trim(),
+          fare: Number(formData.fare),
+        });
+        toast.success("Route created successfully");
+      }
+      handleCloseModal();
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || err?.message || "Failed to save route";
+      toast.error(msg);
     }
-    handleCloseModal();
   };
 
   // Delete handlers
-  const handleDeleteClick = (route: VehicleRouteItem) => {
+  const handleDeleteClick = (route: RouteItem) => {
     setDeleteTarget(route);
   };
 
@@ -182,16 +178,18 @@ const VehicleRoutes: React.FC = () => {
     setDeleteTarget(null);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (!deleteTarget) return;
-    const updated = routes.filter((r) => r.id !== deleteTarget.id);
-    updateRouteList(updated);
-    toast.success("Route deleted successfully");
-    setDeleteTarget(null);
-
-    // Adjust page if empty after deletion
-    if (page > 1 && (page - 1) * ITEMS_PER_PAGE >= updated.length) {
-      setPage(page - 1);
+    try {
+      await deleteRouteMutation.mutateAsync(deleteTarget.id);
+      toast.success("Route deleted successfully");
+      setDeleteTarget(null);
+      if (page > 1 && tableData.length <= 1) {
+        setPage(page - 1);
+      }
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || err?.message || "Failed to delete route";
+      toast.error(msg);
     }
   };
 
@@ -251,9 +249,16 @@ const VehicleRoutes: React.FC = () => {
                   }
                 />
                 <PrimaryButton
-                  title={editingRoute ? "Update Route" : "Save Route"}
+                  title={
+                    addRouteMutation.isPending || updateRouteMutation.isPending
+                      ? "Saving..."
+                      : editingRoute
+                      ? "Update Route"
+                      : "Save Route"
+                  }
                   icon={<Save size={16} />}
                   onClick={handleSubmit}
+                  disabled={addRouteMutation.isPending || updateRouteMutation.isPending}
                 />
               </div>
             </div>
@@ -271,18 +276,16 @@ const VehicleRoutes: React.FC = () => {
               <div className="body_section" style={{ padding: "12px 0" }}>
                 <p>
                   Are you sure you want to delete route{" "}
-                  <strong>"{deleteTarget.route_title}"</strong>?
+                  <strong>"{deleteTarget.title || deleteTarget.route_title}"</strong>?
                 </p>
               </div>
 
               <div className="buttons">
-                <SecondaryButton
-                  onClick={handleCancelDelete}
-                  title="Cancel"
-                />
+                <SecondaryButton onClick={handleCancelDelete} title="Cancel" />
                 <PrimaryButton
                   onClick={handleConfirmDelete}
-                  title="Delete"
+                  title={deleteRouteMutation.isPending ? "Deleting..." : "Delete"}
+                  disabled={deleteRouteMutation.isPending}
                 />
               </div>
             </div>
