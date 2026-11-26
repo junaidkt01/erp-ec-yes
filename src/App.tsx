@@ -88,6 +88,16 @@ import TeacherPeriods from './pages/Teacher/TeacherPeriods/TeacherPeriods'
 import VehicleRoutes from './pages/Transport/Routes/VehicleRoutes'
 import Vehicles from './pages/Transport/Vehicles/Vehicles'
 import AssignVechicle from './pages/Transport/AssignVehicle/AssignVechicle'
+import Hostels from './pages/Hostel/Hostels/Hostels'
+import HostelRooms from './pages/Hostel/HostelRooms/HostelRooms'
+import RoomType from './pages/Hostel/RoomType/RoomType'
+import ExamType from './pages/Examination/ExamType/ExamType'
+import ExamSetup from './pages/Examination/ExamSetup/ExamSetup'
+import ExamSchedule from './pages/Examination/ExamSchedule/ExamSchedule'
+import ExamAttendance from './pages/Examination/ExamAttendance/ExamAttendance'
+import MarkRegister from './pages/Examination/MarkRegister/MarkRegister'
+import MarkGrade from './pages/Examination/MarkGrade/MarkGrade'
+import SendMarksBySms from './pages/Examination/SendMarksBySms/SendMarksBySms'
 
 // import Snowfall from './components/Snowfall'
 
@@ -279,6 +289,20 @@ function App() {
                   <Route path='/transport/assign-vehicle' element={<AssignVechicle />} />
                   <Route path='/transport/assign-vehicles' element={<AssignVechicle />} />
 
+                  {/* 17. Dormitory / Hostel */}
+                  <Route path='/hostel/hostels' element={<Hostels />} />
+                  <Route path='/hostel/rooms' element={<HostelRooms />} />
+                  <Route path='/hostel/room-type' element={<RoomType />} />
+
+                  {/* 18. Examination */}
+                  <Route path='/examination/exam-type' element={<ExamType />} />
+                  <Route path='/examination/exam-setup' element={<ExamSetup />} />
+                  <Route path='/examination/exam-schedule' element={<ExamSchedule />} />
+                  <Route path='/examination/exam-attendance' element={<ExamAttendance />} />
+                  <Route path='/examination/marks-register' element={<MarkRegister />} />
+                  <Route path='/examination/marks-grade' element={<MarkGrade />} />
+                  <Route path='/examination/send-marks-by-sms' element={<SendMarksBySms />} />
+                  <Route path='/examination/send-marks-sms' element={<SendMarksBySms />} />
                 </Route>
 
                 {/* Error page */}

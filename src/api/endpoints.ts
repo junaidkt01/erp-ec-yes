@@ -55,11 +55,21 @@ export const downloadContentType = {
   download_content_types: "/download-content-types",
 };
 
-export const examShedule = { exam_shedules: "/exam-shedules" };
+export const examShedule = { exam_shedules: "/exam-schedules" };
 
-export const exam = { exams: "/exams" };
+export const exam = {
+  exams: "/exams",
+  examTypes: "/exam-types",
+  examSetups: "/exam-setups",
+  examSchedules: "/exam-schedules",
+  examAttendances: "/exam-attendances",
+  examMarks: "/exam-marks",
+  examResults: "/exam-results",
+  markGrades: "/mark-grades",
+  sendMarksSms: "/exams/send-marks-sms",
+};
 
-export const examResult = { exam_results: "/exam-results" }
+export const examResult = { exam_results: "/exam-results" };
 
 export const feeGroup = { fee_groups: "/fee-groups" };
 
@@ -189,5 +199,12 @@ export const transport = {
   vehicles: "/vehicles",
   assignVehicles: "/assign-vehicles",
 };
+
+export const dormitory = {
+  dormitories: "/dormitories",
+  rooms: "/dormitory-rooms",
+  roomTypes: "/room-types",
+};
+
 
 
