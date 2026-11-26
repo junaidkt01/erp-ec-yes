@@ -1,7 +1,462 @@
-.submit_attendance_button {
-    display: flex;
-    justify-content: end;
-    width: 100%;
+// src/pages/StudentInfo/StudentAttendance/StudentAttendance.scss
 
+.student_attendance {
+  width: 100%;
+  box-sizing: border-box;
+
+  /* ─── Attendance Summary & Bulk Actions Toolbar ─── */
+  .attendance_toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding: 12px 16px;
+    background: #fbfbfd;
+    border-radius: 10px;
+    border: 0.5px solid #e2e8f0;
+
+    .stats_chips {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+
+      .stat_chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 16px;
+        font-size: 12.5px;
+        font-weight: 500;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        color: #475569;
+
+        strong {
+          color: #0f172a;
+          font-weight: 600;
+        }
+
+        .dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          display: inline-block;
+        }
+
+        &.total {
+          background: #f8fafc;
+          border-color: #cbd5e1;
+          color: #334155;
+        }
+
+        &.present {
+          border-color: #bbf7d0;
+          color: #166534;
+          .dot {
+            background-color: #4caf7d;
+          }
+        }
+
+        &.absent {
+          border-color: #fecaca;
+          color: #991b1b;
+          .dot {
+            background-color: #ff4141;
+          }
+        }
+
+        &.late {
+          border-color: #fde68a;
+          color: #92400e;
+          .dot {
+            background-color: #e6a000;
+          }
+        }
+
+        &.leave {
+          border-color: #ddd6fe;
+          color: #5b21b6;
+          .dot {
+            background-color: #605dec;
+          }
+        }
+
+        &.unmarked {
+          border-color: #e2e8f0;
+          color: #94a3b8;
+          background: #f8fafc;
+        }
+      }
+    }
+
+    .bulk_actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .bulk_btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        border: none;
+        user-select: none;
+
+        &.mark_present_btn {
+          background: #eef8f3;
+          color: #1b8754;
+          border: 1px solid #c3e6cb;
+
+          &:hover {
+            background: #4caf7d;
+            color: #ffffff;
+            border-color: #4caf7d;
+          }
+
+          &:active {
+            transform: scale(0.96);
+          }
+        }
+
+        &.reset_btn {
+          background: #ffffff;
+          color: #64748b;
+          border: 1px solid #cbd5e1;
+
+          &:hover {
+            background: #f1f5f9;
+            color: #334155;
+          }
+
+          &:active {
+            transform: scale(0.96);
+          }
+        }
+      }
+    }
+
+    @media (max-width: 640px) {
+      padding: 10px 12px;
+      flex-direction: column;
+      align-items: stretch;
+
+      .stats_chips {
+        justify-content: flex-start;
+      }
+
+      .bulk_actions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+
+        .bulk_btn {
+          justify-content: center;
+          padding: 8px 10px;
+        }
+      }
+    }
+  }
+
+  /* ─── Desktop View ─── */
+  .attendance_desktop_view {
+    display: block;
+
+    @media (max-width: 768px) {
+      display: none !important;
+    }
+  }
+
+  /* ─── Mobile Attendance Cards View ─── */
+  .attendance_mobile_view {
+    display: none;
+
+    @media (max-width: 768px) {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .mobile_student_card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+
+      // Status indicator border highlights
+      &.status_present {
+        border-color: #86efac;
+        background: #fcfffd;
+      }
+      &.status_absent {
+        border-color: #fca5a5;
+        background: #fffafa;
+      }
+      &.status_late {
+        border-color: #fcd34d;
+        background: #fffdf5;
+      }
+      &.status_half_day {
+        border-color: #a5b4fc;
+        background: #fafbff;
+      }
+      &.status_leave {
+        border-color: #c4b5fd;
+        background: #faf8ff;
+      }
+
+      .card_header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        .student_avatar {
+          width: 44px;
+          height: 44px;
+          min-width: 44px;
+          border-radius: 8px;
+          object-fit: cover;
+          border: 0.5px solid #cbd5e1;
+          background: #f8fafc;
+        }
+
+        .student_meta {
+          flex: 1;
+          min-width: 0;
+
+          .name_row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+
+            .student_name {
+              font-size: 14.5px;
+              font-weight: 600;
+              color: #1e293b;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+
+            .status_chip {
+              font-size: 11px;
+              font-weight: 600;
+              padding: 2px 8px;
+              border-radius: 12px;
+              text-transform: capitalize;
+              flex-shrink: 0;
+
+              &.status_present {
+                background: #eef8f3;
+                color: #1b8754;
+                border: 1px solid #c3e6cb;
+              }
+              &.status_absent {
+                background: #fee2e2;
+                color: #b91c1c;
+                border: 1px solid #fecaca;
+              }
+              &.status_late {
+                background: #fef3c7;
+                color: #b45309;
+                border: 1px solid #fde68a;
+              }
+              &.status_half_day {
+                background: #ede9fe;
+                color: #6d28d9;
+                border: 1px solid #ddd6fe;
+              }
+              &.status_leave {
+                background: #f3e8ff;
+                color: #7e22ce;
+                border: 1px solid #e9d5ff;
+              }
+              &.status_unmarked {
+                background: #f1f5f9;
+                color: #94a3b8;
+                border: 1px solid #e2e8f0;
+              }
+            }
+          }
+
+          .details_row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 4px;
+            flex-wrap: wrap;
+
+            .roll_pill,
+            .id_pill {
+              font-size: 12px;
+              color: #64748b;
+              background: #f1f5f9;
+              padding: 1px 6px;
+              border-radius: 4px;
+
+              strong {
+                color: #1e293b;
+                font-weight: 600;
+              }
+            }
+          }
+        }
+      }
+
+      /* 5 Equal Grid Buttons on Mobile */
+      .attendance_grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 6px;
+
+        .attendance_button {
+          width: 100%;
+          min-width: 0;
+          height: 36px;
+          padding: 6px 4px;
+          border-radius: 8px;
+          font-size: 12.5px;
+          font-weight: 500;
+
+          .attendance_button_full {
+            display: inline;
+          }
+          .attendance_button_short {
+            display: none;
+          }
+
+          @media (max-width: 480px) {
+            font-size: 12px;
+            padding: 6px 2px;
+          }
+        }
+      }
+
+      /* Note Section */
+      .note_section {
+        .add_note_btn {
+          background: none;
+          border: none;
+          padding: 0;
+          color: #605dec;
+          font-size: 12px;
+          font-weight: 500;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+
+        .note_input_box {
+          margin-top: 4px;
+
+          .input_field_wrapper {
+            margin: 0;
+            input {
+              font-size: 13px;
+              padding: 8px 10px;
+            }
+          }
+        }
+      }
+    }
+
+    /* Mobile Pagination */
+    .mobile_pagination {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      margin-top: 4px;
+
+      .page_indicator {
+        font-size: 13px;
+        color: #475569;
+        font-weight: 500;
+      }
+
+      .page_nav_btn {
+        background: #f4f3fe;
+        color: #605dec;
+        border: 0.5px solid #bdbcdb;
+        border-radius: 6px;
+        padding: 6px 14px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.15s ease;
+
+        &:disabled {
+          opacity: 0.4;
+          cursor: not-allowed;
+        }
+
+        &:hover:not(:disabled) {
+          background: #605dec;
+          color: #ffffff;
+        }
+      }
+    }
+
+    .mobile_empty_state {
+      text-align: center;
+      padding: 40px 16px;
+      color: #94a3b8;
+      font-size: 14px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+    }
+  }
+
+  /* ─── Submit Button Container ─── */
+  .submit_attendance_button {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
     margin-top: 24px;
+
+    @media (max-width: 768px) {
+      position: sticky;
+      bottom: 12px;
+      z-index: 20;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      margin-top: 16px;
+      box-sizing: border-box;
+
+      button {
+        width: 100%;
+        justify-content: center;
+        padding: 12px;
+        font-size: 15px;
+      }
+    }
+  }
 }

@@ -69,11 +69,14 @@
     letter-spacing: 0%;
     color: #212121;
 
+    @media (max-width: 768px) {
+      font-size: 16px; // Prevents iOS Safari & mobile browsers from auto-zooming viewport on focus
+    }
+
     transition:
       border-color 0.2s ease,
       background-color 0.2s ease,
-      box-shadow 0.2s ease,
-      transform 0.15s ease;
+      box-shadow 0.2s ease;
 
     &::placeholder {
       color: #b0aed4;
@@ -88,7 +91,6 @@
       border-color: #605dec;
       // background-color: #ffffff;
       box-shadow: 0 0 0 3.5px rgba(96, 93, 236, 0.12);
-      transform: translateY(-1px);
     }
 
     position: relative;
@@ -100,6 +102,75 @@
       &:focus {
         border-color: #ff6b6b;
         box-shadow: 0 0 0 3.5px rgba(255, 107, 107, 0.12);
+      }
+    }
+  }
+
+  .input_wrapper {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+
+    input {
+      &.has_password_toggle {
+        padding-right: 44px;
+      }
+
+      &::-ms-reveal,
+      &::-ms-clear {
+        display: none;
+      }
+    }
+
+    &:focus-within {
+      .password_toggle_btn {
+        transform: translateY(calc(-50% - 1px));
+      }
+    }
+
+    .password_toggle_btn {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 32px !important;
+      height: 32px !important;
+      min-width: unset !important;
+      max-width: unset !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      border: none !important;
+      background: transparent !important;
+      cursor: pointer;
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      color: #8b88a5;
+      border-radius: 6px;
+      transition: color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
+      z-index: 2;
+
+      &:hover {
+        color: #605dec;
+        background-color: rgba(96, 93, 236, 0.08) !important;
+      }
+
+      &:focus-visible {
+        outline: 2px solid #605dec;
+        outline-offset: 1px;
+        color: #605dec;
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      svg {
+        width: 18px;
+        height: 18px;
+        pointer-events: none;
       }
     }
   }
@@ -146,11 +217,24 @@
   color: #212121;
   transition: .2s;
 
+  @media (max-width: 768px) {
+    font-size: 16px; // Prevents iOS Safari auto-zoom
+  }
+
   &:focus {
     outline: none;
     border-color: #605dec;
     box-shadow: 0 0 0 3px rgba(96, 93, 236, .12);
     background: #fff;
+  }
+
+  &:read-only,
+  &:disabled {
+    cursor: default;
+    background-color: #f1f0fa;
+    color: #475569;
+    border-color: #e2e0f0;
+    box-shadow: none;
   }
 }
 
@@ -423,6 +507,10 @@
         color: #212121;
         outline: none;
         transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+
+        @media (max-width: 768px) {
+          font-size: 16px; // Prevents iOS Safari auto-zoom
+        }
 
         &:focus {
           border-color: #605dec;

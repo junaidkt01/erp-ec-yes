@@ -44,7 +44,7 @@ interface CreateAcademicYearPayload {
 }
 
 export const useAddAcademicYear = () => {
-const queryClient = useQueryClient(); //for update and add
+  const queryClient = useQueryClient(); //for update and add
 
   return useMutation({
     mutationFn: async (payload: CreateAcademicYearPayload) => {
@@ -75,7 +75,7 @@ export interface UpdateAcademicYearPayload {
 
 export const useUpdateAcademicYear = () => {
 
-    const queryClient = useQueryClient(); //for update and add
+  const queryClient = useQueryClient(); //for update and add
   return useMutation({
     mutationFn: async (updatePayload: UpdateAcademicYearPayload) => {
       const { id, ...updatedData } = updatePayload;
@@ -99,7 +99,7 @@ export const useUpdateAcademicYear = () => {
 //remove AcademicYear api
 export const useRemoveAcademicYear = () => {
 
-    const queryClient = useQueryClient(); //for update and add
+  const queryClient = useQueryClient(); //for update and add
   return useMutation({
     mutationFn: async (id: number) => {
       const res = await axiosInstance.delete(

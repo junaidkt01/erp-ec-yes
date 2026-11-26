@@ -80,10 +80,14 @@ import FeesType from './pages/Fees/FeesType/FeesType'
 import StudentsAttendanceReport from './pages/StudentsReport/StudentsAttendanceReport/StudentsAttendanceReport'
 import StaffAttendanceReport from './pages/StaffReport/StaffAttendanceReport/StaffAttendanceReport'
 import AcademicYear from './pages/SettingsSection/AcademicYear/AcademicYear'
+import ActivityLog from './pages/SettingsSection/ActivityLog/ActivityLog'
 import UserProfile from './pages/UserProfile/UserProfile'
 import TeacherClasses from './pages/Teacher/TeacherClasses/TeacherClasses'
 import TeacherSubjects from './pages/Teacher/TeacherSubjects/TeacherSubjects'
 import TeacherPeriods from './pages/Teacher/TeacherPeriods/TeacherPeriods'
+import VehicleRoutes from './pages/Transport/Routes/VehicleRoutes'
+import Vehicles from './pages/Transport/Vehicles/Vehicles'
+import AssignVechicle from './pages/Transport/AssignVehicle/AssignVechicle'
 
 // import Snowfall from './components/Snowfall'
 
@@ -238,6 +242,8 @@ function App() {
                   <Route path='/settings-section/general-settings' element={<GeneralSettings />} />
                   <Route path='/settings-section/update-general-settings' element={<UpdateGeneralSettings />} />
                   <Route path='/settings-section/academic-year' element={<AcademicYear />} />
+                  <Route path='/settings-section/activity-log' element={<ActivityLog />} />
+                  <Route path='/settings-section/activity-logs' element={<ActivityLog />} />
 
                   {/* 9. Admin Section */}
                   {/* <Route path='/admin-info/profile/:admin_id' element={<AdminProfile />} /> */}
@@ -264,6 +270,14 @@ function App() {
                   <Route path='/teacher/classes' element={<TeacherClasses />} />
                   <Route path='/teacher/subjects' element={<TeacherSubjects />} />
                   <Route path='/teacher/next-periods' element={<TeacherPeriods />} />
+
+                  {/* 16. Transport */}
+                  <Route path='/transport/routes' element={<VehicleRoutes />} />
+                  <Route path='/transport/vehicle-routes' element={<VehicleRoutes />} />
+                  <Route path='/transport/vehicles' element={<Vehicles />} />
+                  <Route path='/transport/vehicle' element={<Vehicles />} />
+                  <Route path='/transport/assign-vehicle' element={<AssignVechicle />} />
+                  <Route path='/transport/assign-vehicles' element={<AssignVechicle />} />
 
                 </Route>
 

@@ -28,7 +28,7 @@ $font-body: "DM Sans", "Helvetica Neue", sans-serif;
     flex-direction: column;
     gap: 20px;
 
-    button {
+    button:not(.password_toggle_btn) {
       width: 100%;
       display: flex;
       align-items: center;

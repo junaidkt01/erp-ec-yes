@@ -179,3 +179,8 @@ export const homework = {
   evaluation: "/homework-report/evaluation",
   evaluate: (id: number | string) => `/homeworks/${id}/evaluate`,
 };
+
+export const userActivity = {
+  user_activities: "/user-activities",
+};
+

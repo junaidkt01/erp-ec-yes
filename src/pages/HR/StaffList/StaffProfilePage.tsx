@@ -26,6 +26,7 @@ const StaffProfilePage = () => {
     const tabs = [
         "Profile",
         // "Edit Profile",
+        "Staff Attendance",
         "Change Password",
         // "Next Perieds",
     ];

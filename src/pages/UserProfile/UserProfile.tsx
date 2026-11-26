@@ -1,6 +1,7 @@
 import LoadingOverlay from "../../components/Loadingoverlay";
 import { useAuth } from "../../auth/useAuth";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useParams } from "react-router-dom";
 import "./UserProfile.scss";
 import { PrimaryButton, SecondaryButton } from "../../components/Buttons/Buttons";
 import { InputField } from "../../components/InputFields/InputFields";
@@ -8,7 +9,13 @@ import InputFiles from "../../components/InputFields/InputFiles";
 import { useResetPassword } from "../../auth/useResetPassword";
 import { useForgotPassword } from "../../auth/useForgotPassword";
 import { useUpdateUser, type UpdateUserPayload } from "../../hooks/useUsers";
+import { useFetchUserActivityById } from "../../hooks/useUserActivities";
+import { parseUserAgent } from "../../utils/userAgentParser";
 import { toast } from "sonner";
+import { Globe, Terminal } from "lucide-react";
+import PopupScreen from "../../components/PopupScreen/PopupScreen";
+import { TwoFactorSettings } from "../../components/TwoFactorModal/TwoFactorModal";
+import DataTable, { type Column } from "../../components/DataTable/DataTable";
 
 const UserProfile = () => {
     const { data: profileDetails, isLoading } = useAuth();
@@ -267,9 +274,107 @@ const UserProfile = () => {
         return val;
     };
 
+    const { id: paramId } = useParams<{ id?: string }>();
+    const targetUserId = paramId || profileDetails?.user?.id || profileDetails?.id;
+    console.log("targetUserId: ",targetUserId)
+    const { data: activityRes, isLoading: isActivityLoading } = useFetchUserActivityById(targetUserId);
+
+    const [selectedLog, setSelectedLog] = useState<any>(null);
+
+    const getMethodClass = (m?: string, type?: string) => {
+        const val = (m || type || "").toLowerCase();
+        if (val.includes("get")) return "method_get";
+        if (val.includes("post")) return "method_post";
+        if (val.includes("put") || val.includes("patch")) return "method_put";
+        if (val.includes("delete")) return "method_delete";
+        if (val.includes("login")) return "method_login";
+        if (val.includes("logout")) return "method_logout";
+        return "";
+    };
+
+    const getStatusClass = (code?: number) => {
+        if (!code) return "";
+        if (code >= 200 && code < 300) return "status_2xx";
+        if (code >= 400 && code < 500) return "status_4xx";
+        if (code >= 500) return "status_5xx";
+        return "";
+    };
+
+    const columns: Column[] = [
+        { key: "ip_address", title: "IP Address" },
+        { key: "activity", title: "Activity" },
+        { key: "activity_time", title: "Activity Time" },
+        { key: "user_agent", title: "User Agent" },
+    ];
+
+    const userLogData = useMemo(() => {
+        const raw = activityRes?.data;
+        const list = Array.isArray(raw) ? raw : Array.isArray(raw?.data) ? raw.data : raw ? [raw] : [];
+        return list.map((item: any) => {
+            const parsedUa = parseUserAgent(item.user_agent);
+            const methodLabel = item.method || (item.activity_type ? item.activity_type.toUpperCase() : "");
+
+            return {
+                id: item.id,
+                raw: item,
+
+                // 1. IP Address badge
+                ip_address: (
+                    <span className="ip_badge" title={`IP: ${item.ip_address || "N/A"}`}>
+                        <Globe size={12} />
+                        {item.ip_address || "N/A"}
+                    </span>
+                ),
+
+                // 2. Activity with method and status badges
+                activity: (
+                    <div className="activity_cell">
+                        <div className="activity_top">
+                            {methodLabel && (
+                                <span className={`method_badge ${getMethodClass(item.method, item.activity_type)}`}>
+                                    {methodLabel}
+                                </span>
+                            )}
+                            {item.status_code && (
+                                <span className={`status_badge ${getStatusClass(item.status_code)}`}>
+                                    {item.status_code}
+                                </span>
+                            )}
+                        </div>
+                        <span className="activity_desc" title={item.description || item.url || item.activity_type}>
+                            {item.description || item.url || item.activity_type || "-"}
+                        </span>
+                    </div>
+                ),
+
+                // 3. Activity Time + Time Ago
+                activity_time: (
+                    <div className="time_cell">
+                        <span className="time_primary">
+                            {item.time_formatted || item.time || (item.created_at ? new Date(item.created_at).toLocaleString() : "-")}
+                        </span>
+                        {item.time_ago && <span className="time_ago">{item.time_ago}</span>}
+                    </div>
+                ),
+
+                // 4. User Agent with Browser & OS
+                user_agent: (
+                    <div className="browser_cell" title={item.user_agent || "No User Agent data"}>
+                        <span className="browser_name">
+                            <Terminal size={13} color="#4b5563" />
+                            {parsedUa.browserDisplay || parsedUa.browser}
+                        </span>
+                        <span className="browser_os">{parsedUa.os}</span>
+                    </div>
+                ),
+            };
+        });
+    }, [activityRes]);
+
     if (isLoading) {
         return <LoadingOverlay isLoading={true} />
     }
+
 
     return (
         <div className="page_wrapper" >
@@ -504,15 +609,132 @@ const UserProfile = () => {
                                 )}
 
                                 {activeTab === "2FA" && (
-                                    <div className="empty-page">2FA</div>
+                                    <div className="search_screen" style={{ padding: "24px" }} >
+                                        <div style={{ width: "100%", maxWidth: "600px" }}>
+                                            <TwoFactorSettings isEmbedded />
+                                        </div>
+                                    </div>
                                 )}
                                 {activeTab === "User Log" && (
-                                    <div className="empty-page">User Log</div>
+                                    <div className="details-list" style={{ margin: "24px" }} >
+                                        <DataTable
+                                            columns={columns}
+                                            data={userLogData}
+                                            currentPage={1}
+                                            totalPages={1}
+                                            onPageChange={() => { }}
+                                            emptyMessage={isActivityLoading ? "Loading user logs..." : "No user activity records found"}
+                                            actions={(row: any) => (
+                                                <div className="actions">
+                                                    <button
+                                                        type="button"
+                                                        className="hvr_zm_out"
+                                                        title="View Details"
+                                                        onClick={() => setSelectedLog(row.raw)}
+                                                        style={{ border: "none", background: "transparent", cursor: "pointer", padding: "6px" }}
+                                                    >
+                                                        <img src="/svgs/eye_open.svg" alt="View" style={{ width: "16px", height: "16px" }} />
+                                                    </button>
+                                                </div>
+                                            )}
+                                        />
+                                    </div>
                                 )}
                             </div>
                         </div>
                     </div>
                 </div>
+
+                {/* View Details Popup Screen */}
+                {selectedLog && (
+                    <PopupScreen
+                        title={`Activity Log Details #${selectedLog.id}`}
+                        onClick={() => setSelectedLog(null)}
+                    >
+                        <div className="activity_details_modal">
+                            {/* Activity Info */}
+                            <div className="details_section">
+                                <div className="section_title">Activity & Request</div>
+                                <div className="detail_grid">
+                                    <div className="detail_row">
+                                        <span className="detail_label">Activity Type</span>
+                                        <span className="detail_value">{selectedLog.activity_type}</span>
+                                    </div>
+                                    <div className="detail_row">
+                                        <span className="detail_label">HTTP Method / Status</span>
+                                        <span className="detail_value">
+                                            {selectedLog.method && (
+                                                <span className={`method_badge ${getMethodClass(selectedLog.method, selectedLog.activity_type)}`}>
+                                                    {selectedLog.method}
+                                                </span>
+                                            )}
+                                            {selectedLog.status_code && (
+                                                <span className={`status_badge ${getStatusClass(selectedLog.status_code)}`} style={{ marginLeft: "6px" }}>
+                                                    {selectedLog.status_code}
+                                                </span>
+                                            )}
+                                        </span>
+                                    </div>
+                                    <div className="detail_row full_width">
+                                        <span className="detail_label">Description</span>
+                                        <span className="detail_value">{selectedLog.description || "N/A"}</span>
+                                    </div>
+                                    {selectedLog.url && (
+                                        <div className="detail_row full_width">
+                                            <span className="detail_label">Target URL</span>
+                                            <span className="detail_value mono">{selectedLog.url}</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Client & Device Info */}
+                            <div className="details_section">
+                                <div className="section_title">Client & Browser Details</div>
+                                <div className="detail_grid">
+                                    <div className="detail_row">
+                                        <span className="detail_label">IP Address</span>
+                                        <span className="detail_value mono">{selectedLog.ip_address || "N/A"}</span>
+                                    </div>
+                                    <div className="detail_row">
+                                        <span className="detail_label">Activity Time</span>
+                                        <span className="detail_value">
+                                            {selectedLog.time_formatted || selectedLog.time || selectedLog.created_at}
+                                            {selectedLog.time_ago && ` (${selectedLog.time_ago})`}
+                                        </span>
+                                    </div>
+                                    <div className="detail_row">
+                                        <span className="detail_label">Detected Browser</span>
+                                        <span className="detail_value">
+                                            {parseUserAgent(selectedLog.user_agent).browser}{" "}
+                                            {parseUserAgent(selectedLog.user_agent).browserVersion || ""}
+                                        </span>
+                                    </div>
+                                    <div className="detail_row">
+                                        <span className="detail_label">Operating System</span>
+                                        <span className="detail_value">{parseUserAgent(selectedLog.user_agent).os}</span>
+                                    </div>
+                                    <div className="detail_row full_width">
+                                        <span className="detail_label">Full User Agent String</span>
+                                        <span className="detail_value mono">{selectedLog.user_agent || "N/A"}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Request Payload */}
+                            {selectedLog.request_payload && (
+                                <div className="details_section">
+                                    <div className="section_title">Request Payload</div>
+                                    <pre className="payload_box">
+                                        {typeof selectedLog.request_payload === "object"
+                                            ? JSON.stringify(selectedLog.request_payload, null, 2)
+                                            : String(selectedLog.request_payload)}
+                                    </pre>
+                                </div>
+                            )}
+                        </div>
+                    </PopupScreen>
+                )}
             </div >
         </div >
     );

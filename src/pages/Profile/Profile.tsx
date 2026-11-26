@@ -3,6 +3,7 @@ import { BASE_URL } from "../../api/endpoints"
 import "./Profile.scss"
 import DynamicQRCode from "../../components/DynamicQRCode/DynamicQRCode"
 import StudentAttendanceReport from "./components/StudentAttendanceReport/StudentAttendanceReport"
+import StaffAttendanceReport from "./components/StaffAttendanceReport/StaffAttendanceReport"
 import Can from "../../components/permissions/Can"
 
 const Profile = ({ type, data, details, tabs, profileDetails, activeTab, setActiveTab }: any) => {
@@ -288,6 +289,15 @@ const Profile = ({ type, data, details, tabs, profileDetails, activeTab, setActi
                                         studentId={data?.data?.id || data?.id}
                                         classId={data?.data?.class_id || data?.class_id}
                                         sectionId={data?.data?.section_id || data?.section_id}
+                                    />
+                                )}
+
+                                {(activeTab === "Staff Attendance" || (type === "staff" && activeTab === "Attendance")) && (
+                                    <StaffAttendanceReport
+                                        staff={data?.data || data}
+                                        staffId={data?.data?.id || data?.id || data?.data?.staff_id || data?.staff_id}
+                                        roleId={data?.data?.role_id || data?.role_id}
+                                        departmentId={data?.data?.department_id || data?.department_id}
                                     />
                                 )}
 

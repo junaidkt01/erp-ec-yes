@@ -4,6 +4,10 @@
   flex-direction: column;
   gap: 20px;
 
+  &.is_embedded {
+    padding: 0;
+  }
+
   .status_card {
     display: flex;
     align-items: center;

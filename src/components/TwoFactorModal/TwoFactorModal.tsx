@@ -22,18 +22,17 @@ import { toast } from "sonner";
 import "./TwoFactorModal.scss";
 import type { AxiosError } from "axios";
 
-export interface TwoFactorModalProps {
-  isOpen: boolean;
-  onClose: () => void;
+export interface TwoFactorSettingsProps {
+  onClose?: () => void;
+  isEmbedded?: boolean;
 }
 
-export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
-  isOpen,
+export const TwoFactorSettings: React.FC<TwoFactorSettingsProps> = ({
   onClose,
+  isEmbedded = false,
 }) => {
   const queryClient = useQueryClient();
   const { data: authData } = useAuth();
-  console.log("auth data: ", authData.user)
 
   const isEnabled = Boolean(
     authData?.user?.two_factor_confirmed_at || authData?.user?.two_factor_enabled
@@ -50,8 +49,6 @@ export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
   const { mutateAsync: setup2FA, isPending: isSettingUp } = useSetupTwoFactor();
   const { mutateAsync: confirm2FA, isPending: isConfirming } = useConfirmTwoFactor();
   const { mutateAsync: disable2FA, isPending: isDisabling } = useDisableTwoFactor();
-
-  if (!isOpen) return null;
 
   const handleStartSetup = async () => {
     try {
@@ -85,7 +82,8 @@ export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
         setMode("recovery_codes");
       } else {
         toast.success("Two-Factor Authentication enabled successfully!");
-        handleClose();
+        setMode("view");
+        onClose?.();
       }
     } catch (err: unknown) {
       const axiosErr = err as AxiosError<{ message?: string }>;
@@ -100,7 +98,7 @@ export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
       queryClient.invalidateQueries({ queryKey: ["auth"] });
       toast.success("Two-Factor Authentication disabled successfully.");
       setMode("view");
-      handleClose();
+      onClose?.();
     } catch (err: unknown) {
       const axiosErr = err as AxiosError<{ message?: string }>;
       setErrorMessage(axiosErr?.response?.data?.message || "Failed to disable 2FA. Please try again.");
@@ -132,241 +130,263 @@ export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
     URL.revokeObjectURL(url);
   };
 
-  const handleClose = () => {
+  const handleDismiss = () => {
     setMode("view");
     setSetupData(null);
     setConfirmCode("");
     setRecoveryCodes([]);
     setErrorMessage(null);
-    onClose();
+    onClose?.();
   };
 
   return (
-    <PopupScreen title="Two-Factor Authentication" onClick={handleClose}>
-      <div className="two_factor_modal">
-        {mode === "view" && (
-          <>
-            <div className={`status_card ${isEnabled ? "enabled" : "disabled"}`}>
-              <div className="status_icon">
-                {isEnabled ? <ShieldCheck size={26} /> : <ShieldAlert size={26} />}
-              </div>
-              <div className="status_info">
-                <p className="status_title">
-                  {isEnabled ? "2FA is currently Enabled" : "2FA is currently Disabled"}
-                </p>
-                <p className="status_desc">
-                  {isEnabled
-                    ? "Your account requires a verification code each time you sign in."
-                    : "Add an extra layer of security using Google Authenticator or any TOTP app."}
-                </p>
-              </div>
+    <div className={`two_factor_modal ${isEmbedded ? "is_embedded" : ""}`}>
+      {mode === "view" && (
+        <>
+          <div className={`status_card ${isEnabled ? "enabled" : "disabled"}`}>
+            <div className="status_icon">
+              {isEnabled ? <ShieldCheck size={26} /> : <ShieldAlert size={26} />}
             </div>
-
-            {errorMessage && (
-              <div className="modal_error">
-                <AlertCircle size={16} />
-                <span>{errorMessage}</span>
-              </div>
-            )}
-
-            <div className="modal_actions">
-              <SecondaryButton title="Close" onClick={handleClose} />
-              {isEnabled ? (
-                <button
-                  type="button"
-                  className="button secondary_button"
-                  style={{ color: "#dc2626", borderColor: "#fecaca" }}
-                  onClick={() => setMode("confirm_disable")}
-                >
-                  Disable 2FA
-                </button>
-              ) : (
-                <PrimaryButton
-                  title={isSettingUp ? "Preparing…" : "Set Up 2FA"}
-                  isLoading={isSettingUp}
-                  onClick={handleStartSetup}
-                />
-              )}
-            </div>
-          </>
-        )}
-
-        {mode === "setup" && setupData && (
-          <form onSubmit={handleConfirmSetup} className="setup_container">
-            <div>
-              <p className="setup_step_heading">1. Scan QR Code</p>
-              <p style={{ fontSize: "13px", color: "#6b7280", margin: "0 0 10px" }}>
-                Open Google Authenticator or your authenticator app and scan this QR code:
+            <div className="status_info">
+              <p className="status_title">
+                {isEnabled ? "2FA is currently Enabled" : "2FA is currently Disabled"}
               </p>
-              <div className="qr_code_box">
-                {setupData.qr_code_image ? (
-                  <img
-                    src={setupData.qr_code_image}
-                    alt="2FA QR Code"
-                    className="qr_image"
-                  />
-                ) : (
-                  <div style={{ textAlign: "center", padding: "16px", color: "#6b7280", fontSize: "13px" }}>
-                    Scan URI: <code>{setupData.qr_code_url}</code>
-                  </div>
-                )}
-
-                <div className="secret_key_row">
-                  <KeyRound size={14} color="#7c3aed" />
-                  <code>{setupData.secret}</code>
-                  <button
-                    type="button"
-                    onClick={copySecret}
-                    className="copy_btn"
-                    title="Copy Secret"
-                  >
-                    {copiedSecret ? <Check size={14} color="#16a34a" /> : <Copy size={14} />}
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="verify_step">
-              <p className="setup_step_heading">2. Verify 6-Digit Code</p>
-              <p style={{ fontSize: "13px", color: "#6b7280", margin: "0" }}>
-                Enter the 6-digit verification code generated by your app to complete setup:
+              <p className="status_desc">
+                {isEnabled
+                  ? "Your account requires a verification code each time you sign in."
+                  : "Add an extra layer of security using Google Authenticator or any TOTP app."}
               </p>
-              <input
-                type="text"
-                inputMode="numeric"
-                maxLength={6}
-                value={confirmCode}
-                onChange={(e) => {
-                  setConfirmCode(e.target.value.replace(/\D/g, ""));
-                  setErrorMessage(null);
-                }}
-                placeholder="000000"
-                className={`confirm_input ${errorMessage ? "input_error" : ""}`}
-                autoFocus
-              />
-            </div>
-
-            {errorMessage && (
-              <div className="modal_error">
-                <AlertCircle size={16} />
-                <span>{errorMessage}</span>
-              </div>
-            )}
-
-            <div className="modal_actions">
-              <SecondaryButton
-                title="Cancel"
-                onClick={() => {
-                  setMode("view");
-                  setErrorMessage(null);
-                }}
-              />
-              <PrimaryButton
-                type="submit"
-                disabled={isConfirming || confirmCode.trim().length !== 6}
-                isLoading={isConfirming}
-                title={isConfirming ? "Confirming…" : "Confirm & Enable"}
-              />
-            </div>
-          </form>
-        )}
-
-        {mode === "recovery_codes" && (
-          <div className="recovery_codes_box">
-            <div className="recovery_alert">
-              <AlertCircle size={22} className="alert_icon" />
-              <div>
-                <strong style={{ fontSize: "14px", display: "block", marginBottom: "4px" }}>
-                  Save Your Emergency Recovery Codes
-                </strong>
-                <p className="alert_text">
-                  If you lose access to your authenticator app, each of these recovery codes can be used once to log in. Store them safely.
-                </p>
-              </div>
-            </div>
-
-            <div className="codes_grid">
-              {recoveryCodes.map((code, idx) => (
-                <div key={idx} className="code_chip">
-                  {code}
-                </div>
-              ))}
-            </div>
-
-            <div style={{ display: "flex", gap: "8px", marginTop: "4px" }}>
-              <button
-                type="button"
-                onClick={copyRecoveryCodes}
-                className="button secondary_button"
-                style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}
-              >
-                {copiedCodes ? <Check size={14} /> : <Copy size={14} />}
-                <span>{copiedCodes ? "Copied All" : "Copy Codes"}</span>
-              </button>
-              <button
-                type="button"
-                onClick={downloadRecoveryCodes}
-                className="button secondary_button"
-                style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}
-              >
-                <Download size={14} />
-                <span>Download .txt</span>
-              </button>
-            </div>
-
-            <div className="modal_actions" style={{ marginTop: "12px" }}>
-              <PrimaryButton
-                title="I've Saved My Codes"
-                onClick={handleClose}
-              />
             </div>
           </div>
-        )}
 
-        {mode === "confirm_disable" && (
-          <>
-            <div className="status_card disabled">
-              <div className="status_icon">
-                <ShieldAlert size={26} color="#dc2626" />
-              </div>
-              <div className="status_info">
-                <p className="status_title" style={{ color: "#b91c1c" }}>
-                  Disable Two-Factor Authentication?
-                </p>
-                <p className="status_desc">
-                  Disabling 2FA reduces account security. You will only need your password to log in.
-                </p>
-              </div>
+          {errorMessage && (
+            <div className="modal_error">
+              <AlertCircle size={16} />
+              <span>{errorMessage}</span>
             </div>
+          )}
 
-            {errorMessage && (
-              <div className="modal_error">
-                <AlertCircle size={16} />
-                <span>{errorMessage}</span>
-              </div>
+          <div className="modal_actions">
+            {!isEmbedded && onClose && (
+              <SecondaryButton title="Close" onClick={handleDismiss} />
             )}
-
-            <div className="modal_actions">
-              <SecondaryButton
-                title="Cancel"
-                onClick={() => {
-                  setMode("view");
-                  setErrorMessage(null);
-                }}
-              />
+            {isEnabled ? (
               <button
                 type="button"
-                className="button primary_button"
-                style={{ background: "#dc2626", borderColor: "#dc2626" }}
-                disabled={isDisabling}
-                onClick={handleDisable2FA}
+                className="button secondary_button"
+                style={{ color: "#dc2626", borderColor: "#fecaca" }}
+                onClick={() => setMode("confirm_disable")}
               >
-                {isDisabling ? "Disabling…" : "Yes, Disable 2FA"}
+                Disable 2FA
               </button>
+            ) : (
+              <PrimaryButton
+                title={isSettingUp ? "Preparing…" : "Set Up 2FA"}
+                isLoading={isSettingUp}
+                onClick={handleStartSetup}
+              />
+            )}
+          </div>
+        </>
+      )}
+
+      {mode === "setup" && setupData && (
+        <form onSubmit={handleConfirmSetup} className="setup_container">
+          <div>
+            <p className="setup_step_heading">1. Scan QR Code</p>
+            <p style={{ fontSize: "13px", color: "#6b7280", margin: "0 0 10px" }}>
+              Open Google Authenticator or your authenticator app and scan this QR code:
+            </p>
+            <div className="qr_code_box">
+              {setupData.qr_code_image ? (
+                <img
+                  src={setupData.qr_code_image}
+                  alt="2FA QR Code"
+                  className="qr_image"
+                />
+              ) : (
+                <div style={{ textAlign: "center", padding: "16px", color: "#6b7280", fontSize: "13px" }}>
+                  Scan URI: <code>{setupData.qr_code_url}</code>
+                </div>
+              )}
+
+              <div className="secret_key_row">
+                <KeyRound size={14} color="#7c3aed" />
+                <code>{setupData.secret}</code>
+                <button
+                  type="button"
+                  onClick={copySecret}
+                  className="copy_btn"
+                  title="Copy Secret"
+                >
+                  {copiedSecret ? <Check size={14} color="#16a34a" /> : <Copy size={14} />}
+                </button>
+              </div>
             </div>
-          </>
-        )}
-      </div>
+          </div>
+
+          <div className="verify_step">
+            <p className="setup_step_heading">2. Verify 6-Digit Code</p>
+            <p style={{ fontSize: "13px", color: "#6b7280", margin: "0" }}>
+              Enter the 6-digit verification code generated by your app to complete setup:
+            </p>
+            <input
+              type="text"
+              inputMode="numeric"
+              maxLength={6}
+              value={confirmCode}
+              onChange={(e) => {
+                setConfirmCode(e.target.value.replace(/\D/g, ""));
+                setErrorMessage(null);
+              }}
+              placeholder="000000"
+              className={`confirm_input ${errorMessage ? "input_error" : ""}`}
+              autoFocus
+            />
+          </div>
+
+          {errorMessage && (
+            <div className="modal_error">
+              <AlertCircle size={16} />
+              <span>{errorMessage}</span>
+            </div>
+          )}
+
+          <div className="modal_actions">
+            <SecondaryButton
+              title="Cancel"
+              onClick={() => {
+                setMode("view");
+                setErrorMessage(null);
+              }}
+            />
+            <PrimaryButton
+              type="submit"
+              disabled={isConfirming || confirmCode.trim().length !== 6}
+              isLoading={isConfirming}
+              title={isConfirming ? "Confirming…" : "Confirm & Enable"}
+            />
+          </div>
+        </form>
+      )}
+
+      {mode === "recovery_codes" && (
+        <div className="recovery_codes_box">
+          <div className="recovery_alert">
+            <AlertCircle size={22} className="alert_icon" />
+            <div>
+              <strong style={{ fontSize: "14px", display: "block", marginBottom: "4px" }}>
+                Save Your Emergency Recovery Codes
+              </strong>
+              <p className="alert_text">
+                If you lose access to your authenticator app, each of these recovery codes can be used once to log in. Store them safely.
+              </p>
+            </div>
+          </div>
+
+          <div className="codes_grid">
+            {recoveryCodes.map((code, idx) => (
+              <div key={idx} className="code_chip">
+                {code}
+              </div>
+            ))}
+          </div>
+
+          <div style={{ display: "flex", gap: "8px", marginTop: "4px" }}>
+            <button
+              type="button"
+              onClick={copyRecoveryCodes}
+              className="button secondary_button"
+              style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}
+            >
+              {copiedCodes ? <Check size={14} /> : <Copy size={14} />}
+              <span>{copiedCodes ? "Copied All" : "Copy Codes"}</span>
+            </button>
+            <button
+              type="button"
+              onClick={downloadRecoveryCodes}
+              className="button secondary_button"
+              style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}
+            >
+              <Download size={14} />
+              <span>Download .txt</span>
+            </button>
+          </div>
+
+          <div className="modal_actions" style={{ marginTop: "12px" }}>
+            <PrimaryButton
+              title="I've Saved My Codes"
+              onClick={() => {
+                setMode("view");
+                setRecoveryCodes([]);
+                onClose?.();
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {mode === "confirm_disable" && (
+        <>
+          <div className="status_card disabled">
+            <div className="status_icon">
+              <ShieldAlert size={26} color="#dc2626" />
+            </div>
+            <div className="status_info">
+              <p className="status_title" style={{ color: "#b91c1c" }}>
+                Disable Two-Factor Authentication?
+              </p>
+              <p className="status_desc">
+                Disabling 2FA reduces account security. You will only need your password to log in.
+              </p>
+            </div>
+          </div>
+
+          {errorMessage && (
+            <div className="modal_error">
+              <AlertCircle size={16} />
+              <span>{errorMessage}</span>
+            </div>
+          )}
+
+          <div className="modal_actions">
+            <SecondaryButton
+              title="Cancel"
+              onClick={() => {
+                setMode("view");
+                setErrorMessage(null);
+              }}
+            />
+            <button
+              type="button"
+              className="button primary_button"
+              style={{ background: "#dc2626", borderColor: "#dc2626" }}
+              disabled={isDisabling}
+              onClick={handleDisable2FA}
+            >
+              {isDisabling ? "Disabling…" : "Yes, Disable 2FA"}
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
+
+export interface TwoFactorModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
+  isOpen,
+  onClose,
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <PopupScreen title="Two-Factor Authentication" onClick={onClose}>
+      <TwoFactorSettings onClose={onClose} isEmbedded={false} />
     </PopupScreen>
   );
 };

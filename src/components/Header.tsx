@@ -10,9 +10,9 @@ import { highlightText } from "../utils/utils"
 import { useTranslation } from "../i18n/LanguageContext"
 import { LANGUAGES } from "../i18n/translations"
 import { useSidebarStore } from "../stores/sidebarStore"
-import { ShieldCheck } from "lucide-react"
-import TwoFactorModal from "./TwoFactorModal/TwoFactorModal"
 import { BASE_URL } from "../api/endpoints"
+import Notifications from "./Notifications"
+import Inbox from "./Inbox"
 
 const getPhotoUrl = (photoPath?: string | null) => {
     if (!photoPath) return "";
@@ -34,6 +34,8 @@ const getPhotoUrl = (photoPath?: string | null) => {
 const Header = () => {
     const [searchTerm, setSearchTerm] = useState("")
     const [isProfile, setIsProfile] = useState(false)
+    const [isNotificationOpen, setIsNotificationOpen] = useState(false)
+    const [isInboxOpen, setIsInboxOpen] = useState(false)
     const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
     const { t } = useTranslation();
     const toggleMobile = useSidebarStore((state) => state.toggleMobile);
@@ -117,7 +119,7 @@ const Header = () => {
 
                     {/* Mobile search icon button */}
                     <button
-                        className="mobile_only mobile_icon_btn hvr_zm_in"
+                        className="mobile_only mobile_icon_btn"
                         onClick={() => setMobileSearchOpen(true)}
                         aria-label="Open search"
                     >
@@ -131,9 +133,41 @@ const Header = () => {
                 </div>
 
                 <div className="header_right_icons">
-                    <div className="icon_box hvr_zm_out" ><img className="hvr_zm_in" src="/header_icons/notification.svg" alt="" /> </div>
-                    <div className="icon_box hvr_zm_out" ><img className="hvr_zm_in" src="/header_icons/messages.svg" alt="" /> </div>
-                    <div className="icon_box profile hvr_zm_out" onClick={() => setIsProfile(!isProfile)}>
+                    <div
+                        className="icon_box hvr_zm_out"
+                        onClick={() => {
+                            setIsNotificationOpen((prev) => !prev);
+                            setIsInboxOpen(false);
+                            setIsProfile(false);
+                        }}
+                        style={{ cursor: "pointer" }}
+                        title="Notifications"
+                    >
+                        <img className="hvr_zm_in" src="/header_icons/notification.svg" alt="Notifications" />
+                    </div>
+
+                    <div
+                        className="icon_box hvr_zm_out"
+                        onClick={() => {
+                            setIsInboxOpen((prev) => !prev);
+                            setIsNotificationOpen(false);
+                            setIsProfile(false);
+                        }}
+                        style={{ cursor: "pointer" }}
+                        title="Inbox"
+                    >
+                        <img className="hvr_zm_in" src="/header_icons/messages.svg" alt="Inbox" />
+                    </div>
+
+                    <div
+                        className="icon_box profile hvr_zm_out"
+                        onClick={() => {
+                            setIsProfile(!isProfile);
+                            setIsNotificationOpen(false);
+                            setIsInboxOpen(false);
+                        }}
+                        style={{ cursor: "pointer" }}
+                    >
                         <img
                             className="hvr_zm_in"
                             style={{ width: "100%", height: "100%", objectFit: "cover" }}
@@ -144,6 +178,12 @@ const Header = () => {
                             }}
                         />
                     </div>
+
+                    {isNotificationOpen && <div onClick={() => setIsNotificationOpen(false)} className="overlay_wrapper"></div>}
+                    {isNotificationOpen && <Notifications onClose={() => setIsNotificationOpen(false)} />}
+
+                    {isInboxOpen && <div onClick={() => setIsInboxOpen(false)} className="overlay_wrapper"></div>}
+                    {isInboxOpen && <Inbox onClose={() => setIsInboxOpen(false)} />}
 
                     {isProfile && <div onClick={() => setIsProfile(false)} className="overlay_wrapper"></div>}
                     {isProfile && <ProfileMenu />}
@@ -159,31 +199,33 @@ const Header = () => {
                     }
                 }}>
                     <div className="mobile_search_panel">
-                        <div className={`search_bar_wrapper ${searchTerm ? "has" : ""}`}>
-                            <div className="search_bar">
-                                <span className="search_icon">
-                                    <img src="/header_icons/search_icon.svg" alt="search" />
-                                </span>
-                                <input
-                                    autoFocus
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    value={searchTerm}
-                                    type="text"
-                                    placeholder={t("header.search_placeholder", "Search Name/Admission..")}
-                                />
-                            </div>
-                            {searchTerm && (
-                                <div className="search_sort_close">
-                                    <span className="search_icon" onClick={() => setSearchTerm("")}>
-                                        <img src="/header_icons/search_close.svg" alt="clear" />
+                        <div className="mobile_search_input_row">
+                            <div className={`search_bar_wrapper ${searchTerm ? "has" : ""}`}>
+                                <div className="search_bar">
+                                    <span className="search_icon">
+                                        <img src="/header_icons/search_icon.svg" alt="search" />
                                     </span>
+                                    <input
+                                        autoFocus
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        value={searchTerm}
+                                        type="text"
+                                        placeholder={t("header.search_placeholder", "Search Name/Admission..")}
+                                    />
                                 </div>
-                            )}
+                                {searchTerm && (
+                                    <div className="search_sort_close">
+                                        <span className="search_icon" onClick={() => setSearchTerm("")}>
+                                            <img src="/header_icons/search_close.svg" alt="clear" />
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+                            <button className="mobile_search_cancel" onClick={() => { setMobileSearchOpen(false); setSearchTerm("") }} >
+                                {t("common.cancel", "Cancel")}
+                            </button>
                         </div>
                         <SearchResults />
-                        <button className="mobile_search_cancel" onClick={() => { setMobileSearchOpen(false); setSearchTerm("") }} >
-                            {t("common.cancel", "Cancel")}
-                        </button>
                     </div>
                 </div>
             )}
@@ -243,13 +285,13 @@ const YearFilter = ({ isMobile = false }: { isMobile?: boolean }) => {
         setSearch("");
     };
 
-    const renderYearList = () => (
+    const renderDesktopYearList = () => (
         <>
             <div className="search-box">
                 <span className="search_icon">
                     <img src="/sidebar_icons/search_icon.svg" alt="search" />
                 </span>
-                <input autoFocus={isMobile} placeholder="Search year..." value={search} onChange={(e) => setSearch(e.target.value)} />
+                <input placeholder="Search year..." value={search} onChange={(e) => setSearch(e.target.value)} />
             </div>
             <div className="list">
                 {filtered.map((item) => (
@@ -269,7 +311,7 @@ const YearFilter = ({ isMobile = false }: { isMobile?: boolean }) => {
         return (
             <>
                 <button
-                    className={`mobile_year_btn hvr_zm_in ${open ? "active" : ""}`}
+                    className={`mobile_year_btn ${open ? "active" : ""}`}
                     onClick={() => setOpen(true)}
                     aria-label="Select academic year"
                 >
@@ -289,8 +331,65 @@ const YearFilter = ({ isMobile = false }: { isMobile?: boolean }) => {
                         <div className="mobile_year_backdrop" onClick={() => { setOpen(false); setSearch(""); }} />
                         <div className="mobile_year_sheet">
                             <div className="sheet_handle" />
-                            <p className="sheet_title">Select Academic Year</p>
-                            {renderYearList()}
+                            <div className="sheet_header">
+                                <p className="sheet_title">Select Academic Year</p>
+                                <button
+                                    type="button"
+                                    className="sheet_close_btn"
+                                    onClick={() => { setOpen(false); setSearch(""); }}
+                                    aria-label="Close"
+                                >
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <line x1="18" y1="6" x2="6" y2="18" />
+                                        <line x1="6" y1="6" x2="18" y2="18" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div className="sheet_search_area">
+                                <div className="sheet_search_bar">
+                                    <span className="search_icon">
+                                        <img src="/sidebar_icons/search_icon.svg" alt="search" />
+                                    </span>
+                                    <input
+                                        placeholder="Search year..."
+                                        value={search}
+                                        onChange={(e) => setSearch(e.target.value)}
+                                    />
+                                    {search && (
+                                        <button
+                                            type="button"
+                                            className="clear_btn"
+                                            onClick={() => setSearch("")}
+                                            aria-label="Clear search"
+                                        >
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <line x1="18" y1="6" x2="6" y2="18" />
+                                                <line x1="6" y1="6" x2="18" y2="18" />
+                                            </svg>
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="list">
+                                {filtered.length === 0 ? (
+                                    <div className="empty_state">No academic year found</div>
+                                ) : (
+                                    filtered.map((item) => (
+                                        <div
+                                            key={item.id}
+                                            className={`item ${selected?.label === item.label ? "selected" : ""}`}
+                                            onClick={() => handleSelect(item)}
+                                        >
+                                            <span>{item.label}</span>
+                                            {selected?.label === item.label && (
+                                                <svg className="check_icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#605dec" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                                    <polyline points="20 6 9 17 4 12" />
+                                                </svg>
+                                            )}
+                                        </div>
+                                    ))
+                                )}
+                            </div>
                         </div>
                     </>
                 )}
@@ -307,7 +406,7 @@ const YearFilter = ({ isMobile = false }: { isMobile?: boolean }) => {
 
             {open && (
                 <div className="dropdown">
-                    {renderYearList()}
+                    {renderDesktopYearList()}
                 </div>
             )}
         </div>
@@ -318,7 +417,6 @@ const ProfileMenu = () => {
     const navigate = useNavigate();
     const { language, setLanguage, currentLanguage, t } = useTranslation();
     const [isLangOpen, setIsLangOpen] = useState(false);
-    const [isTwoFactorOpen, setIsTwoFactorOpen] = useState(false);
 
     const queryClient = useQueryClient();
     const { data } = useAuth();
@@ -334,7 +432,7 @@ const ProfileMenu = () => {
     const userPhoto = getPhotoUrl(data?.user?.photo);
 
     return (
-        <div className={`profile-dropdown ${!isTwoFactorOpen ? "hvr_zm_out" : ""}`} >
+        <div className="profile-dropdown hvr_zm_out" >
 
             {/* Header */}
             <div className="profile-header hvr_zm_out" >
@@ -365,18 +463,6 @@ const ProfileMenu = () => {
                         <img src="/header_icons/change_password.svg" alt="" />
                     </span>
                     <p>{t("header.change_password", "Change Password")}</p>
-                </div>
-
-                <div className="item hvr_zm_out"
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        setIsTwoFactorOpen(true);
-                    }}
-                >
-                    <span>
-                        <ShieldCheck size={18} color="#7c3aed" />
-                    </span>
-                    <p>{t("header.two_factor_auth", "Two-Factor Auth (2FA)")}</p>
                 </div>
 
                 <div className="item hvr_zm_out" onClick={(e) => { e.stopPropagation(); setIsLangOpen(!isLangOpen); }}>
@@ -417,12 +503,6 @@ const ProfileMenu = () => {
                     <p>{t("header.sidebar_manager", "Sidebar Manager & Style")}</p>
                 </div>
             </div>
-
-            {/* 2FA Settings Modal */}
-            <TwoFactorModal
-                isOpen={isTwoFactorOpen}
-                onClose={() => setIsTwoFactorOpen(false)}
-            />
 
             {/* Logout */}
             <div className="logout hvr_zm_in" onClick={handleLogout} >

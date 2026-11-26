@@ -4,23 +4,26 @@ import "react-datepicker/dist/react-datepicker.css";
 interface DatePickerProps {
     value?: Date | null;
     onChange: (date: Date | null) => void;
+    readOnly?: boolean;
+    disabled?: boolean;
 }
 
-export const DatePicker = ({ value, onChange }: DatePickerProps) => {
+export const DatePicker = ({ value, onChange, readOnly = false, disabled = false }: DatePickerProps) => {
     return (
-        <div className="date_picker_container" >
+        <div className={`date_picker_container ${readOnly ? "readonly" : ""} ${disabled ? "disabled" : ""}`} >
             <ReactDatePicker
                 dateFormat="dd/MM/yyyy"
                 placeholderText="Select Date"
                 selected={value}
-                onChange={onChange}
-                showMonthDropdown
-                showYearDropdown
+                onChange={readOnly || disabled ? () => {} : onChange}
+                showMonthDropdown={!readOnly && !disabled}
+                showYearDropdown={!readOnly && !disabled}
                 dropdownMode="select"
                 yearDropdownItemNumber={100}
                 scrollableYearDropdown
                 className="date_input_display"
-                // calendarClassName="custom_calendar"
+                readOnly={readOnly}
+                disabled={disabled}
             />
         </div>
     );

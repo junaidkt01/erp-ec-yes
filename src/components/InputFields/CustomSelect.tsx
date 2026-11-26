@@ -16,6 +16,7 @@ export interface CustomSelectProps {
     error?: string;
     disabled?: boolean;
     isClearable?: boolean;
+    isSearch?: boolean;
     searchable?: boolean;
     searchPlaceholder?: string;
     required?: boolean;
@@ -33,11 +34,13 @@ export const CustomSelect = ({
     error,
     disabled = false,
     isClearable = true,
-    searchable = true,
+    isSearch,
+    searchable,
     searchPlaceholder = "Search...",
     required = false,
     className = "",
 }: CustomSelectProps) => {
+    const isSearchEnabled = Boolean(isSearch ?? searchable ?? false);
     const [open, setOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
@@ -52,12 +55,12 @@ export const CustomSelect = ({
     }, [options, value]);
 
     const filteredOptions = useMemo(() => {
-        if (!searchTerm.trim()) return options;
+        if (!isSearchEnabled || !searchTerm.trim()) return options;
         const query = searchTerm.toLowerCase();
         return options.filter((opt) =>
             (opt.label || "").toLowerCase().includes(query)
         );
-    }, [options, searchTerm]);
+    }, [options, searchTerm, isSearchEnabled]);
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -81,7 +84,7 @@ export const CustomSelect = ({
                 setHighlightedIndex(0);
             }
 
-            if (searchable) {
+            if (isSearchEnabled) {
                 setTimeout(() => {
                     searchInputRef.current?.focus();
                 }, 50);
@@ -90,7 +93,7 @@ export const CustomSelect = ({
             setSearchTerm("");
             setHighlightedIndex(-1);
         }
-    }, [open, searchable]);
+    }, [open, isSearchEnabled]);
 
     // Scroll highlighted item into view
     useEffect(() => {
@@ -165,7 +168,7 @@ export const CustomSelect = ({
 
     return (
         <div
-            className={`custom_select_container ${open ? "is-open" : "hvr_zm_in"} ${className}`}
+            className={`custom_select_container ${open ? "is-open" : ""} ${className}`}
             ref={containerRef}
             onKeyDown={handleKeyDown}
         >
@@ -247,7 +250,7 @@ export const CustomSelect = ({
 
             {open && !disabled && (
                 <div className="select_dropdown">
-                    {searchable && (
+                    {isSearchEnabled && (
                         <div className="select_search_wrapper">
                             <div className="search_input_container">
                                 <svg

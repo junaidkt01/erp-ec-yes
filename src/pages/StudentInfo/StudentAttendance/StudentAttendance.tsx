@@ -12,17 +12,19 @@ import { useFetchAllAcademicYears } from "../../../hooks/useAcademicYear"
 import { toast } from "sonner"
 import "./StudentAttendance.scss"
 import { useNavigate } from "react-router-dom"
+import { BASE_URL } from "../../../api/endpoints"
+import { CheckCheck, RotateCcw } from "lucide-react"
 
 // ---------------------------------------------------------------------------
 // Constants -- defined outside component to avoid re-creation on every render
 // ---------------------------------------------------------------------------
 const COLUMNS: Column[] = [
-    // { key: "sl", title: "SL" },
     { key: "roll_no", title: "Roll No" },
     { key: "photo", title: "Image" },
     { key: "student_name", title: "Student Name" },
-    // { key: "student_code", title: "Student ID" },
 ];
+
+const ITEMS_PER_PAGE = 10;
 
 const getInitialFilter = () => ({
     class_id: "" as string | number,
@@ -50,11 +52,44 @@ const toNum = (val: unknown): number | undefined => {
     return isNaN(num) ? undefined : num;
 };
 
+const getRowKey = (row: any, index: number) =>
+    row.id ??
+    row.student_id ??
+    row.student?.id ??
+    row.student_code ??
+    row.student?.student_code ??
+    row.admission_no ??
+    index;
+
+const getStudentPhoto = (row: any) => {
+    const raw =
+        row.photo ||
+        row.student?.photo ||
+        row.student_photo ||
+        row.avatar ||
+        row.image;
+    if (!raw || raw === "N/A") return "/user-square.svg";
+    if (
+        raw.startsWith("http://") ||
+        raw.startsWith("https://") ||
+        raw.startsWith("blob:") ||
+        raw.startsWith("data:")
+    ) {
+        return raw;
+    }
+    const cleanPath = raw.startsWith("/") ? raw.slice(1) : raw;
+    if (cleanPath.startsWith("public/")) {
+        return `${BASE_URL}/${cleanPath}`;
+    }
+    return `${BASE_URL}/public/${cleanPath}`;
+};
+
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 const StudentAttendance = () => {
     const [page, setPage] = useState(1);
+    const [tableSearch, setTableSearch] = useState("");
 
     // -- Filter UI state (what the user is currently editing) ---------------
     const [filterData, setFilterData] = useState(getInitialFilter);
@@ -67,6 +102,7 @@ const StudentAttendance = () => {
     // -- Per-row attendance state --------------------------------------------
     const [selectedStatuses, setSelectedStatuses] = useState<Record<string | number, StatusType>>({});
     const [notes, setNotes] = useState<Record<string | number, string>>({});
+    const [expandedNotes, setExpandedNotes] = useState<Record<string | number, boolean>>({});
 
     // -- Remote data ---------------------------------------------------------
     const { data: studentClasses } = useFetchAllStudentClasses();
@@ -114,6 +150,9 @@ const StudentAttendance = () => {
         // Reset per-row state whenever a new search is performed
         setSelectedStatuses({});
         setNotes({});
+        setExpandedNotes({});
+        setTableSearch("");
+        setPage(1);
 
         const sameFilters =
             hasSearched &&
@@ -137,10 +176,93 @@ const StudentAttendance = () => {
         setFilteredData(initial);
         setSelectedStatuses({});
         setNotes({});
+        setExpandedNotes({});
+        setTableSearch("");
+        setPage(1);
         setHasSearched(false);
     };
 
     const navigate = useNavigate();
+
+    // -- Filtered students for search bar ------------------------------------
+    const filteredStudents = useMemo(() => {
+        if (!studentAttendance || !Array.isArray(studentAttendance)) return [];
+        if (!tableSearch.trim()) return studentAttendance;
+        const q = tableSearch.toLowerCase().trim();
+        return studentAttendance.filter((s: any) => {
+            const name = (s.student_name || s.name || s.student?.name || "").toLowerCase();
+            const roll = String(s.roll_no ?? s.student?.roll_no ?? "");
+            const code = (s.student_code || s.student?.student_code || s.admission_no || "").toLowerCase();
+            return name.includes(q) || roll.includes(q) || code.includes(q);
+        });
+    }, [studentAttendance, tableSearch]);
+
+    const totalPages = Math.max(1, Math.ceil(filteredStudents.length / ITEMS_PER_PAGE));
+
+    const paginatedStudents = useMemo(() => {
+        const start = (page - 1) * ITEMS_PER_PAGE;
+        return filteredStudents.slice(start, start + ITEMS_PER_PAGE);
+    }, [filteredStudents, page]);
+
+    // -- Attendance Statistics -----------------------------------------------
+    const stats = useMemo(() => {
+        if (!studentAttendance || !Array.isArray(studentAttendance)) {
+            return { total: 0, present: 0, late: 0, absent: 0, halfDay: 0, leave: 0, unmarked: 0 };
+        }
+        let present = 0;
+        let late = 0;
+        let absent = 0;
+        let halfDay = 0;
+        let leave = 0;
+        let unmarked = 0;
+
+        studentAttendance.forEach((row: any, index: number) => {
+            const rowKey = getRowKey(row, index);
+            const backendStatus = row.status?.toLowerCase() as StatusType | undefined;
+            const status = selectedStatuses[rowKey] ?? backendStatus;
+            if (status === "present") present++;
+            else if (status === "late") late++;
+            else if (status === "absent") absent++;
+            else if (status === "half-day") halfDay++;
+            else if (status === "leave") leave++;
+            else unmarked++;
+        });
+
+        return {
+            total: studentAttendance.length,
+            present,
+            late,
+            absent,
+            halfDay,
+            leave,
+            unmarked,
+        };
+    }, [studentAttendance, selectedStatuses]);
+
+    // -- Bulk Actions --------------------------------------------------------
+    const handleMarkAllStatus = (status: StatusType) => {
+        if (!studentAttendance || !Array.isArray(studentAttendance) || studentAttendance.length === 0) return;
+        const newStatuses: Record<string | number, StatusType> = {};
+        studentAttendance.forEach((row: any, index: number) => {
+            const key = getRowKey(row, index);
+            newStatuses[key] = status;
+        });
+        setSelectedStatuses((prev) => ({ ...prev, ...newStatuses }));
+        toast.info(`Marked all students as ${status.charAt(0).toUpperCase() + status.slice(1)}`);
+    };
+
+    const handleResetAllStatuses = () => {
+        setSelectedStatuses({});
+        setNotes({});
+        toast.info("Reset all attendance markings");
+    };
+
+    const handleStatusClick = (rowKey: string | number, status: StatusType) => () => {
+        setSelectedStatuses((prev) => ({
+            ...prev,
+            [rowKey]: status,
+        }));
+    };
 
     // -- Submit handler ------------------------------------------------------
     const handleSubmitAttendance = () => {
@@ -156,14 +278,7 @@ const StudentAttendance = () => {
         const formattedDate = formatDate(filteredData.attendance_date);
 
         const payload: CreateStudentAttendance[] = studentAttendance.map((row: any, index: number) => {
-            const rowKey =
-                row.id ??
-                row.student_id ??
-                row.student?.id ??
-                row.student_code ??
-                row.student?.student_code ??
-                row.admission_no ??
-                index;
+            const rowKey = getRowKey(row, index);
 
             const backendStatus = row.status?.toLowerCase() as StatusType;
             const status = selectedStatuses[rowKey] ?? backendStatus ?? "present";
@@ -263,6 +378,7 @@ const StudentAttendance = () => {
                                         label="Attendance Date"
                                         value={filterData.attendance_date}
                                         placeHolder="Select date"
+                                        readOnly
                                         onChange={(value) =>
                                             setFilterData((prev) => ({
                                                 ...prev,
@@ -285,112 +401,312 @@ const StudentAttendance = () => {
                     </div>
                 </TableWrapper>
 
-                {/* Attendance Table */}
-                <TableWrapper isSearchBar title="Student Attendance">
-                    <DataTable
-                        columns={COLUMNS}
-                        data={studentAttendance}
-                        currentPage={page}
-                        totalPages={studentAttendance?.length ? Math.ceil(studentAttendance.length / 10) : 1}
-                        onPageChange={(p) => setPage(p)}
-                        attendance={(row, index) => {
-                            // Build a guaranteed-unique key per student row.
-                            // row.id may be undefined if the API response shape
-                            // doesn't match the interface, causing key collisions
-                            // where all students share the same selectedStatuses entry.
-                            const rowKey = row.id ??
-                                row.student_id ??
-                                row.student?.id ??
-                                row.student_code ??
-                                row.student?.student_code ??
-                                row.admission_no ??
-                                index;
+                {/* Attendance Content */}
+                <TableWrapper
+                    isSearchBar
+                    title="Student Attendance"
+                    searchValue={tableSearch}
+                    searchOnchange={(val) => {
+                        setTableSearch(val);
+                        setPage(1);
+                    }}
+                >
+                    {/* Attendance Stats & Bulk Actions Toolbar */}
+                    {hasSearched && studentAttendance && studentAttendance.length > 0 && (
+                        <div className="attendance_toolbar">
+                            <div className="stats_chips">
+                                <span className="stat_chip total">
+                                    Total: <strong>{stats.total}</strong>
+                                </span>
+                                <span className="stat_chip present">
+                                    <span className="dot" /> Present: <strong>{stats.present}</strong>
+                                </span>
+                                <span className="stat_chip absent">
+                                    <span className="dot" /> Absent: <strong>{stats.absent}</strong>
+                                </span>
+                                <span className="stat_chip late">
+                                    <span className="dot" /> Late: <strong>{stats.late}</strong>
+                                </span>
+                                <span className="stat_chip leave">
+                                    <span className="dot" /> Leave: <strong>{stats.leave}</strong>
+                                </span>
+                                {stats.unmarked > 0 && (
+                                    <span className="stat_chip unmarked">
+                                        Unmarked: <strong>{stats.unmarked}</strong>
+                                    </span>
+                                )}
+                            </div>
 
-                            const backendStatus = row.status?.toLowerCase() as StatusType | undefined;
-                            // Only show a button as active if the user has explicitly clicked it
-                            // OR if the backend already recorded a status.
-                            // Do NOT default to "present" here — that caused every student
-                            // to appear selected before the user touched anything.
-                            const activeStatus: StatusType | undefined =
-                                selectedStatuses[rowKey] ?? backendStatus;
+                            <div className="bulk_actions">
+                                <button
+                                    type="button"
+                                    className="bulk_btn mark_present_btn"
+                                    onClick={() => handleMarkAllStatus("present")}
+                                    title="Mark all as present"
+                                >
+                                    <CheckCheck size={16} />
+                                    <span>Mark All Present</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    className="bulk_btn reset_btn"
+                                    onClick={handleResetAllStatuses}
+                                    title="Reset marked statuses"
+                                >
+                                    <RotateCcw size={14} />
+                                    <span>Reset</span>
+                                </button>
+                            </div>
+                        </div>
+                    )}
 
-                            const handleStatusClick =
-                                (status: StatusType) => () =>
-                                    setSelectedStatuses((prev) => ({
-                                        ...prev,
-                                        [rowKey]: status,
-                                    }));
+                    {/* ─── DESKTOP VIEW: Traditional DataTable ─── */}
+                    <div className="attendance_desktop_view">
+                        <DataTable
+                            columns={COLUMNS}
+                            data={paginatedStudents}
+                            currentPage={page}
+                            totalPages={totalPages}
+                            onPageChange={(p) => setPage(p)}
+                            emptyMessage={
+                                !hasSearched
+                                    ? "Select criteria and click Search to view students."
+                                    : "No students found for the selected criteria."
+                            }
+                            attendance={(row, index) => {
+                                const rowKey = getRowKey(row, index);
+                                const backendStatus = row.status?.toLowerCase() as StatusType | undefined;
+                                const activeStatus: StatusType | undefined = selectedStatuses[rowKey] ?? backendStatus;
 
-                            return (
-                                <div className="attendance_buttons">
-                                    <AttendanceButton
-                                        status="present"
-                                        title="Present"
-                                        active={activeStatus === "present"}
-                                        onClick={handleStatusClick("present")}
-                                    />
-                                    <AttendanceButton
-                                        status="late"
-                                        title="Late"
-                                        active={activeStatus === "late"}
-                                        onClick={handleStatusClick("late")}
-                                    />
-                                    <AttendanceButton
-                                        status="absent"
-                                        title="Absent"
-                                        active={activeStatus === "absent"}
-                                        onClick={handleStatusClick("absent")}
-                                    />
-                                    <AttendanceButton
-                                        status="half-day"
-                                        title="Half Day"
-                                        active={activeStatus === "half-day"}
-                                        onClick={handleStatusClick("half-day")}
-                                    />
-                                    <AttendanceButton
-                                        status="leave"
-                                        title="Leave"
-                                        shortTitle="Le"
-                                        active={activeStatus === "leave"}
-                                        onClick={handleStatusClick("leave")}
-                                    />
-                                </div>
-                            );
-                        }}
-                        note={(row, index) => {
-                            const rowKey =
-                                row.id ??
-                                row.student_id ??
-                                row.student?.id ??
-                                row.student_code ??
-                                row.student?.student_code ??
-                                row.admission_no ??
-                                index;
-                            return (
-                                <div style={{ width: "400px" }} >
-                                    <InputField
-                                        value={notes[rowKey] ?? row.note ?? ""}
-                                        type="text"
-                                        placeHolder="Enter note"
-                                        onChange={(val) => {
-                                            const text =
-                                                typeof val === "object" && val?.target
-                                                    ? val.target.value
-                                                    : val;
-                                            setNotes((prev) => ({ ...prev, [rowKey]: text as string }));
-                                        }}
-                                    />
-                                </div>
-                            );
-                        }}
-                    />
-                    <div className="submit_attendance_button">
-                        <PrimaryButton
-                            onClick={handleSubmitAttendance}
-                            disabled={isPending}
-                            title={isPending ? "Submitting..." : "Submit Attendance"}
+                                return (
+                                    <div className="attendance_buttons">
+                                        <AttendanceButton
+                                            status="present"
+                                            title="Present"
+                                            active={activeStatus === "present"}
+                                            onClick={handleStatusClick(rowKey, "present")}
+                                        />
+                                        <AttendanceButton
+                                            status="late"
+                                            title="Late"
+                                            active={activeStatus === "late"}
+                                            onClick={handleStatusClick(rowKey, "late")}
+                                        />
+                                        <AttendanceButton
+                                            status="absent"
+                                            title="Absent"
+                                            active={activeStatus === "absent"}
+                                            onClick={handleStatusClick(rowKey, "absent")}
+                                        />
+                                        <AttendanceButton
+                                            status="half-day"
+                                            title="Half Day"
+                                            active={activeStatus === "half-day"}
+                                            onClick={handleStatusClick(rowKey, "half-day")}
+                                        />
+                                        <AttendanceButton
+                                            status="leave"
+                                            title="Leave"
+                                            shortTitle="Le"
+                                            active={activeStatus === "leave"}
+                                            onClick={handleStatusClick(rowKey, "leave")}
+                                        />
+                                    </div>
+                                );
+                            }}
+                            note={(row, index) => {
+                                const rowKey = getRowKey(row, index);
+                                return (
+                                    <div style={{ width: "350px" }}>
+                                        <InputField
+                                            value={notes[rowKey] ?? row.note ?? ""}
+                                            type="text"
+                                            placeHolder="Enter note"
+                                            onChange={(val) => {
+                                                const text =
+                                                    typeof val === "object" && val?.target
+                                                        ? val.target.value
+                                                        : val;
+                                                setNotes((prev) => ({ ...prev, [rowKey]: text as string }));
+                                            }}
+                                        />
+                                    </div>
+                                );
+                            }}
                         />
                     </div>
+
+                    {/* ─── MOBILE VIEW: Touch-Friendly Card List ─── */}
+                    <div className="attendance_mobile_view">
+                        {!hasSearched ? (
+                            <div className="mobile_empty_state">
+                                Select criteria and click Search to mark attendance.
+                            </div>
+                        ) : filteredStudents.length === 0 ? (
+                            <div className="mobile_empty_state">
+                                No students found matching your criteria.
+                            </div>
+                        ) : (
+                            <>
+                                {paginatedStudents.map((row: any, index: number) => {
+                                    const rowKey = getRowKey(row, index);
+                                    const backendStatus = row.status?.toLowerCase() as StatusType | undefined;
+                                    const activeStatus: StatusType | undefined = selectedStatuses[rowKey] ?? backendStatus;
+                                    const studentPhoto = getStudentPhoto(row);
+                                    const studentName = row.student_name || row.name || row.student?.name || "Student";
+                                    const rollNo = row.roll_no ?? row.student?.roll_no ?? "-";
+                                    const studentCode = row.student_code || row.student?.student_code || row.admission_no;
+                                    const isNoteOpen = expandedNotes[rowKey] || Boolean(notes[rowKey] || row.note);
+
+                                    return (
+                                        <div
+                                            key={rowKey}
+                                            className={`mobile_student_card ${activeStatus ? `status_${activeStatus.replace("-", "_")}` : ""}`}
+                                        >
+                                            {/* Card Top: Avatar, Name, Roll No & Current Status */}
+                                            <div className="card_header">
+                                                <img
+                                                    className="student_avatar"
+                                                    src={studentPhoto}
+                                                    alt={studentName}
+                                                    onError={(e) => {
+                                                        (e.target as HTMLImageElement).src = "/user-square.svg";
+                                                    }}
+                                                />
+                                                <div className="student_meta">
+                                                    <div className="name_row">
+                                                        <span className="student_name" title={studentName}>
+                                                            {studentName}
+                                                        </span>
+                                                        {activeStatus ? (
+                                                            <span className={`status_chip status_${activeStatus.replace("-", "_")}`}>
+                                                                {activeStatus === "half-day" ? "Half Day" : activeStatus}
+                                                            </span>
+                                                        ) : (
+                                                            <span className="status_chip status_unmarked">Unmarked</span>
+                                                        )}
+                                                    </div>
+                                                    <div className="details_row">
+                                                        <span className="roll_pill">
+                                                            Roll: <strong>{rollNo}</strong>
+                                                        </span>
+                                                        {studentCode && (
+                                                            <span className="id_pill">
+                                                                ID: <strong>{studentCode}</strong>
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Attendance 5-Button Grid */}
+                                            <div className="attendance_grid">
+                                                <AttendanceButton
+                                                    status="present"
+                                                    title="Present"
+                                                    shortTitle="Present"
+                                                    active={activeStatus === "present"}
+                                                    onClick={handleStatusClick(rowKey, "present")}
+                                                />
+                                                <AttendanceButton
+                                                    status="late"
+                                                    title="Late"
+                                                    shortTitle="Late"
+                                                    active={activeStatus === "late"}
+                                                    onClick={handleStatusClick(rowKey, "late")}
+                                                />
+                                                <AttendanceButton
+                                                    status="absent"
+                                                    title="Absent"
+                                                    shortTitle="Absent"
+                                                    active={activeStatus === "absent"}
+                                                    onClick={handleStatusClick(rowKey, "absent")}
+                                                />
+                                                <AttendanceButton
+                                                    status="half-day"
+                                                    title="Half Day"
+                                                    shortTitle="Half"
+                                                    active={activeStatus === "half-day"}
+                                                    onClick={handleStatusClick(rowKey, "half-day")}
+                                                />
+                                                <AttendanceButton
+                                                    status="leave"
+                                                    title="Leave"
+                                                    shortTitle="Leave"
+                                                    active={activeStatus === "leave"}
+                                                    onClick={handleStatusClick(rowKey, "leave")}
+                                                />
+                                            </div>
+
+                                            {/* Note Section */}
+                                            <div className="note_section">
+                                                {isNoteOpen ? (
+                                                    <div className="note_input_box">
+                                                        <InputField
+                                                            value={notes[rowKey] ?? row.note ?? ""}
+                                                            type="text"
+                                                            placeHolder="Add note for this student..."
+                                                            onChange={(val) => {
+                                                                const text =
+                                                                    typeof val === "object" && val?.target
+                                                                        ? val.target.value
+                                                                        : val;
+                                                                setNotes((prev) => ({ ...prev, [rowKey]: text as string }));
+                                                            }}
+                                                        />
+                                                    </div>
+                                                ) : (
+                                                    <button
+                                                        type="button"
+                                                        className="add_note_btn"
+                                                        onClick={() => setExpandedNotes((prev) => ({ ...prev, [rowKey]: true }))}
+                                                    >
+                                                        + Add Note
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+
+                                {/* Mobile Pagination Controls */}
+                                {totalPages > 1 && (
+                                    <div className="mobile_pagination">
+                                        <button
+                                            type="button"
+                                            className="page_nav_btn"
+                                            disabled={page <= 1}
+                                            onClick={() => setPage((p) => Math.max(1, p - 1))}
+                                        >
+                                            Previous
+                                        </button>
+                                        <span className="page_indicator">
+                                            Page {page} of {totalPages}
+                                        </span>
+                                        <button
+                                            type="button"
+                                            className="page_nav_btn"
+                                            disabled={page >= totalPages}
+                                            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                                        >
+                                            Next
+                                        </button>
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </div>
+
+                    {/* Submit Attendance Button */}
+                    {hasSearched && studentAttendance && studentAttendance.length > 0 && (
+                        <div className="submit_attendance_button">
+                            <PrimaryButton
+                                onClick={handleSubmitAttendance}
+                                disabled={isPending}
+                                title={isPending ? "Submitting..." : `Submit Attendance (${studentAttendance.length} Students)`}
+                            />
+                        </div>
+                    )}
                 </TableWrapper>
 
             </div>

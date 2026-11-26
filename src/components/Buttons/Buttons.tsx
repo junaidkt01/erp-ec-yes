@@ -59,8 +59,8 @@ export const GlobalButton = ({ title, onClick, icon, bg, border, color }: {
     )
 }
 
-export const PrimaryButton = ({ title, type, onClick, disabled, isLoading }: {
-    title: string; type?: "button" | "submit" | "reset"; onClick?: any; disabled?: boolean, isLoading?: boolean
+export const PrimaryButton = ({ title, type, onClick, disabled, isLoading, icon }: {
+    title: string; type?: "button" | "submit" | "reset"; onClick?: any; disabled?: boolean, isLoading?: boolean; icon?: React.ReactNode
 }) => {
     const { ref, onPointerDown, onClickCapture } = useButton();
     return (
@@ -68,7 +68,12 @@ export const PrimaryButton = ({ title, type, onClick, disabled, isLoading }: {
             onClick={onClick} type={type} disabled={disabled}
             onPointerDown={onPointerDown} onClickCapture={onClickCapture}>
             <div className="ripple-layer" />
-            {isLoading ? <div className="loader" ></div> : title}
+            {isLoading ? <div className="loader" ></div> : (
+                <>
+                    <span>{title}</span>
+                    {icon}
+                </>
+            )}
         </button>
     )
 }
