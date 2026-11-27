@@ -76,6 +76,8 @@ import StudentParentList from './pages/StudentInfo/StudentParent/StudentParentLi
 import AcademicCategory from './pages/Academics/AcademicCategory/AcademicCategory'
 import UsersAndAccess from './pages/UsersAndAccess/UsersAndAccess'
 import FeesInvoice from './pages/Fees/FeesInvoice/FeesInvoice'
+import BankPayment from './pages/Fees/BankPayment/BankPayment'
+import FeesCarryForward from './pages/Fees/FeesCarryForward/FeesCarryForward'
 import FeesType from './pages/Fees/FeesType/FeesType'
 import StudentsAttendanceReport from './pages/StudentsReport/StudentsAttendanceReport/StudentsAttendanceReport'
 import StaffAttendanceReport from './pages/StaffReport/StaffAttendanceReport/StaffAttendanceReport'
@@ -237,8 +239,8 @@ function App() {
                   <Route path='/fees/fees-group' element={<FeesGroup />} />
                   <Route path='/fees/fees-type' element={<div><FeesType /></div>} />
                   <Route path='/fees/fees-invoice' element={<div><FeesInvoice /></div>} />
-                  <Route path='/fees/bank-payment' element={<div>bank-payment</div>} />
-                  <Route path='/fees/fees-carry-forward' element={<div>fees-carry-forward</div>} />
+                  <Route path='/fees/bank-payment' element={<BankPayment />} />
+                  <Route path='/fees/fees-carry-forward' element={<FeesCarryForward />} />
 
                   {/* 6. Human Resource */}
                   <Route path='/human-resource/add-staff' element={<AddStaff />} />

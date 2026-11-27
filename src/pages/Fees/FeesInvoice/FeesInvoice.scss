@@ -1,0 +1,225 @@
+.fees_invoice_page {
+  /* Breadcrumbs */
+  .breadcrumbs {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    color: #212121;
+    cursor: pointer;
+
+    img {
+      cursor: pointer;
+    }
+
+    p {
+      margin-left: 4px;
+      font-weight: 500;
+      color: #212121;
+    }
+
+    span {
+      margin-left: 4px;
+      color: #8a8894;
+    }
+  }
+
+  /* Student Name Badge */
+  .student_name_badge {
+    display: inline-block;
+    padding: 4px 12px;
+    background-color: #f6f6fc;
+    border: 1px solid #e2e2ee;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+  }
+
+  /* 5 Action Buttons */
+  .fees_actions_cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .action_icon_btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background-color: #f3f4f6;
+      border: none;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+
+      img {
+        width: 14px;
+        height: 14px;
+      }
+
+      &:hover {
+        background-color: #e5e7eb;
+        transform: translateY(-1px);
+      }
+    }
+  }
+
+  /* Add Fees Invoice Screen */
+  .add_fees_invoice_container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    .section_header_label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #212121;
+      margin-bottom: 12px;
+    }
+
+    .payment_status_section {
+      max-width: 450px;
+    }
+
+    .incident_list_card_wrapper {
+      margin-top: 8px;
+
+      .relation_guardian_title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #212121;
+        margin-bottom: 8px;
+      }
+
+      .fees_type_label {
+        font-size: 13px;
+        font-weight: 500;
+        color: #666;
+        margin-bottom: 6px;
+      }
+
+      .fees_type_select_box {
+        max-width: 400px;
+        margin-bottom: 16px;
+      }
+
+      .invoice_radio_group {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+
+        .radio_option {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 14px;
+          color: #374151;
+          cursor: pointer;
+
+          input[type="radio"] {
+            accent-color: #605dec;
+            width: 16px;
+            height: 16px;
+          }
+        }
+      }
+
+      .incident_sub_table_wrapper {
+        border: 0.5px solid #bdbcdb;
+        border-radius: 10px;
+        overflow-x: auto;
+
+        .incident_sub_table {
+          width: 100%;
+          border-collapse: collapse;
+
+          thead th {
+            background-color: #f5f5f5;
+            padding: 14px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            text-align: left;
+            border-bottom: 1px solid #bdbcdb;
+          }
+
+          tbody td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 14px;
+            color: #333;
+
+            .table_cell_input {
+              width: 100%;
+              max-width: 120px;
+              height: 38px;
+              padding: 6px 12px;
+              background-color: #f8f8fc;
+              border: 1px solid #e2e2ee;
+              border-radius: 8px;
+              font-size: 13px;
+              outline: none;
+              transition: all 0.15s ease;
+
+              &:focus {
+                border-color: #605dec;
+                background-color: #ffffff;
+              }
+            }
+          }
+
+          tfoot {
+            tr.incident_result_row {
+              background-color: #ffffff;
+
+              td {
+                padding: 16px;
+                border-top: 1px solid #bdbcdb;
+                font-size: 14px;
+                font-weight: 700;
+                color: #212121;
+              }
+
+              .result_label_cell {
+                font-size: 15px;
+                font-weight: 700;
+                color: #111827;
+              }
+
+              .result_val_cell {
+                font-size: 14px;
+                font-weight: 700;
+                color: #212121;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /* View Fees Invoice Screen */
+  .view_invoice_container {
+    .view_invoice_header_bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+
+      .breadcrumbs {
+        margin-bottom: 0;
+      }
+    }
+
+    .view_invoice_content_card {
+      min-height: 480px;
+      padding: 32px;
+      background-color: #ffffff;
+    }
+  }
+}

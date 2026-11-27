@@ -210,6 +210,11 @@ export const library = {
   books: "/books",
   bookCategories: "/book-categories",
   bookDetail: (id: number | string) => `/books/${id}`,
+  libraryMembers: "/library-members",
+  libraryMemberDetail: (id: number | string) => `/library-members/${id}`,
+  libraryIssues: "/library-issues",
+  libraryIssueDetail: (id: number | string) => `/library-issues/${id}`,
+  returnBook: (id: number | string) => `/library-issues/${id}/return`,
 };
 
 

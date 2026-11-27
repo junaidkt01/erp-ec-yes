@@ -6,6 +6,12 @@
   -webkit-overflow-scrolling: touch;
 }
 
+.table_footer_action {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 20px 0 20px;
+}
+
 .custom_table {
   width: 100%;
   border-collapse: collapse;

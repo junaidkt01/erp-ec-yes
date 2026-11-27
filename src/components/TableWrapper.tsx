@@ -2,7 +2,7 @@ import { AddButton } from "./Buttons/Buttons"
 import Can from "./permissions/Can";
 import SearchBar from "./SearchBar"
 
-const TableWrapper = ({ permission, isSearchBar, isAddButton, title, addButtonTitle, children, onClick, searchValue = "", searchOnchange = () => { } }: { permission?: string; isAddButton?: boolean; isSearchBar?: boolean; title: string; addButtonTitle?: string; children: any; onClick?: any; searchValue?: string; searchOnchange?: (value: string) => void; }) => {
+const TableWrapper = ({ permission, isSearchBar, isAddButton, title, addButtonTitle, children, onClick, searchValue = "", searchOnchange = () => { } }: { permission?: string; isAddButton?: boolean; isSearchBar?: boolean; title: any; addButtonTitle?: string; children: any; onClick?: any; searchValue?: string; searchOnchange?: (value: string) => void; }) => {
     return (
         <div className="table_canvas" >
             <div className="table_header" >

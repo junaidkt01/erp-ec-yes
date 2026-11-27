@@ -19,9 +19,10 @@ interface DataTableProps {
     note?: (row: any, index: number) => React.ReactNode;
     actionsTitle?: string;
     emptyMessage?: string;
+    footerAction?: React.ReactNode;
 }
 
-const DataTable: React.FC<DataTableProps> = ({ columns, data, currentPage, totalPages, onPageChange, select, progress, actions, attendance, note, actionsTitle = "Actions", emptyMessage }) => {
+const DataTable: React.FC<DataTableProps> = ({ columns, data, currentPage, totalPages, onPageChange, select, progress, actions, attendance, note, actionsTitle = "Actions", emptyMessage, footerAction }) => {
     const columnCount = columns.length + [select, progress, actions, attendance, note].filter(Boolean).length;
 
     const getPagination = () => {
@@ -74,9 +75,16 @@ const DataTable: React.FC<DataTableProps> = ({ columns, data, currentPage, total
                             {select && <td>{select(row.progress)}</td>}
 
                             {columns.map((c) => {
-                                const value = row[c.key];
+                                let value = row[c.key];
                                 const MAX_LETTERS = 30;
-                                console.log(value, " :value")
+
+                                if (
+                                    typeof value === "object" &&
+                                    value !== null &&
+                                    !React.isValidElement(value)
+                                ) {
+                                    value = value.name || value.title || value.label || value.value || "";
+                                }
 
                                 return (
                                     <td key={c.key} title={typeof value === "string" ? value : ""} >
@@ -112,6 +120,12 @@ const DataTable: React.FC<DataTableProps> = ({ columns, data, currentPage, total
                     ))} */}
                 </tbody>
             </table>
+
+            {footerAction && (
+                <div className="table_footer_action">
+                    {footerAction}
+                </div>
+            )}
 
             <div className="pagination_container">
                 <div className="page_info">
