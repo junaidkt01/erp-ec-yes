@@ -108,6 +108,10 @@ import BookCategories from './pages/Library/BookCategories/BookCategories'
 import AddMember from './pages/Library/AddMember/AddMember'
 import IssueReturnBook from './pages/Library/IssueReturnBook/IssueReturnBook'
 import AllIssuedBook from './pages/Library/AllIssuedBook/AllIssuedBook'
+import LessonPlanList from './pages/LessonPlan/LessonPlanList/LessonPlanList'
+import AddLessonPlan from './pages/LessonPlan/AddLessonPlan/AddLessonPlan'
+import ViewLessonPlan from './pages/LessonPlan/ViewLessonPlan/ViewLessonPlan'
+import LessonPlanApprovals from './pages/LessonPlan/LessonPlanApprovals/LessonPlanApprovals'
 
 // import Snowfall from './components/Snowfall'
 
@@ -337,6 +341,15 @@ function App() {
                   <Route path='/library/issue-books' element={<IssueReturnBook />} />
                   <Route path='/library/all-issued-book' element={<AllIssuedBook />} />
                   <Route path='/library/all-issued-books' element={<AllIssuedBook />} />
+
+                  {/* 22. Lesson Plan */}
+                  <Route path='/lesson-plan' element={<LessonPlanList />} />
+                  <Route path='/lesson-plan/lesson-plan-list' element={<LessonPlanList />} />
+                  <Route path='/lesson-plan/lesson-plan-list/:id' element={<ViewLessonPlan />} />
+                  <Route path='/lesson-plan/add-lesson-plan' element={<AddLessonPlan />} />
+                  <Route path='/lesson-plan/add-lesson-plan/:id' element={<AddLessonPlan />} />
+                  {/* <Route path='/lesson-plan/view-lesson-plan/:id' element={<ViewLessonPlan />} /> */}
+                  <Route path='/lesson-plan/lesson-plan-approvals' element={<LessonPlanApprovals />} />
                 </Route>
 
                 {/* Error page */}

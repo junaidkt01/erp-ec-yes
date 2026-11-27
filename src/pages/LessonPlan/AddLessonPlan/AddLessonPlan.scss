@@ -1,0 +1,166 @@
+.add_lesson_plan_page {
+  .lesson_plan_form_body {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .form_section_block {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-bottom: 20px;
+    border-bottom: 1px dashed #e2e8f0;
+
+    &:last-of-type {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .section_header_label {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1e293b;
+      margin: 0;
+    }
+
+    .section_desc {
+      font-size: 13px;
+      color: #64748b;
+      margin: 0;
+    }
+  }
+
+  .pedagogy_grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .input_group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+
+      .input_label {
+        font-size: 13px;
+        font-weight: 500;
+        color: #334155;
+      }
+
+      .custom_textarea {
+        width: 100%;
+        padding: 10px 14px;
+        font-size: 14px;
+        color: #1e293b;
+        background-color: #fafbfc;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        outline: none;
+        resize: vertical;
+        font-family: inherit;
+        line-height: 1.5;
+        transition: border-color 0.15s ease;
+
+        &:focus {
+          border-color: #605dec;
+          background-color: #ffffff;
+        }
+      }
+    }
+  }
+
+  .weekly_schedule_table_wrapper {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #ffffff;
+
+    .schedule_grid_table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 800px;
+
+      thead th {
+        background-color: #f8fafc;
+        padding: 12px 10px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #1e293b;
+        text-align: center;
+        border-bottom: 1px solid #cbd5e1;
+        border-right: 1px solid #e2e8f0;
+
+        &.row_type_col {
+          width: 140px;
+          text-align: left;
+          padding-left: 14px;
+        }
+
+        &:last-child {
+          border-right: none;
+        }
+      }
+
+      tbody td {
+        padding: 8px;
+        border-bottom: 1px solid #e2e8f0;
+        border-right: 1px solid #e2e8f0;
+        vertical-align: top;
+
+        &.row_title {
+          font-size: 13px;
+          font-weight: 600;
+          color: #334155;
+          background-color: #f8fafc;
+          padding: 12px 14px;
+          white-space: nowrap;
+        }
+
+        &:last-child {
+          border-right: none;
+        }
+
+        .schedule_cell_textarea {
+          width: 100%;
+          min-height: 70px;
+          padding: 6px 8px;
+          font-size: 12px;
+          color: #1e293b;
+          background-color: #fafbfc;
+          border: 1px solid #e2e8f0;
+          border-radius: 6px;
+          outline: none;
+          resize: vertical;
+          font-family: inherit;
+          line-height: 1.4;
+
+          &:focus {
+            border-color: #605dec;
+            background-color: #ffffff;
+          }
+        }
+      }
+
+      tbody tr:last-child td {
+        border-bottom: none;
+      }
+    }
+  }
+
+  .form_action_bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 16px;
+    border-top: 1px solid #e2e8f0;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    .right_buttons {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+  }
+}
