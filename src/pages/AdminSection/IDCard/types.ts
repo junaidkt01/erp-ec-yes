@@ -21,6 +21,8 @@ export interface CardFieldsConfig {
     phone: boolean;
     idNo: boolean;
     qrCode: boolean;
+    
+    signature: boolean;
 }
 
 export interface ElementPosition {
@@ -133,7 +135,7 @@ export const DEFAULT_ID_CONFIG: IDCardConfig = {
         left: 3,
         right: 3,
     },
-    logo: "/YES_india_logo.png",
+    logo: null,
     signature: null,
     schoolName: "RAZA UL ULOOM ISLAMIA HIGHER SECONDARY SCHOOL",
     schoolSubtitle: "Near Panchayat Ghar Kanliyan Pin: 193103 Phone: 01954-222345",
@@ -149,6 +151,8 @@ export const DEFAULT_ID_CONFIG: IDCardConfig = {
         phone: true,
         idNo: true,
         qrCode: false,
+
+        signature: true,
     },
     elementPositions: {},
 };

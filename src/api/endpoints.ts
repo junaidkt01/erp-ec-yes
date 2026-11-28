@@ -217,5 +217,12 @@ export const library = {
   returnBook: (id: number | string) => `/library-issues/${id}/return`,
 };
 
+export const lessonPlan = {
+  lessonPlans: "/lesson-plans",
+  lessonPlanDetail: (id: number | string) => `/lesson-plans/${id}`,
+  review: (id: number | string) => `/lesson-plans/${id}/review`,
+};
+
+
 
 

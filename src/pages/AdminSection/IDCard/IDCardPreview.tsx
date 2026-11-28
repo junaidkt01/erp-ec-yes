@@ -471,46 +471,6 @@ export const IDCardPreview: React.FC<IDCardPreviewProps> = ({
                 </div>
             )}
 
-            {/* Header Wave / Navy Banner */}
-            <div className="card_header_banner">
-                <svg className="header_curve_svg" viewBox="0 0 500 160" preserveAspectRatio="none">
-                    <path 
-                        d="M0,0 L500,0 L500,110 C380,150 280,120 180,135 C80,150 0,110 0,110 Z" 
-                        fill="#12255d" 
-                    />
-                    <path 
-                        d="M0,0 L500,0 L500,95 C400,120 300,105 200,118 C100,130 0,95 0,95 Z" 
-                        fill="#1b337a" 
-                        opacity="0.85" 
-                    />
-                </svg>
-
-                {/* School Crest / Logo inside banner */}
-                {renderDraggableItem("logo", (
-                    <div className="school_crest_container">
-                        {config.logo ? (
-                            <img 
-                                src={config.logo} 
-                                alt="School Logo" 
-                                className="school_crest_img"
-                                onError={(e) => {
-                                    (e.currentTarget as HTMLImageElement).src = "/YES_india_logo.png";
-                                }}
-                            />
-                        ) : (
-                            <div className="crest_fallback">
-                                <span className="crest_star">★</span>
-                                <span className="crest_text">YES</span>
-                            </div>
-                        )}
-                        <div className="crest_caption">
-                            <span className="crest_title" style={{ color: config.textColors?.headerTextColor || "#ffffff" }}>YES</span>
-                            <span className="crest_sub" style={{ color: config.textColors?.headerTextColor ? `${config.textColors.headerTextColor}cc` : "rgba(255, 255, 255, 0.8)" }}>FOUNDATION</span>
-                        </div>
-                    </div>
-                ), "crest_drag_wrapper")}
-            </div>
-
             {/* User Photo with Resize and Corner Radius draggers */}
             {renderDraggablePhoto()}
 
@@ -631,27 +591,29 @@ export const IDCardPreview: React.FC<IDCardPreviewProps> = ({
             )}
 
             {/* Signature Area */}
-            {renderDraggableItem("signature", (
-                <div className="card_signature_area">
-                    {config.signature ? (
-                        <img src={config.signature} alt="Sign" className="signature_img" />
-                    ) : (
-                        <div className="signature_placeholder">
-                            <span className="sig_ink" style={{ color: config.textColors?.primaryText || "#12255d" }}>Principal</span>
-                        </div>
-                    )}
-                    <span className="signature_title" style={{ color: config.textColors?.labelColor || "#4b5563" }}>Principal Signature</span>
-                </div>
-            ), "sig_drag_wrapper")}
+            {config.fields.signature && (
+                renderDraggableItem("signature", (
+                    <div className="card_signature_area">
+                        {config.signature ? (
+                            <img src={config.signature} alt="Sign" className="signature_img" />
+                        ) : (
+                            <div className="signature_placeholder">
+                                <span className="sig_ink" style={{ color: config.textColors?.primaryText || "#12255d" }}>Principal</span>
+                            </div>
+                        )}
+                        <span className="signature_title" style={{ color: config.textColors?.labelColor || "#4b5563" }}>Principal Signature</span>
+                    </div>
+                ), "sig_drag_wrapper")
+            )}
 
             {/* Card Footer Banner */}
-            <div className="card_footer_banner">
+            {/* <div className="card_footer_banner">
                 <div className="footer_navy_strip">
                     <p className="school_primary_name" style={{ color: config.textColors?.headerTextColor || "#ffffff" }}>{config.schoolName}</p>
                     <p className="school_sub_address" style={{ color: config.textColors?.headerTextColor ? `${config.textColors.headerTextColor}dd` : "rgba(255, 255, 255, 0.85)" }}>{config.schoolSubtitle}</p>
                 </div>
                 <div className="footer_gold_strip"></div>
-            </div>
+            </div> */}
         </div>
     );
 
@@ -714,10 +676,10 @@ export const IDCardPreview: React.FC<IDCardPreviewProps> = ({
             <div className="preview_panel_header">
                 <div className="panel_title_wrap">
                     <h3 className="panel_title">User ID Card</h3>
-                    <span className="live_badge">
+                    {/* <span className="live_badge">
                         <span className="pulse_dot"></span>
                         Interactive Designer
-                    </span>
+                    </span> */}
                 </div>
 
                 <div className="preview_header_actions">

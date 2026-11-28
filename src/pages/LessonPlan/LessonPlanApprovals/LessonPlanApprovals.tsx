@@ -170,11 +170,8 @@ const LessonPlanApprovals = () => {
                     </PopupScreen>
                 )}
 
-                <TableWrapper
-                    title="Lesson Plan Approvals (ACO / Principal)"
-                    isSearchBar
-                >
-                    <div className="approvals_top_bar">
+                <TableWrapper title="Lesson Plan Approvals (ACO / Principal)" isSearchBar >
+                    {/* <div className="approvals_top_bar">
                         <button
                             type="button"
                             className="button secondary_button"
@@ -182,7 +179,7 @@ const LessonPlanApprovals = () => {
                         >
                             &larr; Back to Lesson Plans
                         </button>
-                    </div>
+                    </div> */}
 
                     <DataTable
                         columns={columns}

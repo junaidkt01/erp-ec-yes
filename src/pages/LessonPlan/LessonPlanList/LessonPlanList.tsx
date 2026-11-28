@@ -11,6 +11,8 @@ import {
     useDeleteLessonPlan,
     type LessonPlanItem,
 } from "../../../hooks/useLessonPlan";
+import { useFetchAllStudentClasses } from "../../../hooks/useStudentClass";
+import { useFetchAllSubjects } from "../../../hooks/useSubject";
 import { toast } from "sonner";
 import "./LessonPlanList.scss";
 
@@ -22,6 +24,35 @@ const LessonPlanList = () => {
     const [selectedSubject, setSelectedSubject] = useState("All");
     const [selectedStatus, setSelectedStatus] = useState("All");
     const [deleteTarget, setDeleteTarget] = useState<LessonPlanItem | null>(null);
+
+    const { data: classesData } = useFetchAllStudentClasses();
+    const { data: subjectsData } = useFetchAllSubjects();
+
+    const classList = Array.isArray(classesData?.data) ? classesData.data : Array.isArray(classesData) ? classesData : [];
+    const subjectList = Array.isArray(subjectsData?.data) ? subjectsData.data : Array.isArray(subjectsData) ? subjectsData : [];
+
+    const classFilterOptions = [
+        { label: "All Classes", value: "All" },
+        ...(classList.length > 0
+            ? classList.map((c: any) => ({ label: c.name, value: c.name }))
+            : [
+                { label: "Class 8", value: "Class 8" },
+                { label: "Class 9", value: "Class 9" },
+                { label: "Class 10", value: "Class 10" },
+            ]),
+    ];
+
+    const subjectFilterOptions = [
+        { label: "All Subjects", value: "All" },
+        ...(subjectList.length > 0
+            ? subjectList.map((s: any) => ({ label: s.name, value: s.name }))
+            : [
+                { label: "Science", value: "Science" },
+                { label: "Mathematics", value: "Mathematics" },
+                { label: "English", value: "English" },
+                { label: "Social Science", value: "Social Science" },
+            ]),
+    ];
 
     const { data: plansData, isLoading } = useFetchAllLessonPlans({
         page,
@@ -89,42 +120,28 @@ const LessonPlanList = () => {
         <div className="page_wrapper">
             <div className="lesson_plan_list_page">
                 {/* 1. Filter Criteria Card */}
-                <TableWrapper title="Filter Lesson Plans">
+                <TableWrapper
+                    title="Filter Lesson Plans"
+                    isAddButton
+                    addButtonTitle="Add Lesson Plan"
+                    onClick={() => navigate("/lesson-plan/add-lesson-plan")}
+                >
                     <div className="popup_body">
                         <div className="fields_wrapper">
                             <div className="body_section">
-                                <CustomSelect
-                                    label="Class"
-                                    value={selectedClass}
-                                    options={[
-                                        { label: "All Classes", value: "All" },
-                                        { label: "Class 8", value: "Class 8" },
-                                        { label: "Class 9", value: "Class 9" },
-                                        { label: "Class 10", value: "Class 10" },
-                                    ]}
+                                <CustomSelect label="Class" value={selectedClass} options={classFilterOptions}
                                     onChange={(val: any) => {
                                         setSelectedClass(val);
                                         setPage(1);
-                                    }}
-                                />
-                                <CustomSelect
-                                    label="Subject"
-                                    value={selectedSubject}
-                                    options={[
-                                        { label: "All Subjects", value: "All" },
-                                        { label: "Science", value: "Science" },
-                                        { label: "Mathematics", value: "Mathematics" },
-                                        { label: "English", value: "English" },
-                                        { label: "Social Science", value: "Social Science" },
-                                    ]}
+                                    }} />
+                                <CustomSelect label="Subject" value={selectedSubject} options={subjectFilterOptions}
                                     onChange={(val: any) => {
                                         setSelectedSubject(val);
                                         setPage(1);
-                                    }}
-                                />
-                                <CustomSelect
-                                    label="Status"
-                                    value={selectedStatus}
+                                    }} />
+                            </div>
+                            <div className="body_section">
+                                <CustomSelect label="Status" value={selectedStatus}
                                     options={[
                                         { label: "All Statuses", value: "All" },
                                         { label: "Approved", value: "Approved" },
@@ -140,17 +157,8 @@ const LessonPlanList = () => {
                             </div>
                         </div>
 
-                        <div className="criteria_bottom_bar">
-                            <button
-                                type="button"
-                                className="button secondary_button"
-                                style={{ height: "38px", padding: "0 16px", fontSize: "13px" }}
-                                onClick={() => navigate("/lesson-plan/lesson-plan-approvals")}
-                            >
-                                Review Approvals (ACO / Principal)
-                            </button>
-                            <SecondaryButton
-                                title="Reset Filters"
+                        <div className="buttons" >
+                            <SecondaryButton title="Reset Filters"
                                 onClick={() => {
                                     setSelectedClass("All");
                                     setSelectedSubject("All");
@@ -166,15 +174,16 @@ const LessonPlanList = () => {
                 {/* 2. Lesson Plans Table */}
                 <TableWrapper
                     isAddButton
+                    addButtonTitle="Review Approvals (ACO / Principal)"
+                    onClick={() => navigate("/lesson-plan/lesson-plan-approvals")}
                     isSearchBar
                     title="Lesson Plans"
-                    addButtonTitle="Add Lesson Plan"
                     searchValue={search}
                     searchOnchange={(val) => {
                         setSearch(val);
                         setPage(1);
                     }}
-                    onClick={() => navigate("/lesson-plan/add-lesson-plan")}
+                // onClick={() => navigate("/lesson-plan/add-lesson-plan")}
                 >
                     <DataTable
                         columns={columns}

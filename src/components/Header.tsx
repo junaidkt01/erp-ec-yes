@@ -147,75 +147,67 @@ const Header = () => {
                 </div>
 
                 <div className="header_right_icons">
-                    <div
-                        className="icon_box hvr_zm_out"
+                    <div className="icon_box hvr_zm_out"
                         onClick={() => {
                             setIsNotificationOpen((prev) => !prev);
                             setIsInboxOpen(false);
                             setIsProfile(false);
                         }}
                         style={{ cursor: "pointer", position: "relative" }}
-                        title="Notifications"
-                    >
+                        title="Notifications" >
                         <img className="hvr_zm_in" src="/header_icons/notification.svg" alt="Notifications" />
                         {unreadNotifsCount > 0 && (
-                            <span
-                                style={{
-                                    position: "absolute",
-                                    top: "-2px",
-                                    right: "-2px",
-                                    backgroundColor: "#ef4444",
-                                    color: "#ffffff",
-                                    fontSize: "10px",
-                                    fontWeight: 700,
-                                    borderRadius: "50%",
-                                    minWidth: "16px",
-                                    height: "16px",
-                                    padding: "0 3px",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    lineHeight: 1,
-                                    border: "1.5px solid #ffffff",
-                                }}
-                            >
+                            <span style={{
+                                position: "absolute",
+                                top: "-2px",
+                                right: "-2px",
+                                backgroundColor: "#ef4444",
+                                color: "#ffffff",
+                                fontSize: "10px",
+                                fontWeight: 700,
+                                borderRadius: "50%",
+                                minWidth: "16px",
+                                height: "16px",
+                                padding: "0 3px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                lineHeight: 1,
+                                border: "1.5px solid #ffffff",
+                            }} >
                                 {unreadNotifsCount > 9 ? "9+" : unreadNotifsCount}
                             </span>
                         )}
                     </div>
 
-                    <div
-                        className="icon_box hvr_zm_out"
+                    <div className="icon_box hvr_zm_out"
                         onClick={() => {
                             setIsInboxOpen((prev) => !prev);
                             setIsNotificationOpen(false);
                             setIsProfile(false);
                         }}
                         style={{ cursor: "pointer", position: "relative" }}
-                        title="Inbox"
-                    >
+                        title="Inbox" >
                         <img className="hvr_zm_in" src="/header_icons/messages.svg" alt="Inbox" />
                         {unreadMessagesCount > 0 && (
-                            <span
-                                style={{
-                                    position: "absolute",
-                                    top: "-2px",
-                                    right: "-2px",
-                                    backgroundColor: "#605dec",
-                                    color: "#ffffff",
-                                    fontSize: "10px",
-                                    fontWeight: 700,
-                                    borderRadius: "50%",
-                                    minWidth: "16px",
-                                    height: "16px",
-                                    padding: "0 3px",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    lineHeight: 1,
-                                    border: "1.5px solid #ffffff",
-                                }}
-                            >
+                            <span style={{
+                                position: "absolute",
+                                top: "-2px",
+                                right: "-2px",
+                                backgroundColor: "#605dec",
+                                color: "#ffffff",
+                                fontSize: "10px",
+                                fontWeight: 700,
+                                borderRadius: "50%",
+                                minWidth: "16px",
+                                height: "16px",
+                                padding: "0 3px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                lineHeight: 1,
+                                border: "1.5px solid #ffffff",
+                            }} >
                                 {unreadMessagesCount > 9 ? "9+" : unreadMessagesCount}
                             </span>
                         )}
@@ -520,12 +512,12 @@ const ProfileMenu = () => {
 
             {/* Menu */}
             <div className="menu">
-                <div className="item hvr_zm_out" onClick={() => navigate("/reset-password")} >
+                {/* <div className="item hvr_zm_out" onClick={() => navigate("/reset-password")} >
                     <span>
                         <img src="/header_icons/change_password.svg" alt="" />
                     </span>
                     <p>{t("header.change_password", "Change Password")}</p>
-                </div>
+                </div> */}
 
                 <div className="item hvr_zm_out" onClick={(e) => { e.stopPropagation(); setIsLangOpen(!isLangOpen); }}>
                     <span>

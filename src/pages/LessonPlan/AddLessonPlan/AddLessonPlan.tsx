@@ -8,8 +8,12 @@ import {
     useCreateLessonPlan,
     useUpdateLessonPlan,
     useFetchLessonPlanById,
+    scheduleMapToArray,
     type LessonPlanSchedule,
 } from "../../../hooks/useLessonPlan";
+import { useFetchAllStudentClasses } from "../../../hooks/useStudentClass";
+import { useFetchAllSections } from "../../../hooks/useSections";
+import { useFetchAllSubjects } from "../../../hooks/useSubject";
 import { toast } from "sonner";
 import "./AddLessonPlan.scss";
 
@@ -27,12 +31,49 @@ const AddLessonPlan = () => {
     const { id } = useParams<{ id?: string }>();
     const isEditing = Boolean(id);
 
-    // Basic & Curriculum Info
-    const [subject, setSubject] = useState("Science");
+    // Dynamic Select Sources
+    const { data: classesData } = useFetchAllStudentClasses();
+    const { data: sectionsData } = useFetchAllSections();
+    const { data: subjectsData } = useFetchAllSubjects();
+
+    const classesList = Array.isArray(classesData?.data) ? classesData.data : Array.isArray(classesData) ? classesData : [];
+    const sectionsList = Array.isArray(sectionsData?.data) ? sectionsData.data : Array.isArray(sectionsData) ? sectionsData : [];
+    const subjectsList = Array.isArray(subjectsData?.data) ? subjectsData.data : Array.isArray(subjectsData) ? subjectsData : [];
+
+    const classOptions = classesList.length > 0
+        ? classesList.map((c: any) => ({ label: c.name, value: String(c.id) }))
+        : [
+            { label: "Class 6", value: "1" },
+            { label: "Class 7", value: "2" },
+            { label: "Class 8", value: "3" },
+            { label: "Class 9", value: "4" },
+            { label: "Class 10", value: "5" },
+        ];
+
+    const sectionOptions = sectionsList.length > 0
+        ? sectionsList.map((s: any) => ({ label: s.name, value: String(s.id) }))
+        : [
+            { label: "Section A", value: "1" },
+            { label: "Section B", value: "2" },
+            { label: "Section C", value: "3" },
+        ];
+
+    const subjectOptions = subjectsList.length > 0
+        ? subjectsList.map((s: any) => ({ label: s.name, value: String(s.id) }))
+        : [
+            { label: "Science", value: "1" },
+            { label: "Mathematics", value: "2" },
+            { label: "English", value: "3" },
+            { label: "Social Science", value: "4" },
+            { label: "Hindi", value: "5" },
+        ];
+
+    // Form State
+    const [subjectId, setSubjectId] = useState<string>("1");
     const [lessonTitle, setLessonTitle] = useState("");
     const [planDate, setPlanDate] = useState("2026-11-27");
-    const [className, setClassName] = useState("Class 8");
-    const [sectionName, setSectionName] = useState("Section A");
+    const [classId, setClassId] = useState<string>("1");
+    const [sectionId, setSectionId] = useState<string>("1");
     const [chapterNumber, setChapterNumber] = useState("");
     const [pageNumbers, setPageNumbers] = useState("");
     const [noOfPeriods, setNoOfPeriods] = useState<number | string>(6);
@@ -51,17 +92,17 @@ const AddLessonPlan = () => {
 
     useEffect(() => {
         if (existingPlan) {
-            setSubject(existingPlan.subject || "Science");
-            setLessonTitle(existingPlan.lesson_title || "");
-            setPlanDate(existingPlan.plan_date || "2026-11-27");
-            setClassName(existingPlan.class_name || "Class 8");
-            setSectionName(existingPlan.section_name || "Section A");
+            if (existingPlan.subject_id) setSubjectId(String(existingPlan.subject_id));
+            if (existingPlan.class_id) setClassId(String(existingPlan.class_id));
+            if (existingPlan.section_id) setSectionId(String(existingPlan.section_id));
+            setLessonTitle(existingPlan.title || existingPlan.lesson_title || "");
+            setPlanDate(existingPlan.date || existingPlan.plan_date || "2026-11-27");
             setChapterNumber(existingPlan.chapter_number || "");
             setPageNumbers(existingPlan.page_numbers || "");
             setNoOfPeriods(existingPlan.no_of_periods || 6);
             setObjectives(existingPlan.objectives || "");
             setIntroductoryActivities(existingPlan.introductory_activities || "");
-            setTeachingAids(existingPlan.teaching_aids || "");
+            setTeachingAids(existingPlan.teaching_aids_activities || existingPlan.teaching_aids || "");
             if (existingPlan.schedule) {
                 setSchedule(existingPlan.schedule);
             }
@@ -88,21 +129,33 @@ const AddLessonPlan = () => {
             return;
         }
 
+        const selectedSubject = subjectOptions.find((s: any) => String(s.value) === String(subjectId))?.label || "Science";
+        const selectedClass = classOptions.find((c: any) => String(c.value) === String(classId))?.label || "Class 8";
+        const selectedSection = sectionOptions.find((s: any) => String(s.value) === String(sectionId))?.label || "Section A";
+
         const payload = {
-            subject,
+            title: lessonTitle.trim(),
             lesson_title: lessonTitle.trim(),
+            subject_id: Number(subjectId) || 1,
+            subject: selectedSubject,
+            class_id: Number(classId) || 1,
+            class_name: selectedClass,
+            section_id: Number(sectionId) || 1,
+            section_name: selectedSection,
+            teacher_id: 1,
+            teacher_name: "Sarah Jenkins",
+            date: planDate,
             plan_date: planDate,
-            class_name: className,
-            section_name: sectionName,
             chapter_number: chapterNumber.trim() || "Chapter 1",
             page_numbers: pageNumbers.trim() || "--",
-            no_of_periods: noOfPeriods || 1,
+            no_of_periods: Number(noOfPeriods) || 1,
             objectives: objectives.trim(),
             introductory_activities: introductoryActivities.trim(),
+            teaching_aids_activities: teachingAids.trim(),
             teaching_aids: teachingAids.trim(),
+            status: submitStatus === "Submitted" ? "Under Review" : "Draft",
             schedule,
-            status: submitStatus,
-            teacher_name: "Sarah Jenkins",
+            schedules: scheduleMapToArray(schedule),
         };
 
         try {
@@ -145,15 +198,9 @@ const AddLessonPlan = () => {
                                 <div className="body_section">
                                     <CustomSelect
                                         label="Subject"
-                                        value={subject}
-                                        options={[
-                                            { label: "Science", value: "Science" },
-                                            { label: "Mathematics", value: "Mathematics" },
-                                            { label: "English", value: "English" },
-                                            { label: "Social Science", value: "Social Science" },
-                                            { label: "Hindi", value: "Hindi" },
-                                        ]}
-                                        onChange={(val: any) => setSubject(val)}
+                                        value={subjectId}
+                                        options={subjectOptions}
+                                        onChange={(val: any) => setSubjectId(String(val))}
                                     />
                                     <InputField
                                         type="text"
@@ -174,25 +221,15 @@ const AddLessonPlan = () => {
                                 <div className="body_section">
                                     <CustomSelect
                                         label="Class"
-                                        value={className}
-                                        options={[
-                                            { label: "Class 6", value: "Class 6" },
-                                            { label: "Class 7", value: "Class 7" },
-                                            { label: "Class 8", value: "Class 8" },
-                                            { label: "Class 9", value: "Class 9" },
-                                            { label: "Class 10", value: "Class 10" },
-                                        ]}
-                                        onChange={(val: any) => setClassName(val)}
+                                        value={classId}
+                                        options={classOptions}
+                                        onChange={(val: any) => setClassId(String(val))}
                                     />
                                     <CustomSelect
                                         label="Section"
-                                        value={sectionName}
-                                        options={[
-                                            { label: "Section A", value: "Section A" },
-                                            { label: "Section B", value: "Section B" },
-                                            { label: "Section C", value: "Section C" },
-                                        ]}
-                                        onChange={(val: any) => setSectionName(val)}
+                                        value={sectionId}
+                                        options={sectionOptions}
+                                        onChange={(val: any) => setSectionId(String(val))}
                                     />
                                     <InputField
                                         type="text"

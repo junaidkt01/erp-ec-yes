@@ -1,10 +1,10 @@
 import React, { useState, useRef } from "react";
-import { 
-    ArrowLeft, 
-    UploadCloud, 
-    Edit2, 
-    Sparkles, 
-    FileText, 
+import {
+    ArrowLeft,
+    UploadCloud,
+    Edit2,
+    Sparkles,
+    FileText,
     X,
     Link2,
     Unlink,
@@ -14,9 +14,9 @@ import {
     Palette
 } from "lucide-react";
 import { toast } from "sonner";
-import type { 
-    IDCardConfig, 
-    ApplicableUserType, 
+import type {
+    IDCardConfig,
+    ApplicableUserType,
     CardFieldsConfig,
     TextColorsConfig
 } from "./types";
@@ -35,16 +35,21 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
     onSaveSuccess,
     initialConfig = DEFAULT_ID_CONFIG,
 }) => {
-    const [config, setConfig] = useState<IDCardConfig>(initialConfig);
+    const [config, setConfig] = useState<IDCardConfig>(() => ({
+        ...initialConfig,
+        fields: {
+            ...DEFAULT_ID_CONFIG.fields,
+            ...initialConfig?.fields,
+            signature: initialConfig?.fields?.signature !== undefined ? initialConfig.fields.signature : true,
+        },
+    }));
     const [selectedProfileId, setSelectedProfileId] = useState<string>("1");
     const [activeElement, setActiveElement] = useState<SelectableElementId | null>("photo");
     const [isSaving, setIsSaving] = useState<boolean>(false);
     const [isDraggingBg, setIsDraggingBg] = useState<boolean>(false);
-    const [isDraggingLogo, setIsDraggingLogo] = useState<boolean>(false);
     const [isDraggingSig, setIsDraggingSig] = useState<boolean>(false);
 
     const bgInputRef = useRef<HTMLInputElement>(null);
-    const logoInputRef = useRef<HTMLInputElement>(null);
     const sigInputRef = useRef<HTMLInputElement>(null);
 
     // Helpers to update config
@@ -263,8 +268,8 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
 
     // File Handlers
     const handleFileUpload = (
-        file: File, 
-        target: "bgImage" | "logo" | "signature"
+        file: File,
+        target: "bgImage" | "signature"
     ) => {
         if (!file.type.startsWith("image/")) {
             toast.error("Please upload a valid image file (PNG, JPG, JPEG)");
@@ -279,7 +284,7 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
         reader.onload = (e) => {
             const result = e.target?.result as string;
             updateConfig(target, result);
-            toast.success(`${target === "bgImage" ? "Background" : target === "logo" ? "Logo" : "Signature"} uploaded`);
+            toast.success(`${target === "bgImage" ? "Background" : "Signature"} uploaded`);
         };
         reader.readAsDataURL(file);
     };
@@ -336,6 +341,7 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
                     phone: true,
                     idNo: true,
                     qrCode: true,
+                    signature: true
                 },
             }));
             setSelectedProfileId("3");
@@ -377,9 +383,9 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
             {/* Top Navigation & Breadcrumb Bar */}
             <div className="designer_nav_bar">
                 <div className="nav_left_group">
-                    <button 
-                        type="button" 
-                        onClick={onBack} 
+                    <button
+                        type="button"
+                        onClick={onBack}
                         className="btn_back_to_list"
                         title="Return to ID Card Templates List"
                     >
@@ -395,22 +401,22 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
                         <Sparkles size={14} className="sparkle_icon" />
                         Quick Templates:
                     </span>
-                    <button 
-                        type="button" 
+                    <button
+                        type="button"
                         className={`preset_chip ${config.applicableUser === "Student" ? "active" : ""}`}
                         onClick={() => applyTemplatePreset("Student")}
                     >
                         Student ID
                     </button>
-                    <button 
-                        type="button" 
+                    <button
+                        type="button"
                         className={`preset_chip ${config.applicableUser === "Staff" ? "active" : ""}`}
                         onClick={() => applyTemplatePreset("Staff")}
                     >
                         Staff / Faculty
                     </button>
-                    <button 
-                        type="button" 
+                    <button
+                        type="button"
                         className={`preset_chip ${config.applicableUser === "Visitor" ? "active" : ""}`}
                         onClick={() => applyTemplatePreset("Visitor")}
                     >
@@ -428,8 +434,8 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
                         <span className="section_caption">Fully customizable draggable layout, photo resizing & corner radius</span>
                     </div>
 
-                    <form 
-                        className="designer_form_content" 
+                    <form
+                        className="designer_form_content"
                         onSubmit={(e) => { e.preventDefault(); handleSave(); }}
                     >
                         {/* Row 1: ID Card Title & Admin Layout */}
@@ -439,8 +445,8 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
                                     ID Card Title <span className="req_asterisk">*</span>
                                 </label>
                                 <div className="input_with_icon">
-                                    <input 
-                                        type="text" 
+                                    <input
+                                        type="text"
                                         value={config.title}
                                         onChange={(e) => updateConfig("title", e.target.value)}
                                         placeholder="e.g. Student ID Card"
@@ -455,8 +461,8 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
                                 <label className="field_label_text">Admin Layout</label>
                                 <div className="layout_segmented_group">
                                     {/* Portrait Toggle */}
-                                    <button 
-                                        type="button" 
+                                    <button
+                                        type="button"
                                         className={`layout_toggle_btn ${config.layout === "portrait" ? "active" : ""}`}
                                         onClick={() => updateConfig("layout", "portrait")}
                                         title="Portrait Orientation (Vertical)"
@@ -469,8 +475,8 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
                                     </button>
 
                                     {/* Landscape Toggle */}
-                                    <button 
-                                        type="button" 
+                                    <button
+                                        type="button"
                                         className={`layout_toggle_btn ${config.layout === "landscape" ? "active" : ""}`}
                                         onClick={() => updateConfig("layout", "landscape")}
                                         title="Landscape Orientation (Horizontal)"
@@ -491,8 +497,8 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
                                 <div className="label_with_actions">
                                     <label className="field_label_text">Background Image</label>
                                     {config.bgImage && (
-                                        <button 
-                                            type="button" 
+                                        <button
+                                            type="button"
                                             className="text_clear_btn"
                                             onClick={() => updateConfig("bgImage", null)}
                                         >
@@ -501,10 +507,10 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
                                     )}
                                 </div>
 
-                                <input 
-                                    type="file" 
-                                    ref={bgInputRef} 
-                                    accept="image/png,image/jpeg,image/jpg" 
+                                <input
+                                    type="file"
+                                    ref={bgInputRef}
+                                    accept="image/png,image/jpeg,image/jpg"
                                     className="hidden_file_input"
                                     onChange={(e) => {
                                         const file = e.target.files?.[0];
@@ -512,7 +518,7 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
                                     }}
                                 />
 
-                                <div 
+                                <div
                                     className={`dropzone_container ${isDraggingBg ? "drag_active" : ""} ${config.bgImage ? "has_file" : ""}`}
                                     onDragOver={(e) => { e.preventDefault(); setIsDraggingBg(true); }}
                                     onDragLeave={() => setIsDraggingBg(false)}
@@ -551,7 +557,7 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
                         <div className="form_row">
                             <div className="input_field_box full_width">
                                 <label className="field_label_text">Applicable User</label>
-                                <select 
+                                <select
                                     value={config.applicableUser}
                                     onChange={(e) => {
                                         const role = e.target.value as ApplicableUserType;
@@ -576,8 +582,8 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
                                     <span className="unit_tag">MM</span>
                                 </div>
                                 <div className="input_with_edit_icon">
-                                    <input 
-                                        type="number" 
+                                    <input
+                                        type="number"
                                         value={config.pageWidth}
                                         onChange={(e) => updateConfig("pageWidth", Number(e.target.value) || 0)}
                                         step="0.5"
@@ -596,8 +602,8 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
                                     <span className="unit_tag">MM</span>
                                 </div>
                                 <div className="input_with_edit_icon">
-                                    <input 
-                                        type="number" 
+                                    <input
+                                        type="number"
                                         value={config.pageHeight}
                                         onChange={(e) => updateConfig("pageHeight", Number(e.target.value) || 0)}
                                         step="0.5"
@@ -627,16 +633,16 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
                             </div>
 
                             <div className="photo_style_segmented">
-                                <button 
-                                    type="button" 
+                                <button
+                                    type="button"
                                     className={`photo_style_btn ${config.photoRadius.topLeft === 0 && config.photoRadius.topRight === 0 ? "active" : ""}`}
                                     onClick={() => applyShapePreset("square")}
                                 >
                                     <div className="shape_icon_square"></div>
                                     <span>Square (0px)</span>
                                 </button>
-                                <button 
-                                    type="button" 
+                                <button
+                                    type="button"
                                     className={`photo_style_btn ${config.photoRadius.topLeft >= 50 ? "active" : ""}`}
                                     onClick={() => applyShapePreset("round")}
                                 >
@@ -653,8 +659,8 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
                                         <span>Per-Corner Radius (Each Side):</span>
                                     </div>
                                     <div className="rad_actions">
-                                        <button 
-                                            type="button" 
+                                        <button
+                                            type="button"
                                             className={`link_radius_btn ${config.photoRadius.isLinked ? "linked" : ""}`}
                                             onClick={toggleRadiusLink}
                                             title={config.photoRadius.isLinked ? "All 4 corners linked together. Click to unlink." : "Corners independent. Click to link all 4."}
@@ -668,8 +674,8 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
                                 <div className="radius_corners_grid">
                                     <div className="corner_rad_item">
                                         <span className="corner_label">Top-Left</span>
-                                        <input 
-                                            type="number" 
+                                        <input
+                                            type="number"
                                             value={config.photoRadius.topLeft}
                                             onChange={(e) => updateCornerRadius("topLeft", Number(e.target.value) || 0)}
                                             min="0"
@@ -679,8 +685,8 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
                                     </div>
                                     <div className="corner_rad_item">
                                         <span className="corner_label">Top-Right</span>
-                                        <input 
-                                            type="number" 
+                                        <input
+                                            type="number"
                                             value={config.photoRadius.topRight}
                                             onChange={(e) => updateCornerRadius("topRight", Number(e.target.value) || 0)}
                                             min="0"
@@ -690,8 +696,8 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
                                     </div>
                                     <div className="corner_rad_item">
                                         <span className="corner_label">Bottom-Right</span>
-                                        <input 
-                                            type="number" 
+                                        <input
+                                            type="number"
                                             value={config.photoRadius.bottomRight}
                                             onChange={(e) => updateCornerRadius("bottomRight", Number(e.target.value) || 0)}
                                             min="0"
@@ -701,8 +707,8 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
                                     </div>
                                     <div className="corner_rad_item">
                                         <span className="corner_label">Bottom-Left</span>
-                                        <input 
-                                            type="number" 
+                                        <input
+                                            type="number"
                                             value={config.photoRadius.bottomLeft}
                                             onChange={(e) => updateCornerRadius("bottomLeft", Number(e.target.value) || 0)}
                                             min="0"
@@ -728,8 +734,8 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
                                         <span className="unit_tag">Drag to Resize</span>
                                     </div>
                                     <div className="input_with_edit_icon">
-                                        <input 
-                                            type="number" 
+                                        <input
+                                            type="number"
                                             value={config.userPhotoWidth}
                                             onChange={(e) => updateConfig("userPhotoWidth", Number(e.target.value) || 0)}
                                             step="0.5"
@@ -745,8 +751,8 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
                                         <span className="unit_tag">Drag to Resize</span>
                                     </div>
                                     <div className="input_with_edit_icon">
-                                        <input 
-                                            type="number" 
+                                        <input
+                                            type="number"
                                             value={config.userPhotoHeight}
                                             onChange={(e) => updateConfig("userPhotoHeight", Number(e.target.value) || 0)}
                                             step="0.5"
@@ -767,8 +773,8 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
                                         <Move size={14} className="move_icon" />
                                         <span>Selected Item: <strong>{activeElement.toUpperCase()}</strong></span>
                                     </div>
-                                    <button 
-                                        type="button" 
+                                    <button
+                                        type="button"
                                         className="btn_reset_element"
                                         onClick={resetCurrentElementPos}
                                         title="Reset this element's position back to standard flow"
@@ -780,8 +786,8 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
                                 <div className="inspector_coords_grid">
                                     <div className="coord_item">
                                         <span className="axis_lbl">X Offset:</span>
-                                        <input 
-                                            type="number" 
+                                        <input
+                                            type="number"
                                             value={activePos.x}
                                             onChange={(e) => updateSelectedPos("x", Number(e.target.value) || 0)}
                                             className="coord_input"
@@ -790,8 +796,8 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
                                     </div>
                                     <div className="coord_item">
                                         <span className="axis_lbl">Y Offset:</span>
-                                        <input 
-                                            type="number" 
+                                        <input
+                                            type="number"
                                             value={activePos.y}
                                             onChange={(e) => updateSelectedPos("y", Number(e.target.value) || 0)}
                                             className="coord_input"
@@ -804,8 +810,8 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
                                 <div className="inspector_color_row">
                                     <span className="color_lbl">Item Text Color:</span>
                                     <div className="color_picker_inline">
-                                        <input 
-                                            type="color" 
+                                        <input
+                                            type="color"
                                             value={config.elementColors?.[activeElement] || (activeElement === "name" ? config.textColors.primaryText : config.textColors.valueColor)}
                                             onChange={(e) => updateElementColor(activeElement, e.target.value)}
                                             className="color_input_dot"
@@ -814,8 +820,8 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
                                             {config.elementColors?.[activeElement] || (activeElement === "name" ? config.textColors.primaryText : config.textColors.valueColor)}
                                         </span>
                                         {config.elementColors?.[activeElement] && (
-                                            <button 
-                                                type="button" 
+                                            <button
+                                                type="button"
                                                 className="clear_color_btn"
                                                 onClick={() => {
                                                     const nextCol = { ...config.elementColors };
@@ -848,14 +854,14 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
                                     <div className="color_field_card">
                                         <span className="color_field_label">Cardholder Name</span>
                                         <div className="color_swatch_wrapper">
-                                            <input 
-                                                type="color" 
+                                            <input
+                                                type="color"
                                                 value={config.textColors.primaryText}
                                                 onChange={(e) => updateTextColor("primaryText", e.target.value)}
                                                 className="native_color_picker"
                                             />
-                                            <input 
-                                                type="text" 
+                                            <input
+                                                type="text"
                                                 value={config.textColors.primaryText}
                                                 onChange={(e) => updateTextColor("primaryText", e.target.value)}
                                                 className="hex_text_input"
@@ -867,14 +873,14 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
                                     <div className="color_field_card">
                                         <span className="color_field_label">Field Labels</span>
                                         <div className="color_swatch_wrapper">
-                                            <input 
-                                                type="color" 
+                                            <input
+                                                type="color"
                                                 value={config.textColors.labelColor}
                                                 onChange={(e) => updateTextColor("labelColor", e.target.value)}
                                                 className="native_color_picker"
                                             />
-                                            <input 
-                                                type="text" 
+                                            <input
+                                                type="text"
                                                 value={config.textColors.labelColor}
                                                 onChange={(e) => updateTextColor("labelColor", e.target.value)}
                                                 className="hex_text_input"
@@ -886,14 +892,14 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
                                     <div className="color_field_card">
                                         <span className="color_field_label">Field Values</span>
                                         <div className="color_swatch_wrapper">
-                                            <input 
-                                                type="color" 
+                                            <input
+                                                type="color"
                                                 value={config.textColors.valueColor}
                                                 onChange={(e) => updateTextColor("valueColor", e.target.value)}
                                                 className="native_color_picker"
                                             />
-                                            <input 
-                                                type="text" 
+                                            <input
+                                                type="text"
                                                 value={config.textColors.valueColor}
                                                 onChange={(e) => updateTextColor("valueColor", e.target.value)}
                                                 className="hex_text_input"
@@ -905,14 +911,14 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
                                     <div className="color_field_card">
                                         <span className="color_field_label">School Name / Banner</span>
                                         <div className="color_swatch_wrapper">
-                                            <input 
-                                                type="color" 
+                                            <input
+                                                type="color"
                                                 value={config.textColors.headerTextColor}
                                                 onChange={(e) => updateTextColor("headerTextColor", e.target.value)}
                                                 className="native_color_picker"
                                             />
-                                            <input 
-                                                type="text" 
+                                            <input
+                                                type="text"
                                                 value={config.textColors.headerTextColor}
                                                 onChange={(e) => updateTextColor("headerTextColor", e.target.value)}
                                                 className="hex_text_input"
@@ -924,40 +930,40 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
                                 {/* Color Theme Presets */}
                                 <div className="color_themes_row">
                                     <span className="theme_lbl">Theme Palettes:</span>
-                                    <button 
-                                        type="button" 
+                                    <button
+                                        type="button"
                                         className="theme_chip"
                                         onClick={() => applyColorTheme("navy")}
                                     >
                                         <span className="theme_dot dot_navy"></span>
                                         Classic Navy
                                     </button>
-                                    <button 
-                                        type="button" 
+                                    <button
+                                        type="button"
                                         className="theme_chip"
                                         onClick={() => applyColorTheme("purple")}
                                     >
                                         <span className="theme_dot dot_purple"></span>
                                         Royal Purple
                                     </button>
-                                    <button 
-                                        type="button" 
+                                    <button
+                                        type="button"
                                         className="theme_chip"
                                         onClick={() => applyColorTheme("emerald")}
                                     >
                                         <span className="theme_dot dot_emerald"></span>
                                         Emerald Green
                                     </button>
-                                    <button 
-                                        type="button" 
+                                    <button
+                                        type="button"
                                         className="theme_chip"
                                         onClick={() => applyColorTheme("charcoal")}
                                     >
                                         <span className="theme_dot dot_charcoal"></span>
                                         Dark Charcoal
                                     </button>
-                                    <button 
-                                        type="button" 
+                                    <button
+                                        type="button"
                                         className="theme_chip"
                                         onClick={() => applyColorTheme("maroon")}
                                     >
@@ -975,8 +981,8 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
                                 <div className="input_field_box">
                                     <label className="field_label_text">Top</label>
                                     <div className="input_with_edit_icon">
-                                        <input 
-                                            type="number" 
+                                        <input
+                                            type="number"
                                             value={config.spacing.top}
                                             onChange={(e) => updateSpacing("top", Number(e.target.value) || 0)}
                                             step="0.5"
@@ -989,8 +995,8 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
                                 <div className="input_field_box">
                                     <label className="field_label_text">Bottom</label>
                                     <div className="input_with_edit_icon">
-                                        <input 
-                                            type="number" 
+                                        <input
+                                            type="number"
                                             value={config.spacing.bottom}
                                             onChange={(e) => updateSpacing("bottom", Number(e.target.value) || 0)}
                                             step="0.5"
@@ -1003,8 +1009,8 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
                                 <div className="input_field_box">
                                     <label className="field_label_text">Left</label>
                                     <div className="input_with_edit_icon">
-                                        <input 
-                                            type="number" 
+                                        <input
+                                            type="number"
                                             value={config.spacing.left}
                                             onChange={(e) => updateSpacing("left", Number(e.target.value) || 0)}
                                             step="0.5"
@@ -1017,8 +1023,8 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
                                 <div className="input_field_box">
                                     <label className="field_label_text">Right</label>
                                     <div className="input_with_edit_icon">
-                                        <input 
-                                            type="number" 
+                                        <input
+                                            type="number"
                                             value={config.spacing.right}
                                             onChange={(e) => updateSpacing("right", Number(e.target.value) || 0)}
                                             step="0.5"
@@ -1031,72 +1037,33 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
                             </div>
                         </div>
 
-                        {/* Row 7: Logo & Signature Uploads */}
-                        <div className="form_row logo_sig_row">
-                            {/* Logo */}
-                            <div className="input_field_box">
+                        {/* Row 7: Signature Upload & Toggle */}
+                        <div className="form_row">
+                            <div className="input_field_box full_width">
                                 <div className="label_with_actions">
-                                    <label className="field_label_text">Logo</label>
-                                    {config.logo && (
-                                        <button 
-                                            type="button" 
-                                            className="text_clear_btn"
-                                            onClick={() => updateConfig("logo", null)}
+                                    <div className="label_toggle_inline">
+                                        <label className="field_label_text">Signature</label>
+                                        <button
+                                            type="button"
+                                            role="switch"
+                                            aria-checked={config.fields.signature}
+                                            className={`ios_toggle_switch ${config.fields.signature ? "on" : "off"}`}
+                                            onClick={() => toggleField("signature")}
+                                            title="Toggle Signature visibility on ID card"
                                         >
-                                            <X size={12} /> Clear
+                                            <span className="toggle_handle"></span>
                                         </button>
-                                    )}
-                                </div>
-                                <input 
-                                    type="file" 
-                                    ref={logoInputRef} 
-                                    accept="image/*" 
-                                    className="hidden_file_input"
-                                    onChange={(e) => {
-                                        const file = e.target.files?.[0];
-                                        if (file) handleFileUpload(file, "logo");
-                                    }}
-                                />
-                                <div 
-                                    className={`dropzone_container small_zone ${isDraggingLogo ? "drag_active" : ""}`}
-                                    onDragOver={(e) => { e.preventDefault(); setIsDraggingLogo(true); }}
-                                    onDragLeave={() => setIsDraggingLogo(false)}
-                                    onDrop={(e) => {
-                                        e.preventDefault();
-                                        setIsDraggingLogo(false);
-                                        const file = e.dataTransfer.files?.[0];
-                                        if (file) handleFileUpload(file, "logo");
-                                    }}
-                                    onClick={() => logoInputRef.current?.click()}
-                                >
-                                    {config.logo ? (
-                                        <div className="dropzone_uploaded_preview mini">
-                                            <img src={config.logo} alt="Logo" className="mini_thumb" />
-                                            <span className="file_hint">Logo Set (Click to change)</span>
-                                        </div>
-                                    ) : (
-                                        <div className="dropzone_content mini">
-                                            <UploadCloud size={20} className="cloud_icon" />
-                                            <p className="drop_primary_text">
-                                                Drag and Drop File here <span className="link_text">Choose File</span>
-                                            </p>
-                                            <p className="drop_secondary_text">(JPG, JPEG, PNG)</p>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Signature */}
-                            <div className="input_field_box">
-                                <div className="label_with_actions">
-                                    <label className="field_label_text">Signature</label>
+                                        <span className="toggle_status_hint">
+                                            {config.fields.signature ? "Visible on card" : "Hidden"}
+                                        </span>
+                                    </div>
                                     {config.signature && (
-                                        <button 
-                                            type="button" 
+                                        <button
+                                            type="button"
                                             className="text_clear_btn"
                                             onClick={() => updateConfig("signature", null)}
                                         >
-                                            <X size={12} /> Clear
+                                            <X size={12} /> Clear Signature
                                         </button>
                                     )}
                                 </div>
@@ -1110,8 +1077,8 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
                                         if (file) handleFileUpload(file, "signature");
                                     }}
                                 />
-                                <div 
-                                    className={`dropzone_container small_zone ${isDraggingSig ? "drag_active" : ""}`}
+                                <div
+                                    className={`dropzone_container ${isDraggingSig ? "drag_active" : ""} ${config.signature ? "has_file" : ""}`}
                                     onDragOver={(e) => { e.preventDefault(); setIsDraggingSig(true); }}
                                     onDragLeave={() => setIsDraggingSig(false)}
                                     onDrop={(e) => {
@@ -1123,17 +1090,22 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
                                     onClick={() => sigInputRef.current?.click()}
                                 >
                                     {config.signature ? (
-                                        <div className="dropzone_uploaded_preview mini">
+                                        <div className="dropzone_uploaded_preview">
                                             <img src={config.signature} alt="Signature" className="mini_thumb" />
-                                            <span className="file_hint">Signature Set (Click to change)</span>
+                                            <div className="file_meta_info">
+                                                <p className="file_name">Signature Set</p>
+                                                <span className="file_hint">Click to replace or drag new file</span>
+                                            </div>
                                         </div>
                                     ) : (
-                                        <div className="dropzone_content mini">
-                                            <UploadCloud size={20} className="cloud_icon" />
+                                        <div className="dropzone_content">
+                                            <div className="drop_icon_wrap">
+                                                <UploadCloud size={24} className="cloud_icon" />
+                                            </div>
                                             <p className="drop_primary_text">
                                                 Drag and Drop File here <span className="link_text">Choose File</span>
                                             </p>
-                                            <p className="drop_secondary_text">(JPG, JPEG, PNG)</p>
+                                            <p className="drop_secondary_text">(JPG, JPEG, PNG - Transparent recommended)</p>
                                         </div>
                                     )}
                                 </div>
@@ -1153,8 +1125,21 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
 
                             <div className="fields_toggle_list">
                                 <div className="toggle_row_item">
+                                    <span className="toggle_label">Signature</span>
+                                    <button
+                                        type="button"
+                                        role="switch"
+                                        aria-checked={config.fields.signature}
+                                        className={`ios_toggle_switch ${config.fields.signature ? "on" : "off"}`}
+                                        onClick={() => toggleField("signature")}
+                                    >
+                                        <span className="toggle_handle"></span>
+                                    </button>
+                                </div>
+
+                                <div className="toggle_row_item">
                                     <span className="toggle_label">Admission No</span>
-                                    <button 
+                                    <button
                                         type="button"
                                         role="switch"
                                         aria-checked={config.fields.admissionNo}
@@ -1167,7 +1152,7 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
 
                                 <div className="toggle_row_item">
                                     <span className="toggle_label">Name</span>
-                                    <button 
+                                    <button
                                         type="button"
                                         role="switch"
                                         aria-checked={config.fields.name}
@@ -1180,7 +1165,7 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
 
                                 <div className="toggle_row_item">
                                     <span className="toggle_label">Class</span>
-                                    <button 
+                                    <button
                                         type="button"
                                         role="switch"
                                         aria-checked={config.fields.class}
@@ -1193,7 +1178,7 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
 
                                 <div className="toggle_row_item">
                                     <span className="toggle_label">Father Name</span>
-                                    <button 
+                                    <button
                                         type="button"
                                         role="switch"
                                         aria-checked={config.fields.fatherName}
@@ -1206,7 +1191,7 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
 
                                 <div className="toggle_row_item">
                                     <span className="toggle_label">Mother Name</span>
-                                    <button 
+                                    <button
                                         type="button"
                                         role="switch"
                                         aria-checked={config.fields.motherName}
@@ -1219,7 +1204,7 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
 
                                 <div className="toggle_row_item">
                                     <span className="toggle_label">Address</span>
-                                    <button 
+                                    <button
                                         type="button"
                                         role="switch"
                                         aria-checked={config.fields.address}
@@ -1232,7 +1217,7 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
 
                                 <div className="toggle_row_item">
                                     <span className="toggle_label">Date of Birth</span>
-                                    <button 
+                                    <button
                                         type="button"
                                         role="switch"
                                         aria-checked={config.fields.dob}
@@ -1245,7 +1230,7 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
 
                                 <div className="toggle_row_item">
                                     <span className="toggle_label">Blood group</span>
-                                    <button 
+                                    <button
                                         type="button"
                                         role="switch"
                                         aria-checked={config.fields.bloodGroup}
@@ -1258,7 +1243,7 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
 
                                 <div className="toggle_row_item">
                                     <span className="toggle_label">Phone number</span>
-                                    <button 
+                                    <button
                                         type="button"
                                         role="switch"
                                         aria-checked={config.fields.phone}
@@ -1271,7 +1256,7 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
 
                                 <div className="toggle_row_item">
                                     <span className="toggle_label">ID. No</span>
-                                    <button 
+                                    <button
                                         type="button"
                                         role="switch"
                                         aria-checked={config.fields.idNo}
@@ -1284,7 +1269,7 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
 
                                 <div className="toggle_row_item">
                                     <span className="toggle_label">QR Code / Verification</span>
-                                    <button 
+                                    <button
                                         type="button"
                                         role="switch"
                                         aria-checked={config.fields.qrCode}
@@ -1299,12 +1284,12 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
 
                         {/* Bottom Actions Row */}
                         <div className="designer_bottom_actions">
-                            <SecondaryButton 
-                                title="Reset" 
-                                onClick={handleReset} 
+                            <SecondaryButton
+                                title="Reset"
+                                onClick={handleReset}
                             />
-                            <PrimaryButton 
-                                title="Save ID Card" 
+                            <PrimaryButton
+                                title="Save ID Card"
                                 type="submit"
                                 isLoading={isSaving}
                             />
@@ -1314,8 +1299,8 @@ export const CreateIDCard: React.FC<CreateIDCardProps> = ({
 
                 {/* Right Column: User ID Card Live Preview */}
                 <div className="id_card_preview_card">
-                    <IDCardPreview 
-                        config={config} 
+                    <IDCardPreview
+                        config={config}
                         onChangeConfig={setConfig}
                         selectedProfileId={selectedProfileId}
                         onSelectProfile={setSelectedProfileId}

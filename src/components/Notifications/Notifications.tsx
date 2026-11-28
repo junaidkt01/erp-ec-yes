@@ -2,10 +2,7 @@ import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { X, Bell, Trash2, ArrowRight, RotateCw } from "lucide-react";
-import {
-  useFetchAllNotifications,
-  useDeleteNotification,
-} from "../../hooks/useNotifications";
+import { useFetchAllNotifications, useDeleteNotification } from "../../hooks/useNotifications";
 import "./Notifications.scss";
 
 export interface NotificationItem {
@@ -56,14 +53,7 @@ const formatNotificationTime = (dateStr?: string): string => {
   }
 };
 
-export const Notifications: React.FC<NotificationsProps> = ({
-  onClose,
-  items,
-  onMarkAllAsRead,
-  onItemClick,
-  className = "",
-  isStandalone = false,
-}) => {
+export const Notifications: React.FC<NotificationsProps> = ({ onClose, items, onMarkAllAsRead, onItemClick, className = "", isStandalone = false }) => {
   const navigate = useNavigate();
 
   // Queries & Mutations
@@ -84,8 +74,8 @@ export const Notifications: React.FC<NotificationsProps> = ({
     const rawList = Array.isArray(apiData?.data)
       ? apiData.data
       : Array.isArray(apiData)
-      ? apiData
-      : [];
+        ? apiData
+        : [];
 
     return rawList.map((item: any) => {
       const isUnread =
@@ -158,41 +148,22 @@ export const Notifications: React.FC<NotificationsProps> = ({
   };
 
   return (
-    <div
-      className={`notifications-dropdown ${isStandalone ? "standalone" : ""} ${className}`.trim()}
-      onClick={(e) => e.stopPropagation()}
-    >
+    <div className={`notifications-dropdown ${isStandalone ? "standalone" : ""} ${className}`.trim()} onClick={(e) => e.stopPropagation()} >
       {/* Header */}
       <div className="notifications-header">
         <div className="notifications-header-left">
           <h2 className="notifications-title">Notifications</h2>
-          <button
-            type="button"
-            className="mark-all-read-btn"
-            onClick={handleMarkAllRead}
-            disabled={!hasUnread}
-          >
+          <button type="button" className="mark-all-read-btn" onClick={handleMarkAllRead} disabled={!hasUnread} >
             Mark all as read
           </button>
         </div>
 
         <div className="notifications-header-right">
-          <button
-            type="button"
-            className="refresh-btn"
-            title="Refresh"
-            onClick={() => refetch()}
-            disabled={isFetching}
-          >
+          <button type="button" className="refresh-btn" title="Refresh" onClick={() => refetch()} disabled={isFetching} >
             <RotateCw size={15} className={isFetching ? "animate-spin" : ""} />
           </button>
           {onClose && (
-            <button
-              type="button"
-              className="notifications-close-btn"
-              onClick={onClose}
-              aria-label="Close notifications"
-            >
+            <button type="button" className="notifications-close-btn" onClick={onClose} aria-label="Close notifications" >
               <X size={17} strokeWidth={2} />
             </button>
           )}
@@ -210,12 +181,8 @@ export const Notifications: React.FC<NotificationsProps> = ({
           </div>
         ) : (
           displayList.map((item) => (
-            <div
-              key={item.id}
-              className={`notification-card ${item.isUnread ? "unread" : ""}`}
-              onClick={() => handleItemClick(item)}
-            >
-              <div className="notification-thumb">
+            <div key={item.id} className={`notification-card ${item.isUnread ? "unread" : ""}`} onClick={() => handleItemClick(item)} >
+              <div className="notification-thumb" >
                 {item.thumbnail ? (
                   <img src={item.thumbnail} alt="" />
                 ) : (
@@ -234,12 +201,7 @@ export const Notifications: React.FC<NotificationsProps> = ({
                 </div>
               </div>
 
-              <button
-                type="button"
-                className="notif-delete-btn"
-                title="Delete notification"
-                onClick={(e) => handleDelete(e, item.id)}
-              >
+              <button type="button" className="notif-delete-btn" title="Delete notification" onClick={(e) => handleDelete(e, item.id)} >
                 <Trash2 size={14} />
               </button>
             </div>
